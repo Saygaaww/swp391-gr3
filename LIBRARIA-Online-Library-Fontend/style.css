@@ -11590,7 +11590,7 @@ a:focus {
   color: #ee1c1b;
 }
 .site-footer {
-  background-color: #282828;
+  background-color: #161616;
 }
 .site-footer .tablet-margin-bottom {
   margin-bottom: 20px;
@@ -12226,7 +12226,7 @@ a:focus {
   }
 }
 .layout-v2 .welcome-section .welcome-wrap .welcome-text .btn {
-  color: #fff;
+  color: #C5C5C5;
 }
 @media (max-width: 767px) {
   .layout-v2 .news-events .center-content .lead {
@@ -19168,12 +19168,12 @@ a:focus {
   background-color: #147bd6;
 }
 /* PAGER */
-.bx-wrapper {
+/* .bx-wrapper {
   position: relative;
   margin: 0 auto 72px;
   padding: 0;
   *zoom: 1;
-}
+} */
 .bx-wrapper img {
   max-width: 100%;
   display: block;
@@ -19185,7 +19185,7 @@ a:focus {
   text-align: center;
   line-height: 10px;
 }
-.bx-wrapper .bx-pager .bx-pager-item {
+/* .bx-wrapper .bx-pager .bx-pager-item {
   display: inline-block;
   *zoom: 1;
   *display: inline;
@@ -19199,7 +19199,7 @@ a:focus {
   display: inline-block;
   *zoom: 1;
   *display: inline;
-}
+} */
 .bx-wrapper .bx-pager.bx-default-pager a {
   border: 2px solid #ff7236;
   cursor: pointer;
