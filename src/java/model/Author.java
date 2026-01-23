@@ -2,29 +2,28 @@ package model;
 
 /**
  * Model class đại diện cho tác giả
- * Mapping với bảng authors trong database
- * @author Member E - Dũng
+ * Mapping với bảng Author trong database
  */
 public class Author {
     private int authorId;
     private String authorName;
-    private String biography;
+    private String bio; // Đổi từ biography → bio
     
     // Constructor rỗng
     public Author() {
     }
     
     // Constructor đầy đủ
-    public Author(int authorId, String authorName, String biography) {
+    public Author(int authorId, String authorName, String bio) {
         this.authorId = authorId;
         this.authorName = authorName;
-        this.biography = biography;
+        this.bio = bio;
     }
     
     // Constructor không có ID (dùng khi thêm mới)
-    public Author(String authorName, String biography) {
+    public Author(String authorName, String bio) {
         this.authorName = authorName;
-        this.biography = biography;
+        this.bio = bio;
     }
     
     // Getters và Setters
@@ -44,21 +43,20 @@ public class Author {
         this.authorName = authorName;
     }
     
-    public String getBiography() {
-        return biography;
+    public String getBio() {
+        return bio;
     }
     
-    public void setBiography(String biography) {
-        this.biography = biography;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
     
-    // toString() - Dùng để debug, in ra thông tin
     @Override
     public String toString() {
         return "Author{" +
                 "authorId=" + authorId +
                 ", authorName='" + authorName + '\'' +
-                ", biography='" + biography + '\'' +
+                ", bio='" + bio + '\'' +
                 '}';
     }
 }

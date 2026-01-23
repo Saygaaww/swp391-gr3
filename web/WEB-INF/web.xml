@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+    <servlet>
+        <servlet-name>MockLoginServlet</servlet-name>
+        <servlet-class>controller.admin.MockLoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MockLogoutServlet</servlet-name>
+        <servlet-class>controller.admin.MockLogoutServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminBookListServlet</servlet-name>
+        <servlet-class>controller.admin.AdminBookListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MockLoginServlet</servlet-name>
+        <url-pattern>/MockLoginServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MockLogoutServlet</servlet-name>
+        <url-pattern>/MockLogoutServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminBookListServlet</servlet-name>
+        <url-pattern>/AdminBookListServlet</url-pattern>
+    </servlet-mapping>
+</web-app>
