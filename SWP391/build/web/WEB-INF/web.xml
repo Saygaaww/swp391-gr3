@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee 
+         https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+    
+    <display-name>SWP391 - Digital Library</display-name>
+    
+    <!-- Book Servlet -->
+    <servlet>
+        <servlet-name>BookServlet</servlet-name>
+        <servlet-class>controller.BookServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BookServlet</servlet-name>
+        <url-pattern>/book</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Borrow Request Servlet -->
+    <servlet>
+        <servlet-name>BorrowRequestServlet</servlet-name>
+        <servlet-class>controller.BorrowRequestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BorrowRequestServlet</servlet-name>
+        <url-pattern>/borrow</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Welcome File -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    
+</web-app>
+
