@@ -233,6 +233,24 @@ CREATE TABLE Borrow_Extend (
     CONSTRAINT FK_Extend_ApprovedBy FOREIGN KEY (approved_by_employee_id) REFERENCES Employee(employee_id)
 );
 GO
+
+CREATE TABLE Reservation (
+    reservation_id INT IDENTITY(1,1) PRIMARY KEY,
+    reader_id INT NOT NULL,
+    book_id INT NOT NULL,
+
+    status NVARCHAR(30) NOT NULL, -- pending, active, fulfilled, cancelled, expired
+    reserved_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    expires_at DATETIME2 NULL,
+
+    fulfilled_borrow_item_id INT NULL,
+
+    CONSTRAINT FK_Reservation_Reader FOREIGN KEY (reader_id) REFERENCES Reader(reader_id),
+    CONSTRAINT FK_Reservation_Book FOREIGN KEY (book_id) REFERENCES Book(book_id),
+    CONSTRAINT FK_Reservation_FulfilledBorrowItem FOREIGN KEY (fulfilled_borrow_item_id) REFERENCES Borrow_Item(borrow_item_id)
+);
+GO
+
 CREATE TABLE Fine_Type (
     fine_type_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(50) NOT NULL, -- late_return, lost, damaged
@@ -309,3 +327,6 @@ CREATE TABLE Notification (
     CONSTRAINT FK_Notification_Reader FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 );
 GO
+
+ALTER TABLE Cart_Item
+ADD unit_price DECIMAL(10,2) NOT NULL DEFAULT 0;
