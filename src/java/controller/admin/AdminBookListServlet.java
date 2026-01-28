@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * Servlet hiển thị danh sách sách cho Admin
- * @author Member E - Dũng
  */
 @WebServlet("/books-list")
 public class AdminBookListServlet extends HttpServlet {
@@ -33,7 +32,6 @@ public class AdminBookListServlet extends HttpServlet {
         // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            // ✅ FIX: Redirect đến mock-login SERVLET
             response.sendRedirect(request.getContextPath() + "/mock-login");
             return;
         }
@@ -52,15 +50,15 @@ public class AdminBookListServlet extends HttpServlet {
             request.setAttribute("totalBooks", bookList.size());
             request.setAttribute("currentEmployee", employee);
             
-            // ✅ FIX: Forward đến JSP (ĐÚNG RỒI)
-            request.getRequestDispatcher("/book-list.jsp")
+            // ✅ ĐÚNG: Forward đến /admin/book-list.jsp (vì file nằm trong folder admin)
+            request.getRequestDispatcher("/admin/book-list.jsp")
                    .forward(request, response);
                    
         } catch (Exception e) {
             System.err.println("❌ LỖI: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi khi tải danh sách sách: " + e.getMessage());
-            request.getRequestDispatcher("/book-list.jsp")
+            request.getRequestDispatcher("/admin/book-list.jsp")
                    .forward(request, response);
         }
     }
@@ -93,13 +91,13 @@ public class AdminBookListServlet extends HttpServlet {
             request.setAttribute("totalBooks", bookList.size());
             request.setAttribute("currentEmployee", session.getAttribute("employee"));
             
-            request.getRequestDispatcher("/book-list.jsp")
+            request.getRequestDispatcher("/admin/book-list.jsp")
                    .forward(request, response);
                    
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi tìm kiếm: " + e.getMessage());
-            request.getRequestDispatcher("/book-list.jsp")
+            request.getRequestDispatcher("/admin/book-list.jsp")
                    .forward(request, response);
         }
     }

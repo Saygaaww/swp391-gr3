@@ -13,7 +13,7 @@
             <file>file:/E:/prj301/LibraryManagement/src/java/model/Employee.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBookListServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/dal/BookDAO.java</file>
-            <file>file:/E:/prj301/LibraryManagement/src/java/util/GoogleOAuthUtil.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/admin/book-list.jsp</file>
         </group>
     </open-files>
 </project-private>
