@@ -1,4 +1,3 @@
-
 package dal;
 
 import model.Book;
@@ -272,6 +271,124 @@ public class BookDAO extends DBContext {
             
         } catch (Exception e) {
             System.err.println("❌ Error in getTotalBooks: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Lấy sách theo trang (PHÂN TRANG)
+     * 
+     * GIẢI THÍCH CHO THẦY:
+     * - page: Số trang hiện tại (1, 2, 3, ...)
+     * - pageSize: Số sách mỗi trang (ví dụ: 5)
+     * - offset: Số sách cần bỏ qua = (page - 1) * pageSize
+     * 
+     * Ví dụ: page=2, pageSize=5
+     * → offset = (2-1) * 5 = 5
+     * → Bỏ qua 5 sách đầu, lấy 5 sách tiếp theo (sách 6-10)
+     * 
+     * @param page Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize Số sách mỗi trang
+     * @return List<Book> sách của trang đó
+     */
+    public List<Book> getBooksByPage(int page, int pageSize) {
+        List<Book> books = new ArrayList<>();
+        
+        // Tính offset: số sách cần bỏ qua
+        int offset = (page - 1) * pageSize;
+        
+        // SQL Server dùng OFFSET...FETCH để phân trang
+        String sql = "SELECT b.*, " +
+                     "c.category_name, " +
+                     "a.author_name " +
+                     "FROM Book b " +
+                     "LEFT JOIN Category c ON b.category_id = c.category_id " +
+                     "LEFT JOIN Author a ON b.author_id = a.author_id " +
+                     "ORDER BY b.created_at DESC " +
+                     "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, offset);    // Số dòng bỏ qua
+            ps.setInt(2, pageSize);  // Số dòng lấy
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                books.add(extractBookFromResultSet(rs));
+            }
+            
+            System.out.println("✅ BookDAO: Trang " + page + " - Lấy được " + books.size() + " sách");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in getBooksByPage: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return books;
+    }
+    
+    /**
+     * Tìm kiếm sách có phân trang
+     */
+    public List<Book> searchBooksByPage(String keyword, int page, int pageSize) {
+        List<Book> books = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+        
+        String sql = "SELECT b.*, c.category_name, a.author_name " +
+                     "FROM Book b " +
+                     "LEFT JOIN Category c ON b.category_id = c.category_id " +
+                     "LEFT JOIN Author a ON b.author_id = a.author_id " +
+                     "WHERE b.title LIKE ? OR a.author_name LIKE ? " +
+                     "ORDER BY b.created_at DESC " +
+                     "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setInt(3, offset);
+            ps.setInt(4, pageSize);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                books.add(extractBookFromResultSet(rs));
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in searchBooksByPage: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return books;
+    }
+    
+    /**
+     * Đếm tổng số sách theo keyword
+     */
+    public int countBooksByKeyword(String keyword) {
+        String sql = "SELECT COUNT(*) FROM Book b " +
+                     "LEFT JOIN Author a ON b.author_id = a.author_id " +
+                     "WHERE b.title LIKE ? OR a.author_name LIKE ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error in countBooksByKeyword: " + e.getMessage());
             e.printStackTrace();
         }
         

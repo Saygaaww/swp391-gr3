@@ -13,14 +13,6 @@
         <servlet-class>controller.admin.AdminBookListServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminBookAddServlet</servlet-name>
-        <servlet-class>controller.admin.AdminBookAddServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AdminBookEditServlet</servlet-name>
-        <servlet-class>controller.admin.AdminBookEditServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>AdminBookDeleteServlet</servlet-name>
         <servlet-class>controller.admin.AdminBookDeleteServlet</servlet-class>
     </servlet>
@@ -31,6 +23,10 @@
     <servlet>
         <servlet-name>AdminBorrowApproveServlet</servlet-name>
         <servlet-class>controller.admin.AdminBorrowApproveServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminBookFormServlet</servlet-name>
+        <servlet-class>controller.admin.AdminBookFormServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>MockLoginServlet</servlet-name>
@@ -45,14 +41,6 @@
         <url-pattern>/AdminBookListServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AdminBookAddServlet</servlet-name>
-        <url-pattern>/AdminBookAddServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AdminBookEditServlet</servlet-name>
-        <url-pattern>/AdminBookEditServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>AdminBookDeleteServlet</servlet-name>
         <url-pattern>/AdminBookDeleteServlet</url-pattern>
     </servlet-mapping>
@@ -63,5 +51,9 @@
     <servlet-mapping>
         <servlet-name>AdminBorrowApproveServlet</servlet-name>
         <url-pattern>/AdminBorrowApproveServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminBookFormServlet</servlet-name>
+        <url-pattern>/AdminBookFormServlet</url-pattern>
     </servlet-mapping>
 </web-app>

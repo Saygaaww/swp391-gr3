@@ -4,6 +4,8 @@ import dal.BookDAO;
 import model.Book;
 import model.Employee;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,13 +14,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet hiển thị danh sách sách cho Admin
- */
 @WebServlet("/books-list")
 public class AdminBookListServlet extends HttpServlet {
     
     private BookDAO bookDAO;
+    private static final int PAGE_SIZE = 5;
     
     @Override
     public void init() throws ServletException {
@@ -29,7 +29,6 @@ public class AdminBookListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
@@ -37,29 +36,61 @@ public class AdminBookListServlet extends HttpServlet {
         }
         
         Employee employee = (Employee) session.getAttribute("employee");
-        System.out.println("✅ Employee đã login: " + employee.getFullName());
+        request.setCharacterEncoding("UTF-8");
         
         try {
-            // Lấy danh sách sách
-            List<Book> bookList = bookDAO.getAllBooks();
+            // Lấy page
+            int currentPage = 1;
+            String pageStr = request.getParameter("page");
+            if (pageStr != null && !pageStr.trim().isEmpty()) {
+                try {
+                    currentPage = Integer.parseInt(pageStr);
+                    if (currentPage < 1) currentPage = 1;
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
+            }
             
-            System.out.println("📚 Tìm thấy " + bookList.size() + " sách trong DB");
+            // Lấy keyword
+            String keyword = request.getParameter("keyword");
             
-            // Gửi dữ liệu sang JSP
+            List<Book> bookList;
+            int totalBooks;
+            int totalPages;
+            
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                // CÓ TÌM KIẾM
+                keyword = keyword.trim();
+                totalBooks = bookDAO.countBooksByKeyword(keyword);
+                totalPages = (int) Math.ceil((double) totalBooks / PAGE_SIZE);
+                if (totalPages < 1) totalPages = 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                
+                bookList = bookDAO.searchBooksByPage(keyword, currentPage, PAGE_SIZE);
+                request.setAttribute("keyword", keyword);
+            } else {
+                // KHÔNG TÌM KIẾM
+                totalBooks = bookDAO.getTotalBooks();
+                totalPages = (int) Math.ceil((double) totalBooks / PAGE_SIZE);
+                if (totalPages < 1) totalPages = 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+                
+                bookList = bookDAO.getBooksByPage(currentPage, PAGE_SIZE);
+            }
+            
             request.setAttribute("bookList", bookList);
-            request.setAttribute("totalBooks", bookList.size());
+            request.setAttribute("totalBooks", totalBooks);
+            request.setAttribute("currentPage", currentPage);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("pageSize", PAGE_SIZE);
             request.setAttribute("currentEmployee", employee);
             
-            // ✅ ĐÚNG: Forward đến /admin/book-list.jsp (vì file nằm trong folder admin)
-            request.getRequestDispatcher("/admin/book-list.jsp")
-                   .forward(request, response);
+            request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
                    
         } catch (Exception e) {
-            System.err.println("❌ LỖI: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi khi tải danh sách sách: " + e.getMessage());
-            request.getRequestDispatcher("/admin/book-list.jsp")
-                   .forward(request, response);
+            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
         }
     }
     
@@ -76,29 +107,17 @@ public class AdminBookListServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String keyword = request.getParameter("keyword");
         
-        try {
-            List<Book> bookList;
-            
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                bookList = bookDAO.searchBooks(keyword);
-                request.setAttribute("keyword", keyword);
-                System.out.println("🔍 Tìm kiếm '" + keyword + "': " + bookList.size() + " kết quả");
-            } else {
-                bookList = bookDAO.getAllBooks();
+        String redirectUrl = request.getContextPath() + "/books-list";
+        
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            try {
+                String encodedKeyword = URLEncoder.encode(keyword.trim(), "UTF-8");
+                redirectUrl += "?keyword=" + encodedKeyword;
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
-            
-            request.setAttribute("bookList", bookList);
-            request.setAttribute("totalBooks", bookList.size());
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
-            
-            request.getRequestDispatcher("/admin/book-list.jsp")
-                   .forward(request, response);
-                   
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi tìm kiếm: " + e.getMessage());
-            request.getRequestDispatcher("/admin/book-list.jsp")
-                   .forward(request, response);
         }
+        
+        response.sendRedirect(redirectUrl);
     }
 }
