@@ -1,0 +1,450 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Vai trò - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn-logout {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .btn-logout:hover {
+            background: white;
+            color: #11998e;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .nav-links {
+            margin-bottom: 20px;
+        }
+        
+        .nav-links a {
+            color: #11998e;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 22px;
+            border-bottom: 2px solid #11998e;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        
+        .btn-warning { background: #ffc107; color: #212529; padding: 8px 16px; font-size: 13px; }
+        .btn-warning:hover { background: #e0a800; }
+        
+        .btn-danger { background: #dc3545; color: white; padding: 8px 16px; font-size: 13px; }
+        .btn-danger:hover { background: #c82333; }
+        
+        .role-list {
+            list-style: none;
+        }
+        
+        .role-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #11998e;
+        }
+        
+        .role-info h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .role-info p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .role-info .employee-count {
+            font-size: 13px;
+            color: #11998e;
+            font-weight: 600;
+        }
+        
+        .role-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .badge-admin { background: #dc3545; color: white; }
+        .badge-librarian { background: #17a2b8; color: white; }
+        .badge-seller { background: #28a745; color: white; }
+        .badge-default { background: #6c757d; color: white; }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .role-item {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Quản lý Vai trò</h1>
+            <p>Role Management (RBAC)</p>
+        </div>
+        <div class="header-right">
+            <span>👤 ${currentEmployee.fullName} (${currentEmployee.roleName})</span>
+            <a href="${pageContext.request.contextPath}/mock-logout" class="btn-logout">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-links">
+            <a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
+            <a href="${pageContext.request.contextPath}/books-list">Quản lý Sách</a>
+            <a href="${pageContext.request.contextPath}/admin/readers">Độc giả</a>
+            <a href="${pageContext.request.contextPath}/admin/employees">Nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/roles">Vai trò</a>
+        </div>
+        
+        <!-- Error/Success Messages -->
+        <c:if test="${not empty errorMessage}">
+            <div class="error-message">⚠️ ${errorMessage}</div>
+        </c:if>
+        
+        <c:if test="${param.success == 'added'}">
+            <div class="success-message">✅ Thêm vai trò thành công!</div>
+        </c:if>
+        
+        <div class="content-grid">
+            <!-- Add Role Form -->
+            <div class="card">
+                <h2>Thêm vai trò mới</h2>
+                <form action="${pageContext.request.contextPath}/admin/roles" method="post">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div class="form-group">
+                        <label for="roleName">Tên vai trò *</label>
+                        <input type="text" id="roleName" name="roleName" 
+                               placeholder="VD: MANAGER, STAFF..." required
+                               style="text-transform: uppercase;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Mô tả</label>
+                        <textarea id="description" name="description" rows="3"
+                                  placeholder="Mô tả quyền hạn của vai trò này..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Thêm vai trò</button>
+                </form>
+            </div>
+            
+            <!-- Role List -->
+            <div class="card">
+                <h2>Danh sách vai trò</h2>
+                
+                <c:choose>
+                    <c:when test="${empty roleList}">
+                        <div class="empty-state">
+                            <p>Chưa có vai trò nào trong hệ thống</p>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <ul class="role-list">
+                            <c:forEach var="role" items="${roleList}">
+                                <li class="role-item">
+                                    <div class="role-info">
+                                        <h3>
+                                            ${role.roleName}
+                                            <c:choose>
+                                                <c:when test="${role.roleName == 'ADMIN'}">
+                                                    <span class="role-badge badge-admin">👑</span>
+                                                </c:when>
+                                                <c:when test="${role.roleName == 'LIBRARIAN'}">
+                                                    <span class="role-badge badge-librarian">📚</span>
+                                                </c:when>
+                                                <c:when test="${role.roleName == 'SELLER'}">
+                                                    <span class="role-badge badge-seller">💰</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="role-badge badge-default">🔹</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </h3>
+                                        <p>${not empty role.description ? role.description : 'Chưa có mô tả'}</p>
+                                        <span class="employee-count">👥 ${role.employeeCount} nhân viên</span>
+                                    </div>
+                                    <div class="role-actions">
+                                        <button class="btn btn-warning" 
+                                                onclick="openEditModal(${role.roleId}, '${role.roleName}', '${role.description}')">
+                                            Sửa
+                                        </button>
+                                        <c:if test="${role.employeeCount == 0}">
+                                            <form action="${pageContext.request.contextPath}/admin/roles" method="post" style="display:inline;">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="roleId" value="${role.roleId}">
+                                                <button type="submit" class="btn btn-danger"
+                                                        onclick="return confirm('Bạn có chắc muốn xóa vai trò này?')">
+                                                    Xóa
+                                                </button>
+                                            </form>
+                                        </c:if>
+                                    </div>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sửa vai trò</h3>
+                <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form action="${pageContext.request.contextPath}/admin/roles" method="post">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="roleId" id="editRoleId">
+                
+                <div class="form-group">
+                    <label for="editRoleName">Tên vai trò *</label>
+                    <input type="text" id="editRoleName" name="roleName" required
+                           style="text-transform: uppercase;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editDescription">Mô tả</label>
+                    <textarea id="editDescription" name="description" rows="3"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" style="background: #6c757d; color: white;" 
+                            onclick="closeEditModal()">Hủy</button>
+                    <button type="submit" class="btn btn-success">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openEditModal(roleId, roleName, description) {
+            document.getElementById('editRoleId').value = roleId;
+            document.getElementById('editRoleName').value = roleName;
+            document.getElementById('editDescription').value = description || '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            var modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

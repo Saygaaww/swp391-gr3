@@ -1,9 +1,9 @@
 package controller.admin;
 
 import dal.BookDAO;
-import dal.AuthorDAO;
-import dal.CategoryDAO;
-import dal.BorrowDAO;
+import dal.ReaderDAO;
+import dal.EmployeeDAO;
+import dal.RoleDAO;
 import model.Employee;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -13,67 +13,63 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet Dashboard Admin - Tổng quan hệ thống
- * @author Member E - Dũng
- */
 @WebServlet("/admin/dashboard")
 public class AdminDashboardServlet extends HttpServlet {
     
     private BookDAO bookDAO;
-    private AuthorDAO authorDAO;
-    private CategoryDAO categoryDAO;
-    private BorrowDAO borrowDAO;
+    private ReaderDAO readerDAO;
+    private EmployeeDAO employeeDAO;
+    private RoleDAO roleDAO;
     
     @Override
     public void init() throws ServletException {
         bookDAO = new BookDAO();
-        authorDAO = new AuthorDAO();
-        categoryDAO = new CategoryDAO();
-        borrowDAO = new BorrowDAO();
+        readerDAO = new ReaderDAO();
+        employeeDAO = new EmployeeDAO();
+        roleDAO = new RoleDAO();
+        System.out.println("AdminDashboardServlet initialized");
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
             return;
         }
         
-        Employee employee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("employee");
         
         try {
-            // Lấy thống kê
             int totalBooks = bookDAO.getTotalBooks();
-            int totalAuthors = authorDAO.getTotalAuthors();
-            int totalCategories = categoryDAO.getTotalCategories();
-            int pendingBorrowRequests = borrowDAO.getPendingRequestsCount();
-            int activeBorrows = borrowDAO.getActiveBorrowsCount();
             
-            // Gửi dữ liệu sang JSP
+            int totalReaders = readerDAO.getTotalReaders();
+            int totalEmployees = employeeDAO.getTotalEmployees();
+            int totalRoles = roleDAO.getAllRoles().size();
+            
+            request.setAttribute("currentEmployee", currentEmployee);
+            
             request.setAttribute("totalBooks", totalBooks);
-            request.setAttribute("totalAuthors", totalAuthors);
-            request.setAttribute("totalCategories", totalCategories);
-            request.setAttribute("pendingBorrowRequests", pendingBorrowRequests);
-            request.setAttribute("activeBorrows", activeBorrows);
-            request.setAttribute("currentEmployee", employee);
             
-            System.out.println("📊 Dashboard - Books: " + totalBooks + 
-                             ", Authors: " + totalAuthors + 
-                             ", Categories: " + totalCategories);
+            request.setAttribute("totalReaders", totalReaders);
+            request.setAttribute("totalEmployees", totalEmployees);
+            request.setAttribute("totalRoles", totalRoles);
             
-            request.getRequestDispatcher("/admin/dashboard.jsp")
-                   .forward(request, response);
-                   
+            request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
+            
         } catch (Exception e) {
+            System.err.println("AdminDashboardServlet Error: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi khi tải dashboard: " + e.getMessage());
-            request.getRequestDispatcher("/admin/dashboard.jsp")
-                   .forward(request, response);
+            
+            request.setAttribute("currentEmployee", currentEmployee);
+            request.setAttribute("totalBooks", 0);
+            request.setAttribute("totalReaders", 0);
+            request.setAttribute("totalEmployees", 0);
+            request.setAttribute("totalRoles", 0);
+            
+            request.getRequestDispatcher("/admin/dashboard.jsp").forward(request, response);
         }
     }
 }

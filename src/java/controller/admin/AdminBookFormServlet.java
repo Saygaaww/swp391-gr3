@@ -7,49 +7,55 @@ import model.Book;
 import model.Author;
 import model.Category;
 import model.Employee;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 
 /**
- * Servlet DÙNG CHUNG cho Thêm và Sửa sách
- * 1. doGet(): Hiển thị form
- *    - Nếu có ?id=X → Chế độ SỬA (load data từ DB)
- *    - Nếu không có id → Chế độ THÊM (form trống)
+ * Servlet Thêm/Sửa sách (có upload ảnh bìa)
  * 
- * 2. doPost(): Xử lý submit form
- *    - Nếu có bookId (hidden field) → UPDATE database
- *    - Nếu không có bookId → INSERT database
+ * @author Member E - Dũng
  */
 @WebServlet("/admin/book-form")
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024,
+    maxFileSize = 1024 * 1024 * 5,
+    maxRequestSize = 1024 * 1024 * 10
+)
 public class AdminBookFormServlet extends HttpServlet {
     
     private BookDAO bookDAO;
     private AuthorDAO authorDAO;
     private CategoryDAO categoryDAO;
     
+    private static final String UPLOAD_DIR = "uploads/covers";
+    
     @Override
     public void init() throws ServletException {
         bookDAO = new BookDAO();
         authorDAO = new AuthorDAO();
         categoryDAO = new CategoryDAO();
-        System.out.println("✅ AdminBookFormServlet initialized");
+        System.out.println("AdminBookFormServlet initialized with file upload");
     }
     
-    /**
-     * GET - Hiển thị form thêm hoặc sửa sách
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // BƯỚC 1: Kiểm tra đăng nhập
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
@@ -57,33 +63,33 @@ public class AdminBookFormServlet extends HttpServlet {
         }
         
         try {
-            // BƯỚC 2: Kiểm tra có ID không để xác định chế độ
             String idStr = request.getParameter("id");
             Book book = null;
             String mode = "add";
             
             if (idStr != null && !idStr.trim().isEmpty()) {
-                // CHẾ ĐỘ SỬA
                 int bookId = Integer.parseInt(idStr);
+                
+                if (bookId <= 0 || bookId > 999999999) {
+                    response.sendRedirect(request.getContextPath() + "/books-list");
+                    return;
+                }
+                
                 book = bookDAO.getBookById(bookId);
                 
                 if (book == null) {
                     response.sendRedirect(request.getContextPath() + "/books-list");
                     return;
                 }
+                
                 mode = "edit";
-                System.out.println("📝 CHẾ ĐỘ SỬA - Book ID: " + bookId);
             } else {
-                // CHẾ ĐỘ THÊM
                 book = new Book();
-                System.out.println("➕ CHẾ ĐỘ THÊM MỚI");
             }
             
-            // BƯỚC 3: Lấy danh sách tác giả và danh mục
             List<Author> authors = authorDAO.getAllAuthors();
             List<Category> categories = categoryDAO.getAllCategories();
             
-            // BƯỚC 4: Đẩy dữ liệu sang JSP
             request.setAttribute("book", book);
             request.setAttribute("mode", mode);
             request.setAttribute("authors", authors);
@@ -100,9 +106,6 @@ public class AdminBookFormServlet extends HttpServlet {
         }
     }
     
-    /**
-     * POST - Xử lý submit form (Thêm hoặc Cập nhật)
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -118,15 +121,24 @@ public class AdminBookFormServlet extends HttpServlet {
         try {
             Employee employee = (Employee) session.getAttribute("employee");
             
-            // Kiểm tra THÊM hay SỬA
+            BigDecimal maxPriceFromDB = bookDAO.getMaxPrice();
+            int maxPagesFromDB = bookDAO.getMaxTotalPages();
+            BigDecimal maxPriceAllowed = maxPriceFromDB.multiply(new BigDecimal("1.2"));
+            int maxPagesAllowed = (int) (maxPagesFromDB * 1.2);
+            
+            if (maxPriceAllowed.compareTo(new BigDecimal("1000000")) < 0) {
+                maxPriceAllowed = new BigDecimal("100000000");
+            }
+            if (maxPagesAllowed < 1000) {
+                maxPagesAllowed = 10000;
+            }
+            
             String bookIdStr = request.getParameter("bookId");
             boolean isEdit = (bookIdStr != null && !bookIdStr.trim().isEmpty());
             
-            // Lấy dữ liệu từ form
             String title = request.getParameter("title");
             String summary = request.getParameter("summary");
             String description = request.getParameter("description");
-            String coverUrl = request.getParameter("coverUrl");
             String contentPath = request.getParameter("contentPath");
             String priceStr = request.getParameter("price");
             String currency = request.getParameter("currency");
@@ -135,89 +147,222 @@ public class AdminBookFormServlet extends HttpServlet {
             String status = request.getParameter("status");
             String authorIdStr = request.getParameter("authorId");
             String categoryIdStr = request.getParameter("categoryId");
+            String oldCoverUrl = request.getParameter("oldCoverUrl");
             
-            // Validate
+            String coverUrl = oldCoverUrl;
+            
+            Part filePart = request.getPart("coverFile");
+            if (filePart != null && filePart.getSize() > 0) {
+                String fileName = getFileName(filePart);
+                
+                if (fileName != null && !fileName.isEmpty()) {
+                    String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+                    
+                    if (fileExt.equals("jpg") || fileExt.equals("jpeg") || 
+                        fileExt.equals("png") || fileExt.equals("gif")) {
+                        
+                        String newFileName = UUID.randomUUID().toString() + "." + fileExt;
+                        
+                        String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
+                        
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdirs();
+                        }
+                        
+                        String filePath = uploadPath + File.separator + newFileName;
+                        try (InputStream input = filePart.getInputStream()) {
+                            Files.copy(input, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+                        }
+                       
+                        coverUrl = UPLOAD_DIR + "/" + newFileName;
+                        
+                        System.out.println("Upload anh thanh cong: " + coverUrl);
+                        
+                    } else {
+                        request.setAttribute("error", "Chi chap nhan file anh JPG, PNG, GIF!");
+                        reloadFormWithError(request, response, isEdit, bookIdStr);
+                        return;
+                    }
+                }
+            }
+            
+            StringBuilder errors = new StringBuilder();
+            
             if (title == null || title.trim().isEmpty()) {
-                request.setAttribute("error", "Tên sách không được để trống!");
+                errors.append("Ten sach khong duoc de trong. ");
+            } else if (title.trim().length() > 500) {
+                errors.append("Ten sach khong duoc qua 500 ky tu. ");
+            }
+            
+            BigDecimal price = BigDecimal.ZERO;
+            if (priceStr != null && !priceStr.trim().isEmpty()) {
+                try {
+                    price = new BigDecimal(priceStr.trim());
+                    if (price.compareTo(BigDecimal.ZERO) < 0) {
+                        errors.append("Gia tien khong duoc am. ");
+                    }
+                    if (price.compareTo(maxPriceAllowed) > 0) {
+                        errors.append("Gia tien khong duoc vuot qua " + maxPriceAllowed.toBigInteger() + " VND. ");
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("Gia tien khong hop le. ");
+                }
+            }
+            
+            int totalPages = 0;
+            if (totalPagesStr != null && !totalPagesStr.trim().isEmpty()) {
+                try {
+                    totalPages = Integer.parseInt(totalPagesStr.trim());
+                    if (totalPages < 1) {
+                        errors.append("So trang phai lon hon 0. ");
+                    }
+                    if (totalPages > maxPagesAllowed) {
+                        errors.append("So trang khong duoc vuot qua " + maxPagesAllowed + ". ");
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("So trang khong hop le. ");
+                }
+            }
+            
+            int previewPages = 0;
+            if (previewPagesStr != null && !previewPagesStr.trim().isEmpty()) {
+                try {
+                    previewPages = Integer.parseInt(previewPagesStr.trim());
+                    if (previewPages < 0) {
+                        errors.append("So trang xem truoc khong duoc am. ");
+                    }
+                    if (previewPages > totalPages && totalPages > 0) {
+                        errors.append("So trang xem truoc khong duoc lon hon tong so trang. ");
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("So trang xem truoc khong hop le. ");
+                }
+            }
+            
+            int authorId = 0;
+            if (authorIdStr != null && !authorIdStr.trim().isEmpty()) {
+                try {
+                    authorId = Integer.parseInt(authorIdStr.trim());
+                    if (authorId > 0) {
+                        Author author = authorDAO.getAuthorById(authorId);
+                        if (author == null) {
+                            errors.append("Tac gia khong ton tai. ");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("ID tac gia khong hop le. ");
+                }
+            }
+            
+            int categoryId = 0;
+            if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
+                try {
+                    categoryId = Integer.parseInt(categoryIdStr.trim());
+                    if (categoryId > 0) {
+                        Category category = categoryDAO.getCategoryById(categoryId);
+                        if (category == null) {
+                            errors.append("Danh muc khong ton tai. ");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("ID danh muc khong hop le. ");
+                }
+            }
+            
+            if (status != null && !status.isEmpty()) {
+                if (!status.equals("active") && !status.equals("inactive") && !status.equals("draft")) {
+                    status = "active";
+                }
+            }
+            
+            int bookId = 0;
+            if (isEdit) {
+                try {
+                    bookId = Integer.parseInt(bookIdStr.trim());
+                    if (bookId > 0) {
+                        Book existingBook = bookDAO.getBookById(bookId);
+                        if (existingBook == null) {
+                            errors.append("Sach khong ton tai. ");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    errors.append("ID sach khong hop le. ");
+                }
+            }
+            
+            if (errors.length() > 0) {
+                request.setAttribute("error", errors.toString());
                 reloadFormWithError(request, response, isEdit, bookIdStr);
                 return;
             }
             
-            // Tạo object Book
             Book book = new Book();
             book.setTitle(title.trim());
-            book.setSummary(summary);
+            book.setSummary(summary != null ? summary.trim() : null);
             book.setDescription(description);
             book.setCoverUrl(coverUrl);
             book.setContentPath(contentPath);
-            
-            if (priceStr != null && !priceStr.trim().isEmpty()) {
-                book.setPrice(new BigDecimal(priceStr));
-            }
-            
+            book.setPrice(price);
             book.setCurrency(currency != null && !currency.isEmpty() ? currency : "VND");
-            
-            if (totalPagesStr != null && !totalPagesStr.trim().isEmpty()) {
-                book.setTotalPages(Integer.parseInt(totalPagesStr));
-            }
-            
-            if (previewPagesStr != null && !previewPagesStr.trim().isEmpty()) {
-                book.setPreviewPages(Integer.parseInt(previewPagesStr));
-            }
-            
+            book.setTotalPages(totalPages);
+            book.setPreviewPages(previewPages);
             book.setStatus(status != null && !status.isEmpty() ? status : "active");
+            book.setAuthorId(authorId);
+            book.setCategoryId(categoryId);
             
-            if (authorIdStr != null && !authorIdStr.trim().isEmpty()) {
-                book.setAuthorId(Integer.parseInt(authorIdStr));
-            }
-            
-            if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
-                book.setCategoryId(Integer.parseInt(categoryIdStr));
-            }
-            
-            // Gọi DAO
             boolean success;
             
             if (isEdit) {
-                book.setBookId(Integer.parseInt(bookIdStr));
+                book.setBookId(bookId);
                 book.setUpdatedByEmployeeId(employee.getEmployeeId());
                 success = bookDAO.updateBook(book);
-                System.out.println(success ? "✅ UPDATE thành công" : "❌ UPDATE thất bại");
             } else {
                 book.setCreatedByEmployeeId(employee.getEmployeeId());
                 success = bookDAO.addBook(book);
-                System.out.println(success ? "✅ INSERT thành công" : "❌ INSERT thất bại");
             }
             
             if (success) {
                 response.sendRedirect(request.getContextPath() + "/books-list");
             } else {
-                request.setAttribute("error", "Không thể lưu sách. Vui lòng thử lại!");
+                request.setAttribute("error", "Khong the luu sach. Vui long thu lai!");
                 reloadFormWithError(request, response, isEdit, bookIdStr);
             }
             
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Dữ liệu số không hợp lệ!");
-            reloadFormWithError(request, response, false, null);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi hệ thống: " + e.getMessage());
-            reloadFormWithError(request, response, false, null);
+            request.setAttribute("error", "Loi he thong: " + e.getMessage());
+            request.setAttribute("mode", "add");
+            request.setAttribute("book", new Book());
+            request.setAttribute("authors", authorDAO.getAllAuthors());
+            request.setAttribute("categories", categoryDAO.getAllCategories());
+            request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
         }
     }
     
-    /**
-     * Helper: Load lại form khi có lỗi
-     */
+    private String getFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        String[] tokens = contentDisp.split(";");
+        for (String token : tokens) {
+            if (token.trim().startsWith("filename")) {
+                return token.substring(token.indexOf("=") + 2, token.length() - 1);
+            }
+        }
+        return null;
+    }
+    
     private void reloadFormWithError(HttpServletRequest request, HttpServletResponse response,
                                      boolean isEdit, String bookIdStr) 
             throws ServletException, IOException {
         
-        if (isEdit && bookIdStr != null) {
+        if (isEdit && bookIdStr != null && !bookIdStr.isEmpty()) {
+            try {
+                Book existingBook = bookDAO.getBookById(Integer.parseInt(bookIdStr));
+                request.setAttribute("book", existingBook != null ? existingBook : new Book());
+            } catch (NumberFormatException e) {
+                request.setAttribute("book", new Book());
+            }
             request.setAttribute("mode", "edit");
-            Book existingBook = bookDAO.getBookById(Integer.parseInt(bookIdStr));
-            request.setAttribute("book", existingBook);
         } else {
             request.setAttribute("mode", "add");
             request.setAttribute("book", new Book());

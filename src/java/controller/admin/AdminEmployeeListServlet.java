@@ -1,7 +1,6 @@
 package controller.admin;
 
-import dal.BookDAO;
-import model.Book;
+import dal.EmployeeDAO;
 import model.Employee;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -14,43 +13,65 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet hiển thị danh sách sách cho Admin
- * Chức năng: Xem danh sách, phân trang, tìm kiếm
- * 
- * @author Member E - Dũng
- */
-@WebServlet("/books-list")
-public class AdminBookListServlet extends HttpServlet {
+@WebServlet("/admin/employees")
+public class AdminEmployeeListServlet extends HttpServlet {
     
-    private BookDAO bookDAO;
-    private static final int PAGE_SIZE = 5; // Số sách mỗi trang
+    private EmployeeDAO employeeDAO;
+    private static final int PAGE_SIZE = 5;
     
     @Override
     public void init() throws ServletException {
-        bookDAO = new BookDAO();
-        System.out.println("AdminBookListServlet initialized - PAGE_SIZE: " + PAGE_SIZE);
+        employeeDAO = new EmployeeDAO();
+        System.out.println("AdminEmployeeListServlet initialized");
     }
     
-    /**
-     * GET - Hiển thị danh sách sách + Phân trang + Tìm kiếm
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
             return;
         }
         
-        Employee employee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("employee");
         request.setCharacterEncoding("UTF-8");
         
+        String action = request.getParameter("action");
+        String idStr = request.getParameter("id");
+        
+        if (action != null && idStr != null) {
+            try {
+                int empId = Integer.parseInt(idStr);
+                
+                if (empId == currentEmployee.getEmployeeId()) {
+                    System.err.println("Khong the tu khoa chinh minh!");
+                    request.setAttribute("errorMessage", "Bạn không thể khóa chính mình!");
+                } 
+                else {
+                    Employee targetEmployee = employeeDAO.getEmployeeById(empId);
+                    
+                    if (targetEmployee != null && "ADMIN".equalsIgnoreCase(targetEmployee.getRoleName())) {
+                        System.err.println("Khong the khoa tai khoan ADMIN!");
+                        request.setAttribute("errorMessage", "Không thể khóa tài khoản ADMIN!");
+                    } else {
+                        if ("block".equals(action)) {
+                            employeeDAO.updateEmployeeStatus(empId, "blocked");
+                            System.out.println("Blocked employee ID: " + empId);
+                        } else if ("unblock".equals(action)) {
+                            employeeDAO.updateEmployeeStatus(empId, "active");
+                            System.out.println("Unblocked employee ID: " + empId);
+                        }
+                    }
+                }
+                
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid employee ID: " + idStr);
+            }
+        }
+        
         try {
-            // Lấy số trang hiện tại (mặc định = 1)
             int currentPage = 1;
             String pageStr = request.getParameter("page");
             if (pageStr != null && !pageStr.trim().isEmpty()) {
@@ -64,58 +85,41 @@ public class AdminBookListServlet extends HttpServlet {
             
             String keyword = request.getParameter("keyword");
             
-            List<Book> bookList;
-            int totalBooks;
+            List<Employee> employeeList;
+            int totalEmployees;
             int totalPages;
             
             if (keyword != null && !keyword.trim().isEmpty()) {
-                // CHUẨN HÓA KEYWORD: trim + bỏ khoảng trắng thừa
-                keyword = keyword.trim().replaceAll("\\s+", " ");
-                
-                bookList = bookDAO.searchBooks(keyword);
-                totalBooks = bookList.size();
-                
-                totalPages = (int) Math.ceil((double) totalBooks / PAGE_SIZE);
+                keyword = keyword.trim();
+                totalEmployees = employeeDAO.countEmployeesByKeyword(keyword);
+                totalPages = (int) Math.ceil((double) totalEmployees / PAGE_SIZE);
                 if (totalPages < 1) totalPages = 1;
                 if (currentPage > totalPages) currentPage = totalPages;
                 
-                int fromIndex = (currentPage - 1) * PAGE_SIZE;
-                int toIndex = Math.min(fromIndex + PAGE_SIZE, totalBooks);
-                
-                if (fromIndex < totalBooks) {
-                    bookList = bookList.subList(fromIndex, toIndex);
-                } else {
-                    bookList = bookList.subList(0, Math.min(PAGE_SIZE, totalBooks));
-                }
-                
+                employeeList = employeeDAO.searchEmployeesByPage(keyword, currentPage, PAGE_SIZE);
                 request.setAttribute("keyword", keyword);
-                System.out.println("Tim kiem '" + keyword + "': " + totalBooks + " ket qua, trang " + currentPage);
-                
             } else {
-                totalBooks = bookDAO.getTotalBooks();
-                totalPages = (int) Math.ceil((double) totalBooks / PAGE_SIZE);
+                totalEmployees = employeeDAO.getTotalEmployees();
+                totalPages = (int) Math.ceil((double) totalEmployees / PAGE_SIZE);
                 if (totalPages < 1) totalPages = 1;
                 if (currentPage > totalPages) currentPage = totalPages;
                 
-                bookList = bookDAO.getBooksByPage(currentPage, PAGE_SIZE);
-                
-                System.out.println("Danh sach sach: Trang " + currentPage + "/" + totalPages);
+                employeeList = employeeDAO.getEmployeesByPage(currentPage, PAGE_SIZE);
             }
             
-            request.setAttribute("bookList", bookList);
-            request.setAttribute("totalBooks", totalBooks);
+            request.setAttribute("employeeList", employeeList);
+            request.setAttribute("totalEmployees", totalEmployees);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("pageSize", PAGE_SIZE);
-            request.setAttribute("currentEmployee", employee);
+            request.setAttribute("currentEmployee", currentEmployee);
             
-            request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
-                   
+            request.getRequestDispatcher("/admin/employee-list.jsp").forward(request, response);
+            
         } catch (Exception e) {
-            System.err.println("AdminBookListServlet Error: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
-            request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/employee-list.jsp").forward(request, response);
         }
     }
     
@@ -130,16 +134,13 @@ public class AdminBookListServlet extends HttpServlet {
         }
         
         request.setCharacterEncoding("UTF-8");
-        
         String keyword = request.getParameter("keyword");
         
-        String redirectUrl = request.getContextPath() + "/books-list";
+        String redirectUrl = request.getContextPath() + "/admin/employees";
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            keyword = keyword.trim().replaceAll("\\s+", " ");
-            
             try {
-                String encodedKeyword = URLEncoder.encode(keyword, "UTF-8");
+                String encodedKeyword = URLEncoder.encode(keyword.trim(), "UTF-8");
                 redirectUrl += "?keyword=" + encodedKeyword;
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

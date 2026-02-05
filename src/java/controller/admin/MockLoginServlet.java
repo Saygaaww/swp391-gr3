@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * MOCK LOGIN - CHỈ DÙNG CHO INTER 1
+ * MOCK LOGIN - CHỈ DÙNG CHO INTER 1, 2
  * XÓA KHI GHÉP VỚI LOGIN THẬT (Member A)
  * @author Member E - Dũng
  */
@@ -23,8 +23,8 @@ public class MockLoginServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
-            // ✅ FIX: Chuyển đến SERVLET, không phải JSP
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            // Đã đăng nhập -> chuyển đến Dashboard
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
         
@@ -79,12 +79,12 @@ public class MockLoginServlet extends HttpServlet {
         session.setAttribute("employeeName", mockEmployee.getFullName());
         
         System.out.println("=================================");
-        System.out.println("✅ MOCK LOGIN THÀNH CÔNG");
+        System.out.println("MOCK LOGIN THANH CONG");
         System.out.println("Role: " + mockEmployee.getRoleName());
         System.out.println("Name: " + mockEmployee.getFullName());
         System.out.println("=================================");
         
-        // ✅ FIX: Chuyển đến SERVLET /books-list
-        response.sendRedirect(request.getContextPath() + "/books-list");
+        // Sau đăng nhập -> chuyển đến Dashboard
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard");
     }
 }

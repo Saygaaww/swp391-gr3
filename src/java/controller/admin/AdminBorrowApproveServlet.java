@@ -12,10 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet duyệt yêu cầu mượn sách
- * @author Member E - Dũng
- */
+
 @WebServlet("/admin/borrow-approve")
 public class AdminBorrowApproveServlet extends HttpServlet {
     
@@ -26,14 +23,11 @@ public class AdminBorrowApproveServlet extends HttpServlet {
         borrowDAO = new BorrowDAO();
     }
     
-    /**
-     * GET - Hiển thị danh sách yêu cầu chờ duyệt
-     */
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
@@ -41,7 +35,6 @@ public class AdminBorrowApproveServlet extends HttpServlet {
         }
         
         try {
-            // Lấy danh sách yêu cầu chờ duyệt
             List<BorrowRequest> pendingRequests = borrowDAO.getPendingRequests();
             
             request.setAttribute("pendingRequests", pendingRequests);
@@ -59,9 +52,6 @@ public class AdminBorrowApproveServlet extends HttpServlet {
         }
     }
     
-    /**
-     * POST - Xử lý duyệt/từ chối yêu cầu
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

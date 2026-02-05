@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
         
-        /* ========== HEADER ========== */
         .header {
             background: #5a5a5a;
             color: white;
@@ -87,7 +86,6 @@
             padding: 0 20px;
         }
         
-        /* ========== TOOLBAR ========== */
         .toolbar {
             background: white;
             padding: 25px;
@@ -123,7 +121,6 @@
             box-shadow: 0 0 0 3px rgba(136, 136, 136, 0.1);
         }
         
-        /* ========== BUTTONS ========== */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -450,7 +447,7 @@
     <!-- ========== HEADER ========== -->
     <div class="header">
         <div class="header-left">
-            <h1>📚 Quản lý Sách</h1>
+            <h1>Quản lý Sách</h1>
             <p>Digital Library Management System</p>
         </div>
         <div class="header-right">
@@ -464,10 +461,8 @@
         </div>
     </div>
     
-    <!-- ========== MAIN CONTAINER ========== -->
     <div class="container">
         
-        <!-- ========== STATS CARD ========== -->
         <div class="stats-card">
             <div class="stat-item">
                 <h3>${totalBooks}</h3>
@@ -475,11 +470,11 @@
             </div>
             <div class="stat-item">
                 <h3>${currentPage} / ${totalPages}</h3>
-                <p>📄 Trang hiện tại</p>
+                <p> Trang hiện tại</p>
             </div>
             <div class="stat-item">
                 <h3>${pageSize}</h3>
-                <p>📋 Sách mỗi trang</p>
+                <p> Sách mỗi trang</p>
             </div>
             <c:if test="${not empty keyword}">
                 <div class="stat-item">
@@ -489,7 +484,6 @@
             </c:if>
         </div>
         
-        <!-- ========== TOOLBAR ========== -->
         <div class="toolbar">
             <form action="${pageContext.request.contextPath}/books-list" method="get" class="search-box">
                 <input 
@@ -503,16 +497,15 @@
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="${pageContext.request.contextPath}/books-list" class="btn btn-info">
-                    🔄 Làm mới
+                    Làm mới
                 </a>
-                <!-- Link đến form gộp (thêm/sửa) -->
+
                 <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                    ➕ Thêm sách mới
+                    Thêm sách mới
                 </a>
             </div>
         </div>
         
-        <!-- ========== TABLE ========== -->
         <div class="table-container">
             <c:choose>
                 <c:when test="${empty bookList}">
@@ -530,12 +523,12 @@
                             </c:choose>
                         </p>
                         <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                            ➕ Thêm sách đầu tiên
+                            Thêm sách đầu tiên
                         </a>
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <!-- Data Table -->
+
                     <table>
                         <thead>
                             <tr>
@@ -589,26 +582,26 @@
                                     <td>
                                         <c:choose>
                                             <c:when test="${book.status == 'active'}">
-                                                <span class="status-badge status-active">✓ Active</span>
+                                                <span class="status-badge status-active">Active</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="status-badge status-inactive">✗ Inactive</span>
+                                                <span class="status-badge status-inactive">Inactive</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
                                         <div class="actions">
-                                            <!-- Link đến form gộp với id (chế độ sửa) -->
+                                            
                                             <a href="${pageContext.request.contextPath}/admin/book-form?id=${book.bookId}" 
                                                class="btn btn-warning" 
                                                title="Sửa sách">
-                                                ✏️ Sửa
+                                                Sửa
                                             </a>
                                             <a href="${pageContext.request.contextPath}/admin/book-delete?id=${book.bookId}" 
                                                class="btn btn-danger" 
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sách này?\n\nTên sách: ${book.title}')"
                                                title="Xóa sách">
-                                                🗑️ Xóa
+                                                Xóa
                                             </a>
                                         </div>
                                     </td>
@@ -620,7 +613,6 @@
             </c:choose>
         </div>
         
-        <!-- ========== PAGINATION ========== -->
         <c:if test="${totalPages > 1}">
             <div class="pagination-container">
                 <div class="pagination-info">
@@ -632,7 +624,6 @@
                 </div>
                 
                 <div class="pagination">
-                    <!-- Nút Trang đầu -->
                     <c:choose>
                         <c:when test="${currentPage > 1}">
                             <a href="${pageContext.request.contextPath}/books-list?page=1${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
@@ -645,20 +636,18 @@
                         </c:otherwise>
                     </c:choose>
                     
-                    <!-- Nút Previous -->
                     <c:choose>
                         <c:when test="${currentPage > 1}">
                             <a href="${pageContext.request.contextPath}/books-list?page=${currentPage - 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}"
                                title="Trang trước">
-                                ← Trước
+                                Trước
                             </a>
                         </c:when>
                         <c:otherwise>
-                            <span class="disabled">← Trước</span>
+                            <span class="disabled">Trước</span>
                         </c:otherwise>
                     </c:choose>
                     
-                    <!-- Các số trang -->
                     <c:forEach begin="1" end="${totalPages}" var="i">
                         <c:choose>
                             <c:when test="${i == currentPage}">
@@ -672,20 +661,18 @@
                         </c:choose>
                     </c:forEach>
                     
-                    <!-- Nút Next -->
                     <c:choose>
                         <c:when test="${currentPage < totalPages}">
                             <a href="${pageContext.request.contextPath}/books-list?page=${currentPage + 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}"
                                title="Trang sau">
-                                Sau →
+                                Sau
                             </a>
                         </c:when>
                         <c:otherwise>
-                            <span class="disabled">Sau →</span>
+                            <span class="disabled">Sau</span>
                         </c:otherwise>
                     </c:choose>
                     
-                    <!-- Nút Trang cuối -->
                     <c:choose>
                         <c:when test="${currentPage < totalPages}">
                             <a href="${pageContext.request.contextPath}/books-list?page=${totalPages}${not empty keyword ? '&keyword='.concat(keyword) : ''}"

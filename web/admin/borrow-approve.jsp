@@ -225,7 +225,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>✅ Duyệt yêu cầu mượn sách</h1>
+        <h1>Duyệt yêu cầu mượn sách</h1>
         <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn-back">
             ← Dashboard
         </a>
@@ -261,18 +261,18 @@
                             
                             <div class="request-info">
                                 <div class="info-item">
-                                    <span class="info-label">👤 Độc giả</span>
+                                    <span class="info-label">Độc giả</span>
                                     <span class="info-value">${req.readerName}</span>
                                 </div>
                                 <div class="info-item">
-                                    <span class="info-label">📧 Email</span>
+                                    <span class="info-label">Email</span>
                                     <span class="info-value">${req.readerEmail}</span>
                                 </div>
                             </div>
                             
                             <c:if test="${not empty req.note}">
                                 <div class="request-note">
-                                    <strong>📝 Ghi chú từ độc giả:</strong>
+                                    <strong>Ghi chú từ độc giả:</strong>
                                     <p>${req.note}</p>
                                 </div>
                             </c:if>
@@ -283,7 +283,7 @@
                                     <input type="hidden" name="requestId" value="${req.requestId}">
                                     <input type="hidden" name="action" value="approve">
                                     <button type="submit" class="btn btn-approve">
-                                        ✅ Duyệt
+                                        Duyệt
                                     </button>
                                 </form>
                                 
@@ -293,7 +293,7 @@
                                     <input type="hidden" name="action" value="reject">
                                     <button type="submit" class="btn btn-reject" 
                                             onclick="return confirm('Bạn có chắc muốn từ chối yêu cầu này?')">
-                                        ❌ Từ chối
+                                        Từ chối
                                     </button>
                                 </form>
                             </div>
