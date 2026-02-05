@@ -39,16 +39,23 @@
                 margin-bottom: 30px;
             }
             
-            .book-cover-large {
-                width: 300px;
-                height: 400px;
-                object-fit: cover;
+            .book-cover-wrapper {
+                width: 220px;
+                height: 320px;
+                flex-shrink: 0;
                 border-radius: 10px;
+                overflow: hidden;
                 background-color: #e0e0e0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                flex-shrink: 0;
+            }
+            
+            .book-cover-wrapper img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
             }
             
             .book-details {
@@ -149,11 +156,10 @@
         <div class="container">
             <c:if test="${not empty book}">
                 <div class="book-header">
-                    <div class="book-cover-large">
+                    <div class="book-cover-wrapper">
                         <c:choose>
                             <c:when test="${not empty book.coverUrl}">
-                                <img src="<c:out value='${book.coverUrl}'/>" alt="<c:out value='${book.title}'/>" 
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                                <img src="<%=request.getContextPath()%>${book.coverUrl}" alt="${book.title}" />
                             </c:when>
                             <c:otherwise>
                                 <span style="font-size: 80px;">📖</span>

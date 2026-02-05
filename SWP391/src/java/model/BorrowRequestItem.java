@@ -5,6 +5,8 @@ public class BorrowRequestItem {
     private int requestId;
     private int bookId;
     private int quantity;
+    private Book book; // For display
+    private int availableCopies; // For display
 
     public BorrowRequestItem() {
     }
@@ -46,6 +48,22 @@ public class BorrowRequestItem {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
+    public int getAvailableCopies() {
+        return availableCopies;
+    }
+
+    public void setAvailableCopies(int availableCopies) {
+        this.availableCopies = availableCopies;
     }
 }
 

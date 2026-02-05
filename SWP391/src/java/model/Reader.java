@@ -1,6 +1,6 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class Reader {
     private int readerId;
@@ -10,14 +10,14 @@ public class Reader {
     private String phone;
     private String avatar;
     private String status;
-    private Timestamp createdAt;
+    private Date createdAt;
     private int roleId;
 
     public Reader() {
     }
 
     public Reader(int readerId, String fullName, String email, String passwordHash, String phone, 
-                  String avatar, String status, Timestamp createdAt, int roleId) {
+                  String avatar, String status, Date createdAt, int roleId) {
         this.readerId = readerId;
         this.fullName = fullName;
         this.email = email;
@@ -85,11 +85,11 @@ public class Reader {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 

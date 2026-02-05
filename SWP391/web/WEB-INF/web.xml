@@ -27,6 +27,36 @@
         <url-pattern>/borrow</url-pattern>
     </servlet-mapping>
     
+    <!-- Login Servlet -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>controller.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Reader Borrow Servlet -->
+    <servlet>
+        <servlet-name>ReaderBorrowServlet</servlet-name>
+        <servlet-class>controller.ReaderBorrowServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReaderBorrowServlet</servlet-name>
+        <url-pattern>/readerBorrow</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Librarian Servlet -->
+    <servlet>
+        <servlet-name>LibrarianServlet</servlet-name>
+        <servlet-class>controller.LibrarianServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LibrarianServlet</servlet-name>
+        <url-pattern>/librarian</url-pattern>
+    </servlet-mapping>
+    
     <!-- Welcome File -->
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

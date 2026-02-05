@@ -4,6 +4,7 @@ import model.BorrowRequest;
 import model.BorrowRequestItem;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BorrowRequestDAO extends DBContext {
@@ -74,13 +75,15 @@ public class BorrowRequestDAO extends DBContext {
                 request.setRequestId(rs.getInt("request_id"));
                 request.setReaderId(rs.getInt("reader_id"));
                 request.setStatus(rs.getString("status"));
-                request.setRequestedAt(rs.getTimestamp("requested_at"));
+                Timestamp requestedAt = rs.getTimestamp("requested_at");
+                request.setRequestedAt(requestedAt != null ? new Date(requestedAt.getTime()) : null);
                 request.setNote(rs.getString("note"));
                 request.setProcessedByEmployeeId(rs.getInt("processed_by_employee_id"));
                 if (rs.wasNull()) {
                     request.setProcessedByEmployeeId(null);
                 }
-                request.setProcessedAt(rs.getTimestamp("processed_at"));
+                Timestamp processedAt = rs.getTimestamp("processed_at");
+                request.setProcessedAt(processedAt != null ? new Date(processedAt.getTime()) : null);
                 request.setDecisionNote(rs.getString("decision_note"));
                 
                 requests.add(request);
@@ -105,13 +108,15 @@ public class BorrowRequestDAO extends DBContext {
                 request.setRequestId(rs.getInt("request_id"));
                 request.setReaderId(rs.getInt("reader_id"));
                 request.setStatus(rs.getString("status"));
-                request.setRequestedAt(rs.getTimestamp("requested_at"));
+                Timestamp requestedAt = rs.getTimestamp("requested_at");
+                request.setRequestedAt(requestedAt != null ? new Date(requestedAt.getTime()) : null);
                 request.setNote(rs.getString("note"));
                 request.setProcessedByEmployeeId(rs.getInt("processed_by_employee_id"));
                 if (rs.wasNull()) {
                     request.setProcessedByEmployeeId(null);
                 }
-                request.setProcessedAt(rs.getTimestamp("processed_at"));
+                Timestamp processedAt = rs.getTimestamp("processed_at");
+                request.setProcessedAt(processedAt != null ? new Date(processedAt.getTime()) : null);
                 request.setDecisionNote(rs.getString("decision_note"));
                 
                 return request;
@@ -146,6 +151,57 @@ public class BorrowRequestDAO extends DBContext {
         }
         
         return items;
+    }
+    
+    public List<BorrowRequest> getPendingRequests() {
+        List<BorrowRequest> requests = new ArrayList<>();
+        String sql = "SELECT * FROM Borrow_Request WHERE status = 'pending' ORDER BY requested_at ASC";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                BorrowRequest request = new BorrowRequest();
+                request.setRequestId(rs.getInt("request_id"));
+                request.setReaderId(rs.getInt("reader_id"));
+                request.setStatus(rs.getString("status"));
+                Timestamp requestedAt = rs.getTimestamp("requested_at");
+                request.setRequestedAt(requestedAt != null ? new Date(requestedAt.getTime()) : null);
+                request.setNote(rs.getString("note"));
+                request.setProcessedByEmployeeId(rs.getInt("processed_by_employee_id"));
+                if (rs.wasNull()) {
+                    request.setProcessedByEmployeeId(null);
+                }
+                Timestamp processedAt = rs.getTimestamp("processed_at");
+                request.setProcessedAt(processedAt != null ? new Date(processedAt.getTime()) : null);
+                request.setDecisionNote(rs.getString("decision_note"));
+                
+                requests.add(request);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error getting pending requests: " + e.getMessage());
+        }
+        
+        return requests;
+    }
+    
+    public boolean rejectRequest(int requestId, int employeeId, String decisionNote) {
+        String sql = "UPDATE Borrow_Request SET status = 'rejected', processed_at = GETDATE(), " +
+                     "processed_by_employee_id = ?, decision_note = ? WHERE request_id = ? AND status = 'pending'";
+        
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, employeeId);
+            ps.setString(2, decisionNote);
+            ps.setInt(3, requestId);
+            
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.out.println("Error rejecting request: " + e.getMessage());
+            return false;
+        }
     }
 }
 

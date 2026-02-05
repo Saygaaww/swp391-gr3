@@ -1,20 +1,22 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
 public class Borrow {
     private int borrowId;
     private int readerId;
     private Integer requestId;
-    private Timestamp borrowDate;
+    private Date borrowDate;
     private String status; // active, overdue, completed, cancelled
-    private Timestamp createdAt;
+    private Date createdAt;
     private Integer approvedByEmployeeId;
+    private List<BorrowItem> borrowItems; // For display
 
     public Borrow() {
     }
 
-    public Borrow(int borrowId, int readerId, Integer requestId, Timestamp borrowDate, String status, Timestamp createdAt) {
+    public Borrow(int borrowId, int readerId, Integer requestId, Date borrowDate, String status, Date createdAt) {
         this.borrowId = borrowId;
         this.readerId = readerId;
         this.requestId = requestId;
@@ -47,11 +49,11 @@ public class Borrow {
         this.requestId = requestId;
     }
 
-    public Timestamp getBorrowDate() {
+    public Date getBorrowDate() {
         return borrowDate;
     }
 
-    public void setBorrowDate(Timestamp borrowDate) {
+    public void setBorrowDate(Date borrowDate) {
         this.borrowDate = borrowDate;
     }
 
@@ -63,11 +65,11 @@ public class Borrow {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -77,6 +79,14 @@ public class Borrow {
 
     public void setApprovedByEmployeeId(Integer approvedByEmployeeId) {
         this.approvedByEmployeeId = approvedByEmployeeId;
+    }
+
+    public List<BorrowItem> getBorrowItems() {
+        return borrowItems;
+    }
+
+    public void setBorrowItems(List<BorrowItem> borrowItems) {
+        this.borrowItems = borrowItems;
     }
 }
 

@@ -1,6 +1,6 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class Book {
     private int bookId;
@@ -14,8 +14,8 @@ public class Book {
     private Integer totalPages;
     private Integer previewPages;
     private String status;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     private Integer authorId;
     private Integer categoryId;
     private Integer createdByEmployeeId;
@@ -31,7 +31,7 @@ public class Book {
 
     public Book(int bookId, String title, String summary, String description, String coverUrl, 
                 String contentPath, Double price, String currency, Integer totalPages, 
-                Integer previewPages, String status, Timestamp createdAt, Timestamp updatedAt,
+                Integer previewPages, String status, Date createdAt, Date updatedAt,
                 Integer authorId, Integer categoryId) {
         this.bookId = bookId;
         this.title = title;
@@ -139,19 +139,19 @@ public class Book {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 

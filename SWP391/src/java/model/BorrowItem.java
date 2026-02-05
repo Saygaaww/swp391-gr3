@@ -1,19 +1,19 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class BorrowItem {
     private int borrowItemId;
     private int borrowId;
     private int copyId;
-    private Timestamp dueDate;
-    private Timestamp returnedAt;
+    private Date dueDate;
+    private Date returnedAt;
     private String status; // borrowed, returned, overdue, lost, damaged
 
     public BorrowItem() {
     }
 
-    public BorrowItem(int borrowItemId, int borrowId, int copyId, Timestamp dueDate, String status) {
+    public BorrowItem(int borrowItemId, int borrowId, int copyId, Date dueDate, String status) {
         this.borrowItemId = borrowItemId;
         this.borrowId = borrowId;
         this.copyId = copyId;
@@ -45,19 +45,19 @@ public class BorrowItem {
         this.copyId = copyId;
     }
 
-    public Timestamp getDueDate() {
+    public Date getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Timestamp dueDate) {
+    public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
 
-    public Timestamp getReturnedAt() {
+    public Date getReturnedAt() {
         return returnedAt;
     }
 
-    public void setReturnedAt(Timestamp returnedAt) {
+    public void setReturnedAt(Date returnedAt) {
         this.returnedAt = returnedAt;
     }
 

@@ -3,6 +3,7 @@ package dal;
 import model.Book;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BookDAO extends DBContext {
@@ -39,8 +40,10 @@ public class BookDAO extends DBContext {
                 book.setTotalPages(rs.getInt("total_pages"));
                 book.setPreviewPages(rs.getInt("preview_pages"));
                 book.setStatus(rs.getString("status"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                Timestamp updatedAt = rs.getTimestamp("updated_at");
+                book.setCreatedAt(createdAt != null ? new Date(createdAt.getTime()) : null);
+                book.setUpdatedAt(updatedAt != null ? new Date(updatedAt.getTime()) : null);
                 book.setAuthorId(rs.getInt("author_id"));
                 book.setCategoryId(rs.getInt("category_id"));
                 book.setAuthorName(rs.getString("author_name"));
@@ -87,8 +90,10 @@ public class BookDAO extends DBContext {
                 book.setTotalPages(rs.getInt("total_pages"));
                 book.setPreviewPages(rs.getInt("preview_pages"));
                 book.setStatus(rs.getString("status"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                Timestamp updatedAt = rs.getTimestamp("updated_at");
+                book.setCreatedAt(createdAt != null ? new Date(createdAt.getTime()) : null);
+                book.setUpdatedAt(updatedAt != null ? new Date(updatedAt.getTime()) : null);
                 book.setAuthorId(rs.getInt("author_id"));
                 book.setCategoryId(rs.getInt("category_id"));
                 book.setAuthorName(rs.getString("author_name"));
@@ -141,8 +146,10 @@ public class BookDAO extends DBContext {
                 book.setTotalPages(rs.getInt("total_pages"));
                 book.setPreviewPages(rs.getInt("preview_pages"));
                 book.setStatus(rs.getString("status"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                Timestamp updatedAt = rs.getTimestamp("updated_at");
+                book.setCreatedAt(createdAt != null ? new Date(createdAt.getTime()) : null);
+                book.setUpdatedAt(updatedAt != null ? new Date(updatedAt.getTime()) : null);
                 book.setAuthorId(rs.getInt("author_id"));
                 book.setCategoryId(rs.getInt("category_id"));
                 book.setAuthorName(rs.getString("author_name"));

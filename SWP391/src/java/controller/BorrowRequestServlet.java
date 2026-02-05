@@ -68,6 +68,14 @@ public class BorrowRequestServlet extends HttpServlet {
     private void showBorrowForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        HttpSession session = request.getSession();
+        Integer readerId = (Integer) session.getAttribute("readerId");
+        
+        if (readerId == null) {
+            response.sendRedirect("login");
+            return;
+        }
+        
         String bookIdStr = request.getParameter("bookId");
         
         if (bookIdStr != null && !bookIdStr.isEmpty()) {
@@ -93,14 +101,12 @@ public class BorrowRequestServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         
-        // Get reader_id from session (assuming user is logged in)
-        // For now, we'll use a default value or get from session
+        // Get reader_id from session
         Integer readerId = (Integer) session.getAttribute("readerId");
         
         if (readerId == null) {
-            // For testing, you can set a default reader_id
-            // In production, redirect to login if not authenticated
-            readerId = 1; // Default for testing
+            response.sendRedirect("login");
+            return;
         }
         
         String[] bookIds = request.getParameterValues("bookId");
@@ -168,7 +174,8 @@ public class BorrowRequestServlet extends HttpServlet {
         Integer readerId = (Integer) session.getAttribute("readerId");
         
         if (readerId == null) {
-            readerId = 1; // Default for testing
+            response.sendRedirect("login");
+            return;
         }
         
         List<BorrowRequest> requests = borrowRequestDAO.getBorrowRequestsByReaderId(readerId);

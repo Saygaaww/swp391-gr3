@@ -1,21 +1,23 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
 public class BorrowRequest {
     private int requestId;
     private int readerId;
     private String status; // pending, approved, rejected, cancelled, expired
-    private Timestamp requestedAt;
+    private Date requestedAt;
     private String note;
     private Integer processedByEmployeeId;
-    private Timestamp processedAt;
+    private Date processedAt;
     private String decisionNote;
+    private List<BorrowRequestItem> requestItems; // For display
 
     public BorrowRequest() {
     }
 
-    public BorrowRequest(int requestId, int readerId, String status, Timestamp requestedAt, String note) {
+    public BorrowRequest(int requestId, int readerId, String status, Date requestedAt, String note) {
         this.requestId = requestId;
         this.readerId = readerId;
         this.status = status;
@@ -47,11 +49,11 @@ public class BorrowRequest {
         this.status = status;
     }
 
-    public Timestamp getRequestedAt() {
+    public Date getRequestedAt() {
         return requestedAt;
     }
 
-    public void setRequestedAt(Timestamp requestedAt) {
+    public void setRequestedAt(Date requestedAt) {
         this.requestedAt = requestedAt;
     }
 
@@ -71,11 +73,11 @@ public class BorrowRequest {
         this.processedByEmployeeId = processedByEmployeeId;
     }
 
-    public Timestamp getProcessedAt() {
+    public Date getProcessedAt() {
         return processedAt;
     }
 
-    public void setProcessedAt(Timestamp processedAt) {
+    public void setProcessedAt(Date processedAt) {
         this.processedAt = processedAt;
     }
 
@@ -85,6 +87,14 @@ public class BorrowRequest {
 
     public void setDecisionNote(String decisionNote) {
         this.decisionNote = decisionNote;
+    }
+
+    public List<BorrowRequestItem> getRequestItems() {
+        return requestItems;
+    }
+
+    public void setRequestItems(List<BorrowRequestItem> requestItems) {
+        this.requestItems = requestItems;
     }
 }
 

@@ -3,6 +3,7 @@ package dal;
 import model.BookCopy;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BookCopyDAO extends DBContext {
@@ -22,7 +23,8 @@ public class BookCopyDAO extends DBContext {
                 copy.setBookId(rs.getInt("book_id"));
                 copy.setCopyCode(rs.getString("copy_code"));
                 copy.setStatus(rs.getString("status"));
-                copy.setCreatedAt(rs.getTimestamp("created_at"));
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                copy.setCreatedAt(createdAt != null ? new Date(createdAt.getTime()) : null);
                 
                 copies.add(copy);
             }
@@ -80,7 +82,8 @@ public class BookCopyDAO extends DBContext {
                 copy.setBookId(rs.getInt("book_id"));
                 copy.setCopyCode(rs.getString("copy_code"));
                 copy.setStatus(rs.getString("status"));
-                copy.setCreatedAt(rs.getTimestamp("created_at"));
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                copy.setCreatedAt(createdAt != null ? new Date(createdAt.getTime()) : null);
                 
                 return copy;
             }

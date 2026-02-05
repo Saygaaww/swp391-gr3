@@ -87,12 +87,19 @@
             .book-cover {
                 width: 100%;
                 height: 300px;
-                object-fit: cover;
+                overflow: hidden;
                 background-color: #e0e0e0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: #999;
+            }
+            
+            .book-cover img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
             }
             
             .book-info {
@@ -165,6 +172,15 @@
                 background-color: #45a049;
             }
             
+            .btn-danger {
+                background-color: #f44336;
+                color: white;
+            }
+            
+            .btn-danger:hover {
+                background-color: #da190b;
+            }
+            
             .no-books {
                 text-align: center;
                 padding: 50px;
@@ -181,7 +197,21 @@
     </head>
     <body>
         <div class="container">
-            <h1>📚 Thư viện sách</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0;">📚 Thư viện sách</h1>
+                <div style="display: flex; gap: 10px;">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.readerId}">
+                            <span style="color: #666; margin-right: 10px;">Xin chào, ${sessionScope.fullName}</span>
+                            <a href="readerBorrow?action=myBorrows" class="btn btn-primary" style="text-decoration: none;">Sách đang mượn</a>
+                            <a href="login?action=logout" class="btn btn-danger" style="text-decoration: none; background-color: #f44336;">Đăng xuất</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="login" class="btn btn-primary" style="text-decoration: none;">Đăng nhập</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
             
             <div class="search-bar">
                 <form method="get" action="book">
@@ -199,8 +229,7 @@
                             <div class="book-cover">
                                 <c:choose>
                                     <c:when test="${not empty book.coverUrl}">
-                                        <img src="<c:out value='${book.coverUrl}'/>" alt="<c:out value='${book.title}'/>" 
-                                             style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="<%=request.getContextPath()%>${book.coverUrl}" />
                                     </c:when>
                                     <c:otherwise>
                                         <span>📖</span>
@@ -222,8 +251,11 @@
                                 </div>
                                 <div class="book-actions">
                                     <a href="book?action=detail&id=${book.bookId}" class="btn btn-primary">Chi tiết</a>
-                                    <c:if test="${book.availableCopies > 0}">
+                                    <c:if test="${book.availableCopies > 0 and not empty sessionScope.readerId}">
                                         <a href="borrow?action=form&bookId=${book.bookId}" class="btn btn-success">Mượn sách</a>
+                                    </c:if>
+                                    <c:if test="${book.availableCopies > 0 and empty sessionScope.readerId}">
+                                        <a href="login" class="btn btn-success">Đăng nhập để mượn</a>
                                     </c:if>
                                 </div>
                             </div>

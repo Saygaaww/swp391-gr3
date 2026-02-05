@@ -1,18 +1,18 @@
 package model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class BookCopy {
     private int copyId;
     private int bookId;
     private String copyCode;
     private String status; // available, borrowed, reserved, lost, damaged
-    private Timestamp createdAt;
+    private Date createdAt;
 
     public BookCopy() {
     }
 
-    public BookCopy(int copyId, int bookId, String copyCode, String status, Timestamp createdAt) {
+    public BookCopy(int copyId, int bookId, String copyCode, String status, Date createdAt) {
         this.copyId = copyId;
         this.bookId = bookId;
         this.copyCode = copyCode;
@@ -52,11 +52,11 @@ public class BookCopy {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }
