@@ -4,11 +4,11 @@
     Author     : admin
 --%>
 
-<%@page import="model.User"%>
+<%@page import="model.Reader"%>
 <%@include file="/includes/header.jsp"%>
 
 <%
-    User user = (User) session.getAttribute("user");
+    Reader user = (Reader) session.getAttribute("user");
     if (user == null || !"USER".equalsIgnoreCase(user.getRoleName())) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;

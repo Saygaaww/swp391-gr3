@@ -4,7 +4,7 @@
  */
 package controller.auth;
 
-import dao.UserDAO;
+import dao.ReaderDAO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import model.GoogleUser;
-import model.User;
+import model.Reader;
 import util.GoogleOAuthUtil;
 
 @WebServlet("/google-callback")
@@ -28,8 +28,8 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
         String accessToken = GoogleOAuthUtil.getAccessToken(code);
         GoogleUser googleUser = GoogleOAuthUtil.getUserInfo(accessToken);
 
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.loginByGoogle(googleUser);
+        ReaderDAO userDAO = new ReaderDAO();
+        Reader user = userDAO.loginByGoogle(googleUser);
 
         HttpSession session = request.getSession();
         session.setAttribute("user", user);

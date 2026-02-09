@@ -15,99 +15,7 @@ import util.DBContext;
 
 public class PasswordResetDAO {
 
-    // Tạo OTP mới
-//    public void createOtp(int userId, String otp, LocalDateTime expiredAt) {
-//        String sql = """
-//            INSERT INTO PasswordReset (user_id, otp_code, expired_at, is_used)
-//            VALUES (?, ?, ?, 0)
-//        """;
-//
-//        try (Connection conn = DBContext.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//
-//            ps.setInt(1, userId);
-//            ps.setString(2, otp);
-//            ps.setTimestamp(3, Timestamp.valueOf(expiredAt));
-//            ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
-    // Kiểm tra OTP hợp lệ
-//    public boolean isValidOtp(int userId, String otp) {
-//        String sql = """
-//            SELECT 1 FROM PasswordReset
-//            WHERE user_id = ?
-//              AND otp_code = ?
-//              AND is_used = 0
-//              AND expired_at > GETDATE()
-//        """;
-//
-//        try (Connection conn = DBContext.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//
-//            ps.setInt(1, userId);
-//            ps.setString(2, otp);
-//            ResultSet rs = ps.executeQuery();
-//            return rs.next();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
-
-    // Đánh dấu OTP đã dùng
-//    public void markOtpUsed(int userId, String otp) {
-//        String sql = """
-//            UPDATE PasswordReset
-//            SET is_used = 1
-//            WHERE user_id = ? AND otp_code = ?
-//        """;
-//
-//        try (Connection conn = DBContext.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//
-//            ps.setInt(1, userId);
-//            ps.setString(2, otp);
-//            ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // Xóa OTP hết hạn
-//    public void deleteExpiredOtp() {
-//        String sql = "DELETE FROM PasswordReset WHERE expired_at < GETDATE()";
-//
-//        try (Connection conn = DBContext.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//
-//            ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    // Update mật khẩu mới
-//    public void updatePassword(int userId, String hashedPassword) {
-//        String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
-//
-//        try (Connection conn = DBContext.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql)) {
-//
-//            ps.setString(1, hashedPassword);
-//            ps.setInt(2, userId);
-//            ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
     
       public void saveOtpForEmail(String email, String otp) {
         String sql = """
@@ -178,9 +86,4 @@ public class PasswordResetDAO {
         }
     }
     
-//    public String generateOTP() {
-//        Random random = new Random();
-//        int otp = 100000 + random.nextInt(900000); // 100000 → 999999
-//        return String.valueOf(otp);
-//    }
 }

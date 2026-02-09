@@ -1,7 +1,7 @@
 package controller.auth;
 
-import dao.UserDAO;
-import model.User;
+import dao.ReaderDAO;
+import model.Reader;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -35,8 +35,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.loginByEmailPassword(email, hashedPassword);
+        ReaderDAO userDAO = new ReaderDAO();
+        Reader user = userDAO.loginByEmailPassword(email, hashedPassword);
 
         if (user == null) {
             request.setAttribute("error", "Email hoặc mật khẩu không đúng");

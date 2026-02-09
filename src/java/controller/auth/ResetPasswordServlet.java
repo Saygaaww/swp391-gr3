@@ -1,7 +1,7 @@
 package controller.auth;
 
 import dao.PasswordResetDAO;
-import dao.UserDAO;
+import dao.ReaderDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class ResetPasswordServlet extends HttpServlet {
 
-    private final UserDAO userDAO = new UserDAO();
+    private final ReaderDAO userDAO = new ReaderDAO();
     private final PasswordResetDAO resetDAO = new PasswordResetDAO();
 
     @Override

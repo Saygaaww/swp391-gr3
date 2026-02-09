@@ -6,6 +6,8 @@
             <file>file:/D:/DigitalLibrary/web/WEB-INF/web.xml</file>
             <file>file:/D:/DigitalLibrary/src/java/dao/UserDAO.java</file>
             <file>file:/D:/DigitalLibrary/web/auth/forgot-password.jsp</file>
+            <file>file:/D:/DigitalLibrary/src/java/dao/OtpDAO.java</file>
+            <file>file:/D:/DigitalLibrary/src/java/util/GoogleOAuthUtil.java</file>
             <file>file:/D:/DigitalLibrary/src/java/controller/auth/RegisterServlet.java</file>
             <file>file:/D:/DigitalLibrary/src/java/util/EmailUtil.java</file>
             <file>file:/D:/DigitalLibrary/src/java/controller/auth/LogoutServlet.java</file>

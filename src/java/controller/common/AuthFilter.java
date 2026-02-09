@@ -7,7 +7,7 @@ package controller.common;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebFilter;
-import model.User;
+import model.Reader;
 import java.io.IOException;
 
 
@@ -24,7 +24,7 @@ public class AuthFilter implements Filter {
         String contextPath = request.getContextPath();
 
         HttpSession session = request.getSession(false);
-        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        Reader user = (session != null) ? (Reader) session.getAttribute("user") : null;
 
         /* ===== PUBLIC ROUTES ===== */
         if (

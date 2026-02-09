@@ -38,8 +38,12 @@
         <button class="btn btn-dark w-100 mb-2">
             Login
         </button>
-         <a href="forgot-password.jsp">Forget password?</a>
-         <br><!-- comment -->
+
+        <a href="<%=request.getContextPath()%>/auth/forgot-password.jsp">
+            Forget password?
+        </a>
+
+        <br><!-- comment -->
 
 
         <!-- Google login -->

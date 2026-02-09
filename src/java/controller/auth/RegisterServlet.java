@@ -1,7 +1,7 @@
 package controller.auth;
 
 import dao.OtpDAO;
-import dao.UserDAO;
+import dao.ReaderDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -23,7 +23,7 @@ public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        UserDAO userDAO = new UserDAO();
+        ReaderDAO userDAO = new ReaderDAO();
 
         // ==== EMAIL REGISTER ====
         String email = request.getParameter("email");
