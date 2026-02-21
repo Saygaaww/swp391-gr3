@@ -1,14 +1,18 @@
 package controller.auth;
 
 import dao.ReaderDAO;
+import dao.EmployeeDAO;
 import model.Reader;
+import model.Employee;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 import util.PasswordUtil;
 
-@WebServlet("/login")
+/**
+ * Unified login for both Reader (user) and Employee.
+ * Tries Reader first, then Employee. Redirects by role.
+ */
 public class LoginServlet extends HttpServlet {
 
     @Override
@@ -23,57 +27,68 @@ public class LoginServlet extends HttpServlet {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        
-        String hashedPassword = PasswordUtil.hash(password);
-        System.out.println("LOGIN HASH = " + hashedPassword);
 
-
-        if (email == null || password == null
-                || email.isBlank() || password.isBlank()) {
+        if (email == null || password == null || email.isBlank() || password.isBlank()) {
             request.setAttribute("error", "Vui lòng nhập đầy đủ thông tin");
             request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
             return;
         }
 
-        ReaderDAO userDAO = new ReaderDAO();
-        Reader user = userDAO.loginByEmailPassword(email, hashedPassword);
-
-        if (user == null) {
-            request.setAttribute("error", "Email hoặc mật khẩu không đúng");
-            request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
-            return;
-        }
-
-        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-            request.setAttribute("error", "Tài khoản đã bị khóa");
-            request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
-            return;
-        }
-
-        // ✅ Lưu session
+        String hashedPassword = PasswordUtil.hash(password);
         HttpSession session = request.getSession(true);
-        session.setAttribute("user", user);
+        session.setMaxInactiveInterval(60 * 30); // 30 phút
 
-        // ✅ Điều hướng theo role
-        String role = user.getRoleName();
+        // 1) Try Reader (user) first
+        ReaderDAO readerDAO = new ReaderDAO();
+        Reader user = readerDAO.loginByEmailPassword(email, hashedPassword);
 
-        switch (role) {
-            case "ADMIN":
-                response.sendRedirect(request.getContextPath() + "/home.jsp");
-                break;
-
-            case "LIBRARIAN":
-                response.sendRedirect(request.getContextPath() + "/librarian/home");
-                break;
-
-            case "SELLER":
-                response.sendRedirect(request.getContextPath() + "/seller/home");
-                break;
-
-            case "USER":
-            default:
-                response.sendRedirect(request.getContextPath() + "/customer/home_1.jsp");
-                break;
+        if (user != null) {
+            if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+                request.setAttribute("error", "Tài khoản đã bị khóa");
+                request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
+                return;
+            }
+            session.setAttribute("user", user);
+            session.removeAttribute("employee");
+            response.sendRedirect(request.getContextPath() + "/customer/home_1.jsp");
+            return;
         }
+
+        // 2) Try Employee
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        Employee employee = employeeDAO.loginByEmailPassword(email, hashedPassword);
+
+        if (employee != null) {
+            if (!"active".equalsIgnoreCase(employee.getStatus())) {
+                request.setAttribute("error", "Tài khoản đã bị khóa");
+                request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
+                return;
+            }
+            session.setAttribute("employee", employee);
+            session.setAttribute("userType", "employee");
+            session.removeAttribute("user");
+
+            String role = employee.getRoleName();
+            switch (role) {
+                case "ADMIN":
+                    response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+                    break;
+                case "LIBRARIAN":
+                    response.sendRedirect(request.getContextPath() + "/librarian/dashboard");
+                    break;
+                case "SELLER":
+                    response.sendRedirect(request.getContextPath() + "/seller/dashboard");
+                    break;
+                default:
+                    request.setAttribute("error", "Quyền truy cập không hợp lệ");
+                    request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
+                    break;
+            }
+            return;
+        }
+
+        // Not found as either
+        request.setAttribute("error", "Email hoặc mật khẩu không đúng");
+        request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
     }
 }

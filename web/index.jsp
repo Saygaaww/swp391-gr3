@@ -3,7 +3,7 @@
     Created on : Jan 26, 2026, 3:16:02 PM
     Author     : admin
 --%>
-
+<%@ page pageEncoding="UTF-8" %>
 <%@include file="/includes/header.jsp"%>
 <%@include file="/includes/topbar.jsp"%>
 <%@include file="/includes/navbar.jsp"%>

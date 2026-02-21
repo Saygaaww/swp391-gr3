@@ -59,8 +59,8 @@ public class ReaderDAO {
 
             /* 👉 chưa có → tạo reader mới */
             String insertReader = """
-                INSERT INTO Reader(full_name, email, avatar, status, role_id)
-                VALUES (?, ?, ?, 'ACTIVE', 3)
+                INSERT INTO Reader(full_name, email, password_hash, avatar, status, role_id)
+                VALUES (?, ?, '', ?, 'ACTIVE', 4)
             """;
 
             PreparedStatement ps1 = con.prepareStatement(insertReader, Statement.RETURN_GENERATED_KEYS);
@@ -97,7 +97,7 @@ public class ReaderDAO {
 
         String insertReader = """
             INSERT INTO Reader(full_name, email, password_hash, status, role_id)
-            VALUES (?, ?, ?, 'ACTIVE', 3)
+            VALUES (?, ?, ?, 'ACTIVE', 4)
         """;
 
         String insertAccount = """

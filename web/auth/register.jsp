@@ -4,11 +4,13 @@
     Author     : admin
 --%>
 
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <form class="card p-4 shadow"
-          action="<%=request.getContextPath()%>/RegisterServlet"
+          action="<%=request.getContextPath()%>/register"
           method="post"
           style="width: 400px;">
 

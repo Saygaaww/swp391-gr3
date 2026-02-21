@@ -1,6 +1,5 @@
 package controller.auth;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,6 @@ import util.GoogleOAuthUtil;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-@WebServlet("/google-login")
 public class GoogleLoginServlet extends HttpServlet {
 
     @Override

@@ -4,11 +4,13 @@
     Author     : admin
 --%>
 
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <form class="card p-4 shadow"
-          action="<%=request.getContextPath()%>/LoginServlet"
+          action="<%=request.getContextPath()%>/login"
           method="post"
           style="width: 400px;">
 
@@ -47,14 +49,14 @@
 
 
         <!-- Google login -->
-        <a href="<%=request.getContextPath()%>/GoogleLoginServlet"
+        <a href="<%=request.getContextPath()%>/google-login"
            class="btn btn-danger w-100">
             <i class="fab fa-google"></i> Login with Google
         </a>
 
         <p class="mt-3 text-center">
             No account?
-            <a href="<%=request.getContextPath()%>/RegisterServlet">Register</a>
+            <a href="<%=request.getContextPath()%>/register">Register</a>
         </p>
     </form>
 </div>

@@ -3,7 +3,7 @@
     Created on : Jan 26, 2026, 4:35:21 PM
     Author     : admin
 --%>
-
+<%@ page pageEncoding="UTF-8" %>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">

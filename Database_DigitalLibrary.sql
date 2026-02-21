@@ -1,4 +1,4 @@
-﻿CREATE DATABASE DigitalLibraryDB;
+CREATE DATABASE DigitalLibraryDB;
 GO
 USE DigitalLibraryDB;
 GO
@@ -13,7 +13,7 @@ CREATE TABLE Reader (
     reader_id INT IDENTITY(1,1) PRIMARY KEY,
     full_name NVARCHAR(255) NULL,
     email NVARCHAR(255) NOT NULL UNIQUE,
-    password_hash NVARCHAR(255) NOT NULL,
+    password_hash NVARCHAR(255) NULL,  -- NULL for social login users
     phone NVARCHAR(30) NULL,
     avatar NVARCHAR(255) NULL,
     status NVARCHAR(50) NULL,
@@ -290,6 +290,10 @@ CREATE TABLE Reading_History (
     CONSTRAINT FK_ReadHistory_Book FOREIGN KEY (book_id) REFERENCES Book(book_id)
 );
 GO
+-- Mot dong moi (reader, book) de luu tien do doc
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Reading_History_Reader_Book' AND object_id = OBJECT_ID('Reading_History'))
+    CREATE UNIQUE INDEX IX_Reading_History_Reader_Book ON Reading_History(reader_id, book_id);
+GO
 
 CREATE TABLE Bookmark (
     bookmark_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -314,6 +318,10 @@ CREATE TABLE Review (
     CONSTRAINT FK_Review_Reader FOREIGN KEY (reader_id) REFERENCES Reader(reader_id),
     CONSTRAINT FK_Review_Book FOREIGN KEY (book_id) REFERENCES Book(book_id)
 );
+GO
+-- Mot reader chi duoc 1 review moi sach
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Review_Reader_Book' AND object_id = OBJECT_ID('Review'))
+    CREATE UNIQUE INDEX IX_Review_Reader_Book ON Review(reader_id, book_id);
 GO
 
 CREATE TABLE Notification (
@@ -352,4 +360,102 @@ CREATE TABLE Email_Otp (
 
 
 
+INSERT INTO Role (role_name, description) VALUES
+('ADMIN', 'System administrator'),
+('LIBRARIAN', 'Library staff'),
+('SELLER', 'Sales manager'),
+('USER', 'Normal reader');
 
+
+INSERT INTO Author (author_name, bio) VALUES
+('George Orwell', 'English novelist known for dystopian fiction'),
+('J.K. Rowling', 'Author of the Harry Potter series'),
+('Haruki Murakami', 'Japanese contemporary writer'),
+('Yuval Noah Harari', 'Historian and author of Sapiens'),
+('Dale Carnegie', 'Self-improvement author');
+
+
+INSERT INTO Category (category_name, description) VALUES
+('Science Fiction', 'Futuristic and speculative fiction'),
+('Fantasy', 'Magic and imaginary worlds'),
+('Self Development', 'Personal growth books'),
+('History', 'Historical analysis'),
+('Literature', 'Classic and modern literature');
+
+
+INSERT INTO Employee (full_name, email, password_hash, status, role_id)
+VALUES
+('Admin User', 'admin@library.com', 'hashed_pw', 'active', 1),
+('Library Staff', 'staff@library.com', 'hashed_pw', 'active', 2);
+
+
+INSERT INTO Book
+(title, summary, description, price, currency, total_pages, preview_pages, status,
+ author_id, category_id, created_by_employee_id)
+VALUES
+
+('1984',
+'Dystopian future society',
+'A chilling depiction of surveillance and totalitarianism.',
+9.99, 'USD', 328, 20, 'active',
+1, 1, 1),
+
+('Harry Potter and the Sorcerer''s Stone',
+'Young wizard begins journey',
+'A magical adventure at Hogwarts school.',
+12.50, 'USD', 309, 25, 'active',
+2, 2, 1),
+
+('Norwegian Wood',
+'Love and loss story',
+'A nostalgic novel exploring youth and relationships.',
+10.75, 'USD', 296, 15, 'active',
+3, 5, 2),
+
+('Sapiens',
+'History of humankind',
+'Explores evolution and civilization.',
+15.00, 'USD', 443, 30, 'active',
+4, 4, 2),
+
+('How to Win Friends & Influence People',
+'Classic self-help',
+'Timeless principles for communication and leadership.',
+11.20, 'USD', 291, 20, 'active',
+5, 3, 1);
+
+
+INSERT INTO BookCopy (book_id, copy_code, status) VALUES
+(1, '1984-C1', 'available'),
+(1, '1984-C2', 'available'),
+
+(2, 'HP1-C1', 'available'),
+(2, 'HP1-C2', 'borrowed'),
+
+(3, 'NW-C1', 'available'),
+
+(4, 'SAP-C1', 'available'),
+
+(5, 'DLC-C1', 'available');
+
+
+
+INSERT INTO Fine_Type (name, description, default_amount, per_day_rate)
+VALUES
+('late_return', 'Late book return fine', NULL, 1.50),
+('lost', 'Lost book fine', 25.00, NULL),
+('damaged', 'Damaged book fine', 15.00, NULL);
+
+-- ========== Stock (so luong ban) cho sach vat ly ==========
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Book') AND name = 'stock_quantity')
+BEGIN
+    ALTER TABLE Book ADD stock_quantity INT NOT NULL DEFAULT 0;
+    UPDATE Book SET stock_quantity = 10 WHERE stock_quantity = 0;
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Book') AND name = 'stock_quantity')
+BEGIN
+    ALTER TABLE Book ADD stock_quantity INT NOT NULL DEFAULT 0;
+END
+GO

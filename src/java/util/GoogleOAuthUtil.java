@@ -21,10 +21,10 @@ import model.GoogleUser;
 public class GoogleOAuthUtil {
 
     private static final String CLIENT_ID =
-            "YOUR_CLIENT_ID.apps.googleusercontent.com";
+            "503115234921-s2h67f1celedb9ra02va2hvcc39dbikv.apps.googleusercontent.com";
 
     private static final String CLIENT_SECRET =
-            "YOUR_CLIENT_SECRET";
+            "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";
 
     private static final String REDIRECT_URI =
             "http://localhost:8080/DigitalLibrary/google-callback";

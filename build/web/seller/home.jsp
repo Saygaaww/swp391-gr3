@@ -3,7 +3,7 @@
     Created on : Jan 27, 2026, 1:38:41 AM
     Author     : admin
 --%>
-
+<%@ page pageEncoding="UTF-8" %>
 <%@page import="model.User"%>
 <%@include file="/includes/header.jsp"%>
 
