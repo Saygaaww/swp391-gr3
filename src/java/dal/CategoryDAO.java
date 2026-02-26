@@ -5,15 +5,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO xử lý danh mục
- * @author Member E - Dũng
- */
 public class CategoryDAO extends DBContext {
     
-    /**
-     * Lấy tất cả danh mục
-     */
     public List<Category> getAllCategories() {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM Category ORDER BY category_name";
@@ -38,9 +31,6 @@ public class CategoryDAO extends DBContext {
         return categories;
     }
     
-    /**
-     * Lấy danh mục theo ID
-     */
     public Category getCategoryById(int categoryId) {
         String sql = "SELECT * FROM Category WHERE category_id = ?";
         
@@ -66,9 +56,6 @@ public class CategoryDAO extends DBContext {
         return null;
     }
     
-    /**
-     * Thêm danh mục mới
-     */
     public boolean addCategory(Category category) {
         String sql = "INSERT INTO Category (category_name, description) VALUES (?, ?)";
         
@@ -88,9 +75,6 @@ public class CategoryDAO extends DBContext {
         return false;
     }
     
-    /**
-     * Đếm tổng số danh mục
-     */
     public int getTotalCategories() {
         String sql = "SELECT COUNT(*) FROM Category";
         

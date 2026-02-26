@@ -3,11 +3,6 @@ package model;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/**
- * Model class đại diện cho sách
- * Mapping với bảng Book trong database DigitalLibraryDB
- * @author Member E - Dũng
- */
 public class Book {
     private int bookId;
     private String title;
@@ -23,21 +18,17 @@ public class Book {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     
-    // Foreign keys
     private int authorId;
     private int categoryId;
-    private Integer createdByEmployeeId;  // Nullable
-    private Integer updatedByEmployeeId;  // Nullable
+    private Integer createdByEmployeeId; 
+    private Integer updatedByEmployeeId; 
     
-    // Thông tin từ JOIN (không lưu trong DB)
     private String categoryName;
     private String authorName;
     
-    // Constructor rỗng
     public Book() {
     }
     
-    // Constructor đầy đủ
     public Book(int bookId, String title, String summary, String description,
                 String coverUrl, String contentPath, BigDecimal price, String currency,
                 int totalPages, int previewPages, String status, Timestamp createdAt,
@@ -62,7 +53,6 @@ public class Book {
         this.updatedByEmployeeId = updatedByEmployeeId;
     }
     
-    // Getters và Setters
     public int getBookId() {
         return bookId;
     }

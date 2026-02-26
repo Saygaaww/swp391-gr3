@@ -57,9 +57,9 @@ public class AdminRoleListServlet extends HttpServlet {
             request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
             
         } catch (Exception e) {
-            System.err.println("AdminRoleListServlet.doGet Error: " + e.getMessage());
+            System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Loi: " + e.getMessage());
             request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
         }
     }
@@ -91,13 +91,17 @@ public class AdminRoleListServlet extends HttpServlet {
                 String description = request.getParameter("description");
                 
                 if (roleName != null && !roleName.trim().isEmpty()) {
-                    Role role = new Role(roleName.trim().toUpperCase(), description);
-                    boolean success = roleDAO.addRole(role);
-                    
-                    if (success) {
-                        System.out.println("Role added: " + roleName);
+                    if (roleName.trim().length() > 50) {
+                        System.err.println("Role name too long");
                     } else {
-                        System.err.println("Failed to add role: " + roleName);
+                        Role role = new Role(roleName.trim().toUpperCase(), description);
+                        boolean success = roleDAO.addRole(role);
+                        
+                        if (success) {
+                            System.out.println("Role added: " + roleName);
+                        } else {
+                            System.err.println("Failed to add role: " + roleName);
+                        }
                     }
                 }
                 
@@ -107,7 +111,28 @@ public class AdminRoleListServlet extends HttpServlet {
                 String description = request.getParameter("description");
                 
                 if (roleIdStr != null && roleName != null) {
-                    int roleId = Integer.parseInt(roleIdStr);
+                    int roleId;
+                    try {
+                        roleId = Integer.parseInt(roleIdStr.trim());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid role ID format: " + roleIdStr);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
+                    
+                    if (roleId <= 0 || roleId > 999999999) {
+                        System.err.println("Role ID out of range: " + roleId);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
+                    
+                    Role existingRole = roleDAO.getRoleById(roleId);
+                    if (existingRole == null) {
+                        System.err.println("Role not found: " + roleId);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
+                    
                     Role role = new Role();
                     role.setRoleId(roleId);
                     role.setRoleName(roleName.trim().toUpperCase());
@@ -124,14 +149,34 @@ public class AdminRoleListServlet extends HttpServlet {
                 String roleIdStr = request.getParameter("roleId");
                 
                 if (roleIdStr != null) {
-                    int roleId = Integer.parseInt(roleIdStr);
+                    int roleId;
+                    try {
+                        roleId = Integer.parseInt(roleIdStr.trim());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid role ID format: " + roleIdStr);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
+                    
+                    if (roleId <= 0 || roleId > 999999999) {
+                        System.err.println("Role ID out of range: " + roleId);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
+                    
+                    Role existingRole = roleDAO.getRoleById(roleId);
+                    if (existingRole == null) {
+                        System.err.println("Role not found: " + roleId);
+                        response.sendRedirect(request.getContextPath() + "/admin/roles");
+                        return;
+                    }
                     
                     int count = employeeDAO.countEmployeesByRole(roleId);
                     
                     if (count > 0) {
                         System.err.println("Cannot delete role with " + count + " employees");
                         request.setAttribute("errorMessage", 
-                            "Không thể xóa vai trò đang có " + count + " nhân viên!");
+                            "Khong the xoa vai tro dang co " + count + " nhan vien!");
                     } else {
                         boolean success = roleDAO.deleteRole(roleId);
                         
@@ -143,7 +188,7 @@ public class AdminRoleListServlet extends HttpServlet {
             }
             
         } catch (Exception e) {
-            System.err.println("AdminRoleListServlet.doPost Error: " + e.getMessage());
+            System.err.println("Error in doPost: " + e.getMessage());
             e.printStackTrace();
         }
         

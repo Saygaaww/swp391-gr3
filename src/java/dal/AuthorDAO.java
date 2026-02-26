@@ -5,15 +5,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO xử lý tác giả
- * @author Member E - Dũng
- */
 public class AuthorDAO extends DBContext {
     
-    /**
-     * Lấy tất cả tác giả
-     */
     public List<Author> getAllAuthors() {
         List<Author> authors = new ArrayList<>();
         String sql = "SELECT * FROM Author ORDER BY author_name";
@@ -38,9 +31,6 @@ public class AuthorDAO extends DBContext {
         return authors;
     }
     
-    /**
-     * Lấy tác giả theo ID
-     */
     public Author getAuthorById(int authorId) {
         String sql = "SELECT * FROM Author WHERE author_id = ?";
         
@@ -66,9 +56,6 @@ public class AuthorDAO extends DBContext {
         return null;
     }
     
-    /**
-     * Thêm tác giả mới
-     */
     public boolean addAuthor(Author author) {
         String sql = "INSERT INTO Author (author_name, bio) VALUES (?, ?)";
         
@@ -88,9 +75,6 @@ public class AuthorDAO extends DBContext {
         return false;
     }
     
-    /**
-     * Đếm tổng số tác giả
-     */
     public int getTotalAuthors() {
         String sql = "SELECT COUNT(*) FROM Author";
         

@@ -28,6 +28,30 @@
         <servlet-name>AdminBookFormServlet</servlet-name>
         <servlet-class>controller.admin.AdminBookFormServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Adminreaderformservlet</servlet-name>
+        <servlet-class>controller.admin.Adminreaderformservlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminReaderListServlet</servlet-name>
+        <servlet-class>controller.admin.AdminReaderListServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminReaderFormServlet</servlet-name>
+        <servlet-class>controller.admin.AdminReaderFormServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminEmployeeListServlet</servlet-name>
+        <servlet-class>controller.admin.AdminEmployeeListServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminEmployeeFormServlet</servlet-name>
+        <servlet-class>controller.admin.AdminEmployeeFormServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminRoleListServlet</servlet-name>
+        <servlet-class>controller.admin.AdminRoleListServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>MockLoginServlet</servlet-name>
         <url-pattern>/MockLoginServlet</url-pattern>
@@ -55,5 +79,29 @@
     <servlet-mapping>
         <servlet-name>AdminBookFormServlet</servlet-name>
         <url-pattern>/AdminBookFormServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Adminreaderformservlet</servlet-name>
+        <url-pattern>/Adminreaderformservlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminReaderListServlet</servlet-name>
+        <url-pattern>/AdminReaderListServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminReaderFormServlet</servlet-name>
+        <url-pattern>/AdminReaderFormServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminEmployeeListServlet</servlet-name>
+        <url-pattern>/AdminEmployeeListServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminEmployeeFormServlet</servlet-name>
+        <url-pattern>/AdminEmployeeFormServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminRoleListServlet</servlet-name>
+        <url-pattern>/AdminRoleListServlet</url-pattern>
     </servlet-mapping>
 </web-app>

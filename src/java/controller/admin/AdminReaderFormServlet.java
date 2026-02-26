@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-
 @WebServlet("/admin/reader-form")
 public class AdminReaderFormServlet extends HttpServlet {
     
@@ -39,17 +38,31 @@ public class AdminReaderFormServlet extends HttpServlet {
             String idStr = request.getParameter("id");
             
             if (idStr != null && !idStr.trim().isEmpty()) {
-                int readerId = Integer.parseInt(idStr);
+                int readerId;
+                try {
+                    readerId = Integer.parseInt(idStr.trim());
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid reader ID format: " + idStr);
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
+                }
+                
+                if (readerId <= 0 || readerId > 999999999) {
+                    System.err.println("Reader ID out of range: " + readerId);
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
+                }
+                
                 Reader reader = readerDAO.getReaderById(readerId);
                 
                 if (reader != null) {
                     request.setAttribute("mode", "edit");
                     request.setAttribute("reader", reader);
-                    System.out.println("Edit reader: " + reader.getFullName());
+                    System.out.println("Edit reader ID: " + readerId);
                 } else {
-                    request.setAttribute("errorMessage", "Không tìm thấy độc giả với ID: " + readerId);
-                    request.setAttribute("mode", "add");
-                    request.setAttribute("reader", new Reader());
+                    System.err.println("Reader not found: " + readerId);
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
                 }
                 
             } else {
@@ -61,15 +74,8 @@ public class AdminReaderFormServlet extends HttpServlet {
             request.setAttribute("currentEmployee", currentEmployee);
             request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
             
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid reader ID: " + request.getParameter("id"));
-            request.setAttribute("errorMessage", "ID độc giả không hợp lệ");
-            request.setAttribute("mode", "add");
-            request.setAttribute("reader", new Reader());
-            request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
-            
         } catch (Exception e) {
-            System.err.println("AdminReaderFormServlet.doGet Error: " + e.getMessage());
+            System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/admin/readers");
         }
@@ -101,28 +107,30 @@ public class AdminReaderFormServlet extends HttpServlet {
             StringBuilder errors = new StringBuilder();
             
             if (fullName == null || fullName.trim().isEmpty()) {
-                errors.append("Họ tên không được để trống. ");
+                errors.append("Ho ten khong duoc de trong. ");
+            } else if (fullName.trim().length() > 200) {
+                errors.append("Ho ten khong duoc qua 200 ky tu. ");
             }
             
             if (email == null || email.trim().isEmpty()) {
-                errors.append("Email không được để trống. ");
+                errors.append("Email khong duoc de trong. ");
             } else if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                errors.append("Email không đúng định dạng. ");
+                errors.append("Email khong dung dinh dang. ");
             } else {
                 if (isEdit) {
                     int readerId = Integer.parseInt(readerIdStr);
                     if (readerDAO.isEmailExistsExcept(email, readerId)) {
-                        errors.append("Email đã được sử dụng bởi tài khoản khác. ");
+                        errors.append("Email da duoc su dung boi tai khoan khac. ");
                     }
                 } else {
                     if (readerDAO.isEmailExists(email)) {
-                        errors.append("Email đã tồn tại trong hệ thống. ");
+                        errors.append("Email da ton tai trong he thong. ");
                     }
                 }
             }
             
             if (!isEdit && (password == null || password.trim().isEmpty())) {
-                errors.append("Mật khẩu không được để trống khi thêm mới. ");
+                errors.append("Mat khau khong duoc de trong khi them moi. ");
             }
             
             if (errors.length() > 0) {
@@ -135,7 +143,28 @@ public class AdminReaderFormServlet extends HttpServlet {
             boolean success;
             
             if (isEdit) {
-                int readerId = Integer.parseInt(readerIdStr);
+                int readerId;
+                try {
+                    readerId = Integer.parseInt(readerIdStr.trim());
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "ID doc gia khong hop le!");
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
+                }
+                
+                if (readerId <= 0 || readerId > 999999999) {
+                    request.setAttribute("errorMessage", "ID doc gia khong hop le!");
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
+                }
+                
+                Reader existingReader = readerDAO.getReaderById(readerId);
+                if (existingReader == null) {
+                    request.setAttribute("errorMessage", "Doc gia khong ton tai!");
+                    response.sendRedirect(request.getContextPath() + "/admin/readers");
+                    return;
+                }
+                
                 Reader reader = new Reader();
                 reader.setReaderId(readerId);
                 reader.setFullName(fullName.trim());
@@ -146,7 +175,6 @@ public class AdminReaderFormServlet extends HttpServlet {
                 
                 success = readerDAO.updateReader(reader);
                 
-                // Nếu có nhập password mới thì update password
                 if (password != null && !password.trim().isEmpty()) {
                     readerDAO.updateReaderPassword(readerId, password.trim());
                 }
@@ -155,7 +183,7 @@ public class AdminReaderFormServlet extends HttpServlet {
                     System.out.println("Reader updated: " + fullName);
                     response.sendRedirect(request.getContextPath() + "/admin/readers?success=updated");
                 } else {
-                    request.setAttribute("errorMessage", "Cập nhật thất bại. Vui lòng thử lại.");
+                    request.setAttribute("errorMessage", "Cap nhat that bai!");
                     reloadFormWithError(request, response, isEdit, readerIdStr, 
                                        fullName, email, phone, address, status);
                 }
@@ -175,16 +203,16 @@ public class AdminReaderFormServlet extends HttpServlet {
                     System.out.println("Reader added: " + fullName);
                     response.sendRedirect(request.getContextPath() + "/admin/readers?success=added");
                 } else {
-                    request.setAttribute("errorMessage", "Thêm mới thất bại. Vui lòng thử lại.");
+                    request.setAttribute("errorMessage", "Them moi that bai!");
                     reloadFormWithError(request, response, isEdit, readerIdStr, 
                                        fullName, email, phone, address, status);
                 }
             }
             
         } catch (Exception e) {
-            System.err.println("AdminReaderFormServlet.doPost Error: " + e.getMessage());
+            System.err.println("Error in doPost: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi hệ thống: " + e.getMessage());
+            request.setAttribute("errorMessage", "Loi he thong: " + e.getMessage());
             request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
         }
     }
@@ -198,7 +226,10 @@ public class AdminReaderFormServlet extends HttpServlet {
         Reader reader = new Reader();
         
         if (isEdit && readerIdStr != null) {
-            reader.setReaderId(Integer.parseInt(readerIdStr));
+            try {
+                reader.setReaderId(Integer.parseInt(readerIdStr));
+            } catch (NumberFormatException e) {
+            }
             request.setAttribute("mode", "edit");
         } else {
             request.setAttribute("mode", "add");

@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-
 @WebServlet("/admin/borrow-approve")
 public class AdminBorrowApproveServlet extends HttpServlet {
     
@@ -21,9 +20,9 @@ public class AdminBorrowApproveServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         borrowDAO = new BorrowDAO();
+        System.out.println("AdminBorrowApproveServlet initialized");
     }
     
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -41,12 +40,13 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             request.setAttribute("totalRequests", pendingRequests.size());
             request.setAttribute("currentEmployee", session.getAttribute("employee"));
             
-            System.out.println("📋 Có " + pendingRequests.size() + " yêu cầu mượn chờ duyệt");
+            System.out.println("Co " + pendingRequests.size() + " yeu cau muon cho duyet");
             
             request.getRequestDispatcher("/admin/borrow-approve.jsp")
                    .forward(request, response);
                    
         } catch (Exception e) {
+            System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
         }
@@ -56,7 +56,6 @@ public class AdminBorrowApproveServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Kiểm tra login
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
@@ -81,20 +80,26 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             boolean success = false;
             
             if ("approve".equals(action)) {
+                // Duyet yeu cau
                 success = borrowDAO.approveRequest(requestId, employee.getEmployeeId(), note);
                 if (success) {
-                    System.out.println("✅ Đã duyệt yêu cầu ID: " + requestId);
+                    System.out.println("Da duyet yeu cau ID: " + requestId);
                 }
             } else if ("reject".equals(action)) {
+                // Tu choi yeu cau
                 success = borrowDAO.rejectRequest(requestId, employee.getEmployeeId(), note);
                 if (success) {
-                    System.out.println("❌ Đã từ chối yêu cầu ID: " + requestId);
+                    System.out.println("Da tu choi yeu cau ID: " + requestId);
                 }
             }
             
             response.sendRedirect(request.getContextPath() + "/admin/borrow-approve");
             
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Invalid request ID");
+            response.sendRedirect(request.getContextPath() + "/admin/borrow-approve");
         } catch (Exception e) {
+            System.err.println("Error in doPost: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/admin/borrow-approve");
         }

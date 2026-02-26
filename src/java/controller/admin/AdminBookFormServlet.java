@@ -25,25 +25,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
-/**
- * Servlet Thêm/Sửa sách (có upload ảnh bìa)
- * 
- * @author Member E - Dũng
- */
 @WebServlet("/admin/book-form")
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024,
-    maxFileSize = 1024 * 1024 * 5,
-    maxRequestSize = 1024 * 1024 * 10
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 50,
+        maxRequestSize = 1024 * 1024 * 60
 )
 public class AdminBookFormServlet extends HttpServlet {
-    
+
     private BookDAO bookDAO;
     private AuthorDAO authorDAO;
     private CategoryDAO categoryDAO;
-    
-    private static final String UPLOAD_DIR = "uploads/covers";
-    
+
+    private static final String UPLOAD_DIR_COVERS = "uploads/covers";
+    private static final String UPLOAD_DIR_BOOKS = "uploads/books";
+
     @Override
     public void init() throws ServletException {
         bookDAO = new BookDAO();
@@ -51,53 +47,53 @@ public class AdminBookFormServlet extends HttpServlet {
         categoryDAO = new CategoryDAO();
         System.out.println("AdminBookFormServlet initialized with file upload");
     }
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
             return;
         }
-        
+
         try {
             String idStr = request.getParameter("id");
             Book book = null;
             String mode = "add";
-            
+
             if (idStr != null && !idStr.trim().isEmpty()) {
                 int bookId = Integer.parseInt(idStr);
-                
+
                 if (bookId <= 0 || bookId > 999999999) {
                     response.sendRedirect(request.getContextPath() + "/books-list");
                     return;
                 }
-                
+
                 book = bookDAO.getBookById(bookId);
-                
+
                 if (book == null) {
                     response.sendRedirect(request.getContextPath() + "/books-list");
                     return;
                 }
-                
+
                 mode = "edit";
             } else {
                 book = new Book();
             }
-            
+
             List<Author> authors = authorDAO.getAllAuthors();
             List<Category> categories = categoryDAO.getAllCategories();
-            
+
             request.setAttribute("book", book);
             request.setAttribute("mode", mode);
             request.setAttribute("authors", authors);
             request.setAttribute("categories", categories);
             request.setAttribute("currentEmployee", session.getAttribute("employee"));
-            
+
             request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
-                   
+
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/books-list");
         } catch (Exception e) {
@@ -105,41 +101,40 @@ public class AdminBookFormServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/books-list");
         }
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
             response.sendRedirect(request.getContextPath() + "/mock-login");
             return;
         }
-        
+
         request.setCharacterEncoding("UTF-8");
-        
+
         try {
             Employee employee = (Employee) session.getAttribute("employee");
-            
+
             BigDecimal maxPriceFromDB = bookDAO.getMaxPrice();
             int maxPagesFromDB = bookDAO.getMaxTotalPages();
             BigDecimal maxPriceAllowed = maxPriceFromDB.multiply(new BigDecimal("1.2"));
             int maxPagesAllowed = (int) (maxPagesFromDB * 1.2);
-            
+
             if (maxPriceAllowed.compareTo(new BigDecimal("1000000")) < 0) {
                 maxPriceAllowed = new BigDecimal("100000000");
             }
             if (maxPagesAllowed < 1000) {
                 maxPagesAllowed = 10000;
             }
-            
+
             String bookIdStr = request.getParameter("bookId");
             boolean isEdit = (bookIdStr != null && !bookIdStr.trim().isEmpty());
-            
+
             String title = request.getParameter("title");
             String summary = request.getParameter("summary");
             String description = request.getParameter("description");
-            String contentPath = request.getParameter("contentPath");
             String priceStr = request.getParameter("price");
             String currency = request.getParameter("currency");
             String totalPagesStr = request.getParameter("totalPages");
@@ -147,54 +142,105 @@ public class AdminBookFormServlet extends HttpServlet {
             String status = request.getParameter("status");
             String authorIdStr = request.getParameter("authorId");
             String categoryIdStr = request.getParameter("categoryId");
+
             String oldCoverUrl = request.getParameter("oldCoverUrl");
-            
+            String oldContentPath = request.getParameter("oldContentPath");
+
             String coverUrl = oldCoverUrl;
-            
-            Part filePart = request.getPart("coverFile");
-            if (filePart != null && filePart.getSize() > 0) {
-                String fileName = getFileName(filePart);
-                
+
+            Part coverPart = request.getPart("coverFile");
+            if (coverPart != null && coverPart.getSize() > 0) {
+                String fileName = getFileName(coverPart);
+
                 if (fileName != null && !fileName.isEmpty()) {
                     String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-                    
-                    if (fileExt.equals("jpg") || fileExt.equals("jpeg") || 
-                        fileExt.equals("png") || fileExt.equals("gif")) {
-                        
+
+                    if (fileExt.equals("jpg") || fileExt.equals("jpeg")
+                            || fileExt.equals("png") || fileExt.equals("gif")) {
+
                         String newFileName = UUID.randomUUID().toString() + "." + fileExt;
-                        
-                        String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-                        
-                        File uploadDir = new File(uploadPath);
-                        if (!uploadDir.exists()) {
-                            uploadDir.mkdirs();
+
+                        String buildPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR_COVERS;
+
+                        String webPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web")
+                                + File.separator + UPLOAD_DIR_COVERS;
+
+                        new File(buildPath).mkdirs();
+                        new File(webPath).mkdirs();
+
+                        String buildFilePath = buildPath + File.separator + newFileName;
+                        try (InputStream input = coverPart.getInputStream()) {
+                            Files.copy(input, Paths.get(buildFilePath), StandardCopyOption.REPLACE_EXISTING);
                         }
-                        
-                        String filePath = uploadPath + File.separator + newFileName;
-                        try (InputStream input = filePart.getInputStream()) {
-                            Files.copy(input, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+
+                        String webFilePath = webPath + File.separator + newFileName;
+                        try (InputStream input = coverPart.getInputStream()) {
+                            Files.copy(input, Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
                         }
-                       
-                        coverUrl = UPLOAD_DIR + "/" + newFileName;
-                        
-                        System.out.println("Upload anh thanh cong: " + coverUrl);
-                        
+
+                        coverUrl = UPLOAD_DIR_COVERS + "/" + newFileName;
+                        System.out.println("Upload anh bia: " + buildFilePath);
+                        System.out.println("Backup to: " + webFilePath);
+
                     } else {
-                        request.setAttribute("error", "Chi chap nhan file anh JPG, PNG, GIF!");
+                        request.setAttribute("error", "Anh bia chi chap nhan JPG, PNG, GIF!");
                         reloadFormWithError(request, response, isEdit, bookIdStr);
                         return;
                     }
                 }
             }
-            
+
+            String contentPath = oldContentPath;
+
+            Part pdfPart = request.getPart("contentFile");
+            if (pdfPart != null && pdfPart.getSize() > 0) {
+                String fileName = getFileName(pdfPart);
+
+                if (fileName != null && !fileName.isEmpty()) {
+                    String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+
+                    if (fileExt.equals("pdf")) {
+
+                        String newFileName = UUID.randomUUID().toString() + ".pdf";
+
+                        String buildPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR_BOOKS;
+
+                        String webPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web")
+                                + File.separator + UPLOAD_DIR_BOOKS;
+
+                        new File(buildPath).mkdirs();
+                        new File(webPath).mkdirs();
+
+                        String buildFilePath = buildPath + File.separator + newFileName;
+                        try (InputStream input = pdfPart.getInputStream()) {
+                            Files.copy(input, Paths.get(buildFilePath), StandardCopyOption.REPLACE_EXISTING);
+                        }
+
+                        String webFilePath = webPath + File.separator + newFileName;
+                        try (InputStream input = pdfPart.getInputStream()) {
+                            Files.copy(input, Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
+                        }
+
+                        contentPath = UPLOAD_DIR_BOOKS + "/" + newFileName;
+                        System.out.println("Upload PDF: " + buildFilePath);
+                        System.out.println("Backup to: " + webFilePath);
+
+                    } else {
+                        request.setAttribute("error", "File noi dung chi chap nhan PDF!");
+                        reloadFormWithError(request, response, isEdit, bookIdStr);
+                        return;
+                    }
+                }
+            }
+
             StringBuilder errors = new StringBuilder();
-            
+
             if (title == null || title.trim().isEmpty()) {
                 errors.append("Ten sach khong duoc de trong. ");
             } else if (title.trim().length() > 500) {
                 errors.append("Ten sach khong duoc qua 500 ky tu. ");
             }
-            
+
             BigDecimal price = BigDecimal.ZERO;
             if (priceStr != null && !priceStr.trim().isEmpty()) {
                 try {
@@ -209,7 +255,7 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("Gia tien khong hop le. ");
                 }
             }
-            
+
             int totalPages = 0;
             if (totalPagesStr != null && !totalPagesStr.trim().isEmpty()) {
                 try {
@@ -224,7 +270,7 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("So trang khong hop le. ");
                 }
             }
-            
+
             int previewPages = 0;
             if (previewPagesStr != null && !previewPagesStr.trim().isEmpty()) {
                 try {
@@ -239,7 +285,7 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("So trang xem truoc khong hop le. ");
                 }
             }
-            
+
             int authorId = 0;
             if (authorIdStr != null && !authorIdStr.trim().isEmpty()) {
                 try {
@@ -254,7 +300,7 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("ID tac gia khong hop le. ");
                 }
             }
-            
+
             int categoryId = 0;
             if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
                 try {
@@ -269,13 +315,13 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("ID danh muc khong hop le. ");
                 }
             }
-            
+
             if (status != null && !status.isEmpty()) {
                 if (!status.equals("active") && !status.equals("inactive") && !status.equals("draft")) {
                     status = "active";
                 }
             }
-            
+
             int bookId = 0;
             if (isEdit) {
                 try {
@@ -290,13 +336,13 @@ public class AdminBookFormServlet extends HttpServlet {
                     errors.append("ID sach khong hop le. ");
                 }
             }
-            
+
             if (errors.length() > 0) {
                 request.setAttribute("error", errors.toString());
                 reloadFormWithError(request, response, isEdit, bookIdStr);
                 return;
             }
-            
+
             Book book = new Book();
             book.setTitle(title.trim());
             book.setSummary(summary != null ? summary.trim() : null);
@@ -310,9 +356,9 @@ public class AdminBookFormServlet extends HttpServlet {
             book.setStatus(status != null && !status.isEmpty() ? status : "active");
             book.setAuthorId(authorId);
             book.setCategoryId(categoryId);
-            
+
             boolean success;
-            
+
             if (isEdit) {
                 book.setBookId(bookId);
                 book.setUpdatedByEmployeeId(employee.getEmployeeId());
@@ -321,14 +367,14 @@ public class AdminBookFormServlet extends HttpServlet {
                 book.setCreatedByEmployeeId(employee.getEmployeeId());
                 success = bookDAO.addBook(book);
             }
-            
+
             if (success) {
                 response.sendRedirect(request.getContextPath() + "/books-list");
             } else {
-                request.setAttribute("error", "Khong the luu sach. Vui long thu lai!");
+                request.setAttribute("error", "Khong the luu sach!");
                 reloadFormWithError(request, response, isEdit, bookIdStr);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Loi he thong: " + e.getMessage());
@@ -339,7 +385,7 @@ public class AdminBookFormServlet extends HttpServlet {
             request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
         }
     }
-    
+
     private String getFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
         String[] tokens = contentDisp.split(";");
@@ -350,11 +396,11 @@ public class AdminBookFormServlet extends HttpServlet {
         }
         return null;
     }
-    
+
     private void reloadFormWithError(HttpServletRequest request, HttpServletResponse response,
-                                     boolean isEdit, String bookIdStr) 
+            boolean isEdit, String bookIdStr)
             throws ServletException, IOException {
-        
+
         if (isEdit && bookIdStr != null && !bookIdStr.isEmpty()) {
             try {
                 Book existingBook = bookDAO.getBookById(Integer.parseInt(bookIdStr));
@@ -367,7 +413,7 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("mode", "add");
             request.setAttribute("book", new Book());
         }
-        
+
         request.setAttribute("authors", authorDAO.getAllAuthors());
         request.setAttribute("categories", categoryDAO.getAllCategories());
         request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);

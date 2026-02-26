@@ -257,31 +257,41 @@
                         <label>Mô tả chi tiết</label>
                         <textarea name="description" rows="5" placeholder="Mô tả chi tiết...">${book.description}</textarea>
                     </div>
-
-                    <!-- Upload ảnh bìa -->
                     <div class="form-group">
                         <label>Ảnh bìa</label>
 
                         <c:if test="${mode == 'edit' && not empty book.coverUrl}">
                             <div style="margin-bottom: 10px;">
                                 <img src="${pageContext.request.contextPath}/${book.coverUrl}" 
-                                     alt="Ảnh bìa hiện tại" 
-                                     style="max-width: 150px; max-height: 200px; border: 1px solid #ddd; border-radius: 8px;">
-                                <p style="font-size: 12px; color: #666; margin-top: 5px;">Ảnh hiện tại</p>
+                                     alt="Ảnh bìa" 
+                                     style="max-width: 150px; max-height: 200px; border: 1px solid #ddd; border-radius: 8px;"
+                                     onerror="this.style.display='none'">
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">Ảnh hiện tại: ${book.coverUrl}</p>
                             </div>
                         </c:if>
 
-                        <input type="file" name="coverFile" accept="image/*" class="form-control"
-                               style="padding: 10px;">
-
+                        <input type="file" name="coverFile" accept="image/*" class="form-control" style="padding: 10px;">
                         <input type="hidden" name="oldCoverUrl" value="${book.coverUrl}">
-
                         <div class="form-help">Chọn file ảnh (JPG, PNG, GIF). Tối đa 5MB</div>
                     </div>
 
                     <div class="form-group">
-                        <label>Đường dẫn file PDF</label>
-                        <input type="text" name="contentPath" value="${book.contentPath}" placeholder="/books/filename.pdf">
+                        <label>File nội dung (PDF)</label>
+
+                        <c:if test="${mode == 'edit' && not empty book.contentPath}">
+                            <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                <span style="font-size: 24px;">📄</span>
+                                <a href="${pageContext.request.contextPath}/${book.contentPath}" target="_blank" 
+                                   style="color: #007bff; text-decoration: none;">
+                                    Xem file hiện tại
+                                </a>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">${book.contentPath}</p>
+                            </div>
+                        </c:if>
+
+                        <input type="file" name="contentFile" accept=".pdf" class="form-control" style="padding: 10px;">
+                        <input type="hidden" name="oldContentPath" value="${book.contentPath}">
+                        <div class="form-help">Chọn file PDF. Tối đa 50MB</div>
                     </div>
 
                     <div class="form-row">

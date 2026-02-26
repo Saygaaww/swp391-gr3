@@ -3,522 +3,520 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Sách - Admin</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f0f0;
-            min-height: 100vh;
-        }
-        
-        /* ========== HEADER ========== */
-        .header {
-            background: #5a5a5a;
-            color: white;
-            padding: 20px 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header-left h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .header-left p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .user-info {
-            text-align: right;
-        }
-        
-        .user-info strong {
-            display: block;
-            font-size: 16px;
-        }
-        
-        .user-info small {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        
-        .btn-logout {
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn-logout:hover {
-            background: white;
-            color: #5a5a5a;
-        }
-        
-        /* ========== CONTAINER ========== */
-        .container {
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        /* ========== TOOLBAR ========== */
-        .toolbar {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .search-box {
-            display: flex;
-            gap: 10px;
-            flex: 1;
-            max-width: 500px;
-        }
-        
-        .search-box input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: #888888;
-            box-shadow: 0 0 0 3px rgba(136, 136, 136, 0.1);
-        }
-        
-        /* ========== BUTTONS ========== */
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background: #888888;
-            color: white;
-            box-shadow: 0 4px 15px rgba(136, 136, 136, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(136, 136, 136, 0.4);
-        }
-        
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-        
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-        
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .btn-info {
-            background: #17a2b8;
-            color: white;
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-        
-        .btn-info:hover {
-            background: #138496;
-        }
-        
-        /* ========== STATS CARD ========== */
-        .stats-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 10px 30px;
-        }
-        
-        .stat-item h3 {
-            font-size: 32px;
-            color: #5a5a5a;
-            margin-bottom: 5px;
-        }
-        
-        .stat-item p {
-            font-size: 14px;
-            color: #666;
-        }
-        
-        /* ========== TABLE ========== */
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        thead {
-            background: #5a5a5a;
-            color: white;
-        }
-        
-        th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        td {
-            padding: 15px 16px;
-            border-bottom: 1px solid #f0f0f0;
-            vertical-align: middle;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .book-title {
-            font-weight: 600;
-            color: #333;
-            max-width: 250px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .book-cover {
-            width: 50px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        .book-cover-placeholder {
-            width: 50px;
-            height: 70px;
-            background: #ddd;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .price {
-            font-weight: 600;
-            color: #28a745;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        /* ========== EMPTY STATE ========== */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-        
-        .empty-state h3 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .empty-state p {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-        
-        /* ========== PAGINATION ========== */
-        .pagination-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .pagination-info {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .pagination-info strong {
-            color: #333;
-        }
-        
-        .pagination {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .pagination a,
-        .pagination span {
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .pagination a {
-            background: #f0f0f0;
-            color: #333;
-        }
-        
-        .pagination a:hover {
-            background: #5a5a5a;
-            color: white;
-        }
-        
-        .pagination .active {
-            background: #5a5a5a;
-            color: white;
-        }
-        
-        .pagination .disabled {
-            background: #e9ecef;
-            color: #adb5bd;
-            cursor: not-allowed;
-        }
-        
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 992px) {
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quản lý Sách - Admin</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #f0f0f0;
+                min-height: 100vh;
+            }
+
             .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
+                background: #5a5a5a;
+                color: white;
+                padding: 20px 40px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
-            
+
+            .header-left h1 {
+                font-size: 28px;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+
+            .header-left p {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
             .header-right {
-                flex-direction: column;
+                display: flex;
+                gap: 15px;
+                align-items: center;
             }
-            
+
             .user-info {
-                text-align: center;
+                text-align: right;
             }
-        }
-        
-        @media (max-width: 768px) {
-            .toolbar {
-                flex-direction: column;
+
+            .user-info strong {
+                display: block;
+                font-size: 16px;
             }
-            
-            .search-box {
-                max-width: 100%;
-                width: 100%;
-            }
-            
-            .stats-card {
-                flex-direction: column;
-            }
-            
-            .stat-item {
-                padding: 10px;
-            }
-            
-            table {
+
+            .user-info small {
                 font-size: 12px;
+                opacity: 0.8;
             }
-            
-            th, td {
-                padding: 10px 8px;
+
+            .btn-logout {
+                padding: 10px 20px;
+                background: rgba(255,255,255,0.2);
+                border: 2px solid white;
+                color: white;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: inline-block;
             }
-            
-            .actions {
-                flex-direction: column;
-                gap: 5px;
+
+            .btn-logout:hover {
+                background: white;
+                color: #5a5a5a;
             }
-            
-            .pagination-container {
-                flex-direction: column;
+
+            /* ========== CONTAINER ========== */
+            .container {
+                max-width: 1400px;
+                margin: 30px auto;
+                padding: 0 20px;
+            }
+
+            .toolbar {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .search-box {
+                display: flex;
+                gap: 10px;
+                flex: 1;
+                max-width: 500px;
+            }
+
+            .search-box input {
+                flex: 1;
+                padding: 12px 18px;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                font-size: 14px;
+                transition: all 0.3s;
+            }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: #888888;
+                box-shadow: 0 0 0 3px rgba(136, 136, 136, 0.1);
+            }
+
+            .btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn-primary {
+                background: #888888;
+                color: white;
+                box-shadow: 0 4px 15px rgba(136, 136, 136, 0.3);
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(136, 136, 136, 0.4);
+            }
+
+            .btn-success {
+                background: #28a745;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #218838;
+                transform: translateY(-2px);
+            }
+
+            .btn-warning {
+                background: #ffc107;
+                color: #212529;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .btn-warning:hover {
+                background: #e0a800;
+            }
+
+            .btn-danger {
+                background: #dc3545;
+                color: white;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .btn-danger:hover {
+                background: #c82333;
+            }
+
+            .btn-info {
+                background: #17a2b8;
+                color: white;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .btn-info:hover {
+                background: #138496;
+            }
+
+            /* ========== STATS CARD ========== */
+            .stats-card {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .stat-item {
                 text-align: center;
+                padding: 10px 30px;
             }
-        }
-    </style>
-</head>
-<body>
-    <!-- ========== HEADER ========== -->
-    <div class="header">
-        <div class="header-left">
-            <h1>📚 Quản lý Sách</h1>
-            <p>Digital Library Management System</p>
+
+            .stat-item h3 {
+                font-size: 32px;
+                color: #5a5a5a;
+                margin-bottom: 5px;
+            }
+
+            .stat-item p {
+                font-size: 14px;
+                color: #666;
+            }
+
+            /* ========== TABLE ========== */
+            .table-container {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                overflow: hidden;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            thead {
+                background: #5a5a5a;
+                color: white;
+            }
+
+            th {
+                padding: 16px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            td {
+                padding: 15px 16px;
+                border-bottom: 1px solid #f0f0f0;
+                vertical-align: middle;
+            }
+
+            tbody tr:hover {
+                background: #f8f9fa;
+            }
+
+            .book-title {
+                font-weight: 600;
+                color: #333;
+                max-width: 250px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .book-cover {
+                width: 50px;
+                height: 70px;
+                object-fit: cover;
+                border-radius: 4px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            }
+
+            .book-cover-placeholder {
+                width: 50px;
+                height: 70px;
+                background: #ddd;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+            }
+
+            .status-badge {
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .status-active {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .status-inactive {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+            .price {
+                font-weight: 600;
+                color: #28a745;
+            }
+
+            .actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            /* ========== EMPTY STATE ========== */
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: #666;
+            }
+
+            .empty-state h3 {
+                font-size: 24px;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .empty-state p {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            /* ========== PAGINATION ========== */
+            .pagination-container {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+                margin-top: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .pagination-info {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .pagination-info strong {
+                color: #333;
+            }
+
+            .pagination {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .pagination a,
+            .pagination span {
+                padding: 10px 16px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 14px;
+                transition: all 0.3s;
+            }
+
+            .pagination a {
+                background: #f0f0f0;
+                color: #333;
+            }
+
+            .pagination a:hover {
+                background: #5a5a5a;
+                color: white;
+            }
+
+            .pagination .active {
+                background: #5a5a5a;
+                color: white;
+            }
+
+            .pagination .disabled {
+                background: #e9ecef;
+                color: #adb5bd;
+                cursor: not-allowed;
+            }
+
+            /* ========== RESPONSIVE ========== */
+            @media (max-width: 992px) {
+                .header {
+                    flex-direction: column;
+                    gap: 15px;
+                    text-align: center;
+                }
+
+                .header-right {
+                    flex-direction: column;
+                }
+
+                .user-info {
+                    text-align: center;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .toolbar {
+                    flex-direction: column;
+                }
+
+                .search-box {
+                    max-width: 100%;
+                    width: 100%;
+                }
+
+                .stats-card {
+                    flex-direction: column;
+                }
+
+                .stat-item {
+                    padding: 10px;
+                }
+
+                table {
+                    font-size: 12px;
+                }
+
+                th, td {
+                    padding: 10px 8px;
+                }
+
+                .actions {
+                    flex-direction: column;
+                    gap: 5px;
+                }
+
+                .pagination-container {
+                    flex-direction: column;
+                    text-align: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-left">
+                <h1>Quản lý Sách</h1>
+                <p>Digital Library Management System</p>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <strong>👤 ${currentEmployee.fullName}</strong>
+                    <small>${currentEmployee.roleName}</small>
+                </div>
+                <a href="${pageContext.request.contextPath}/mock-logout" class="btn-logout">
+                    Logout
+                </a>
+            </div>
         </div>
-        <div class="header-right">
-            <div class="user-info">
-                <strong>👤 ${currentEmployee.fullName}</strong>
-                <small>${currentEmployee.roleName}</small>
-            </div>
-            <a href="${pageContext.request.contextPath}/mock-logout" class="btn-logout">
-                🚪 Logout
-            </a>
-        </div>
-    </div>
-    
-    <!-- ========== MAIN CONTAINER ========== -->
-    <div class="container">
-        
-        <!-- ========== STATS CARD ========== -->
-        <div class="stats-card">
-            <div class="stat-item">
-                <h3>${totalBooks}</h3>
-                <p>📖 Tổng số sách</p>
-            </div>
-            <div class="stat-item">
-                <h3>${currentPage} / ${totalPages}</h3>
-                <p>📄 Trang hiện tại</p>
-            </div>
-            <div class="stat-item">
-                <h3>${pageSize}</h3>
-                <p>📋 Sách mỗi trang</p>
-            </div>
-            <c:if test="${not empty keyword}">
+
+        <div class="container">
+
+            <div class="stats-card">
                 <div class="stat-item">
                     <h3>${totalBooks}</h3>
-                    <p>🔍 Kết quả: "${keyword}"</p>
+                    <p>Tổng số sách</p>
                 </div>
-            </c:if>
-        </div>
-        
-        <!-- ========== TOOLBAR ========== -->
-        <div class="toolbar">
-            <form action="${pageContext.request.contextPath}/books-list" method="get" class="search-box">
-                <input 
-                    type="text" 
-                    name="keyword" 
-                    placeholder="🔍 Tìm kiếm sách theo tên hoặc tác giả..." 
-                    value="${keyword}"
-                />
-                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-            </form>
-            
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="stat-item">
+                    <h3>${currentPage} / ${totalPages}</h3>
+                    <p> Trang hiện tại</p>
+                </div>
+                <div class="stat-item">
+                    <h3>${pageSize}</h3>
+                    <p> Sách mỗi trang</p>
+                </div>
+                <c:if test="${not empty keyword}">
+                    <div class="stat-item">
+                        <h3>${totalBooks}</h3>
+                        <p>🔍 Kết quả: "${keyword}"</p>
+                    </div>
+                </c:if>
+            </div>
+
+            <div class="toolbar">
+                <form action="${pageContext.request.contextPath}/books-list" method="GET" class="search-box">
+                    <input type="hidden" name="pageSize" value="${pageSize}">
+                    <input type="text" name="keyword" placeholder="Tim theo ten sach, tac gia..." 
+                           value="${keyword}">
+                    <button type="submit" class="btn btn-primary">Tim kiem</button>
+                </form>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="page-size-group">
+                        <span>Hien thi:</span>
+                        <a href="${pageContext.request.contextPath}/books-list?page=1&pageSize=5${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
+                           class="btn-size ${pageSize == 5 ? 'active' : ''}">5</a>
+                        <a href="${pageContext.request.contextPath}/books-list?page=1&pageSize=10${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
+                           class="btn-size ${pageSize == 10 ? 'active' : ''}">10</a>
+                        <span>sach/trang</span>
+                    </div>
+                </div>
+
                 <a href="${pageContext.request.contextPath}/books-list" class="btn btn-info">
-                    🔄 Làm mới
+                    Làm mới
                 </a>
-                <!-- Link đến form gộp (thêm/sửa) -->
+
                 <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                    ➕ Thêm sách mới
+                    Thêm sách mới
                 </a>
             </div>
         </div>
-        
-        <!-- ========== TABLE ========== -->
+
         <div class="table-container">
             <c:choose>
                 <c:when test="${empty bookList}">
-                    <!-- Empty State -->
                     <div class="empty-state">
-                        <h3>📭 Không có sách nào</h3>
+                        <h3>Không có sách nào</h3>
                         <p>
                             <c:choose>
                                 <c:when test="${not empty keyword}">
@@ -530,12 +528,12 @@
                             </c:choose>
                         </p>
                         <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                            ➕ Thêm sách đầu tiên
+                            Thêm sách đầu tiên
                         </a>
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <!-- Data Table -->
+
                     <table>
                         <thead>
                             <tr>
@@ -589,26 +587,26 @@
                                     <td>
                                         <c:choose>
                                             <c:when test="${book.status == 'active'}">
-                                                <span class="status-badge status-active">✓ Active</span>
+                                                <span class="status-badge status-active">Active</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="status-badge status-inactive">✗ Inactive</span>
+                                                <span class="status-badge status-inactive">Inactive</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
                                         <div class="actions">
-                                            <!-- Link đến form gộp với id (chế độ sửa) -->
+
                                             <a href="${pageContext.request.contextPath}/admin/book-form?id=${book.bookId}" 
                                                class="btn btn-warning" 
                                                title="Sửa sách">
-                                                ✏️ Sửa
+                                                Sửa
                                             </a>
                                             <a href="${pageContext.request.contextPath}/admin/book-delete?id=${book.bookId}" 
                                                class="btn btn-danger" 
                                                onclick="return confirm('Bạn có chắc chắn muốn xóa sách này?\n\nTên sách: ${book.title}')"
                                                title="Xóa sách">
-                                                🗑️ Xóa
+                                                Xóa
                                             </a>
                                         </div>
                                     </td>
@@ -619,88 +617,45 @@
                 </c:otherwise>
             </c:choose>
         </div>
-        
-        <!-- ========== PAGINATION ========== -->
+        <!-- pt -->
         <c:if test="${totalPages > 1}">
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    Hiển thị trang <strong>${currentPage}</strong> / <strong>${totalPages}</strong> 
-                    &nbsp;|&nbsp; Tổng cộng: <strong>${totalBooks}</strong> sách
-                    <c:if test="${not empty keyword}">
-                        &nbsp;|&nbsp; Tìm kiếm: "<strong>${keyword}</strong>"
-                    </c:if>
-                </div>
-                
-                <div class="pagination">
-                    <!-- Nút Trang đầu -->
+            <div class="pagination">
+                <c:choose>
+                    <c:when test="${currentPage > 1}">
+                        <a href="${pageContext.request.contextPath}/books-list?page=${currentPage - 1}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
+                            &laquo; Truoc
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="disabled">&laquo; Truoc</span>
+                    </c:otherwise>
+                </c:choose>
+
+                <c:forEach begin="1" end="${totalPages}" var="i">
                     <c:choose>
-                        <c:when test="${currentPage > 1}">
-                            <a href="${pageContext.request.contextPath}/books-list?page=1${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
-                               title="Trang đầu">
-                                ⏮️
-                            </a>
+                        <c:when test="${i == currentPage}">
+                            <span class="active">${i}</span>
                         </c:when>
                         <c:otherwise>
-                            <span class="disabled">⏮️</span>
-                        </c:otherwise>
-                    </c:choose>
-                    
-                    <!-- Nút Previous -->
-                    <c:choose>
-                        <c:when test="${currentPage > 1}">
-                            <a href="${pageContext.request.contextPath}/books-list?page=${currentPage - 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}"
-                               title="Trang trước">
-                                ← Trước
+                            <a href="${pageContext.request.contextPath}/books-list?page=${i}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
+                                ${i}
                             </a>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="disabled">← Trước</span>
                         </c:otherwise>
                     </c:choose>
-                    
-                    <!-- Các số trang -->
-                    <c:forEach begin="1" end="${totalPages}" var="i">
-                        <c:choose>
-                            <c:when test="${i == currentPage}">
-                                <span class="active">${i}</span>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/books-list?page=${i}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
-                                    ${i}
-                                </a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-                    
-                    <!-- Nút Next -->
-                    <c:choose>
-                        <c:when test="${currentPage < totalPages}">
-                            <a href="${pageContext.request.contextPath}/books-list?page=${currentPage + 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}"
-                               title="Trang sau">
-                                Sau →
-                            </a>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="disabled">Sau →</span>
-                        </c:otherwise>
-                    </c:choose>
-                    
-                    <!-- Nút Trang cuối -->
-                    <c:choose>
-                        <c:when test="${currentPage < totalPages}">
-                            <a href="${pageContext.request.contextPath}/books-list?page=${totalPages}${not empty keyword ? '&keyword='.concat(keyword) : ''}"
-                               title="Trang cuối">
-                                ⏭️
-                            </a>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="disabled">⏭️</span>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
+                </c:forEach>
+
+                <c:choose>
+                    <c:when test="${currentPage < totalPages}">
+                        <a href="${pageContext.request.contextPath}/books-list?page=${currentPage + 1}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
+                            Sau &raquo;
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="disabled">Sau &raquo;</span>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </c:if>
-        
     </div>
 </body>
 </html>

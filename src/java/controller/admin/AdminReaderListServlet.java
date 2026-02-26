@@ -23,7 +23,7 @@ public class AdminReaderListServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         readerDAO = new ReaderDAO();
-        System.out.println("AdminReaderListServlet initialized - PAGE_SIZE: " + PAGE_SIZE);
+        System.out.println("AdminReaderListServlet initialized");
     }
     
     @Override
@@ -44,18 +44,34 @@ public class AdminReaderListServlet extends HttpServlet {
         
         if (action != null && idStr != null) {
             try {
-                int readerId = Integer.parseInt(idStr);
-                
-                if ("block".equals(action)) {
-                    readerDAO.updateReaderStatus(readerId, "blocked");
-                    System.out.println("Blocked reader ID: " + readerId);
-                } else if ("unblock".equals(action)) {
-                    readerDAO.updateReaderStatus(readerId, "active");
-                    System.out.println("Unblocked reader ID: " + readerId);
+                int readerId;
+                try {
+                    readerId = Integer.parseInt(idStr.trim());
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid reader ID format: " + idStr);
+                    readerId = -1;
                 }
                 
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid reader ID: " + idStr);
+                if (readerId > 0 && readerId <= 999999999) {
+                    Reader reader = readerDAO.getReaderById(readerId);
+                    
+                    if (reader != null) {
+                        if ("block".equals(action)) {
+                            readerDAO.updateReaderStatus(readerId, "blocked");
+                            System.out.println("Blocked reader ID: " + readerId);
+                        } else if ("unblock".equals(action)) {
+                            readerDAO.updateReaderStatus(readerId, "active");
+                            System.out.println("Unblocked reader ID: " + readerId);
+                        }
+                    } else {
+                        System.err.println("Reader not found: " + readerId);
+                    }
+                } else {
+                    System.err.println("Reader ID out of range: " + idStr);
+                }
+                
+            } catch (Exception e) {
+                System.err.println("Error processing action: " + e.getMessage());
             }
         }
         
@@ -78,7 +94,7 @@ public class AdminReaderListServlet extends HttpServlet {
             int totalPages;
             
             if (keyword != null && !keyword.trim().isEmpty()) {
-                keyword = keyword.trim();
+                keyword = keyword.trim().replaceAll("\\s+", " ");
                 totalReaders = readerDAO.countReadersByKeyword(keyword);
                 totalPages = (int) Math.ceil((double) totalReaders / PAGE_SIZE);
                 if (totalPages < 1) totalPages = 1;
@@ -86,9 +102,6 @@ public class AdminReaderListServlet extends HttpServlet {
                 
                 readerList = readerDAO.searchReadersByPage(keyword, currentPage, PAGE_SIZE);
                 request.setAttribute("keyword", keyword);
-                
-                System.out.println("Search readers '" + keyword + "': Page " + currentPage + 
-                                 "/" + totalPages + " - " + readerList.size() + " results");
             } else {
                 totalReaders = readerDAO.getTotalReaders();
                 totalPages = (int) Math.ceil((double) totalReaders / PAGE_SIZE);
@@ -96,9 +109,6 @@ public class AdminReaderListServlet extends HttpServlet {
                 if (currentPage > totalPages) currentPage = totalPages;
                 
                 readerList = readerDAO.getReadersByPage(currentPage, PAGE_SIZE);
-                
-                System.out.println("Readers: Page " + currentPage + "/" + totalPages + 
-                                 " - " + readerList.size() + "/" + totalReaders);
             }
             
             int activeCount = readerDAO.countReadersByStatus("active");
@@ -111,8 +121,6 @@ public class AdminReaderListServlet extends HttpServlet {
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("pageSize", PAGE_SIZE);
             request.setAttribute("currentEmployee", currentEmployee);
-            
-            // Thống kê
             request.setAttribute("activeCount", activeCount);
             request.setAttribute("blockedCount", blockedCount);
             request.setAttribute("inactiveCount", inactiveCount);
@@ -120,9 +128,9 @@ public class AdminReaderListServlet extends HttpServlet {
             request.getRequestDispatcher("/admin/reader-list.jsp").forward(request, response);
             
         } catch (Exception e) {
-            System.err.println("AdminReaderListServlet.doGet Error: " + e.getMessage());
+            System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Loi: " + e.getMessage());
             request.getRequestDispatcher("/admin/reader-list.jsp").forward(request, response);
         }
     }
@@ -139,7 +147,6 @@ public class AdminReaderListServlet extends HttpServlet {
         
         request.setCharacterEncoding("UTF-8");
         
-        // Tìm kiếm - redirect sang GET với keyword
         String keyword = request.getParameter("keyword");
         String redirectUrl = request.getContextPath() + "/admin/readers";
         
