@@ -1,11 +1,13 @@
 package controller.admin;
 
 import dal.BookDAO;
+import dal.AuthorDAO;
+import dal.CategoryDAO;
 import model.Book;
+import model.Author;
+import model.Category;
 import model.Employee;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,11 +20,15 @@ import jakarta.servlet.http.HttpSession;
 public class AdminBookListServlet extends HttpServlet {
     
     private BookDAO bookDAO;
+    private AuthorDAO authorDAO;
+    private CategoryDAO categoryDAO;
     private static final int DEFAULT_PAGE_SIZE = 5;
     
     @Override
     public void init() throws ServletException {
         bookDAO = new BookDAO();
+        authorDAO = new AuthorDAO();
+        categoryDAO = new CategoryDAO();
         System.out.println("AdminBookListServlet initialized");
     }
     
@@ -41,16 +47,21 @@ public class AdminBookListServlet extends HttpServlet {
         
         try {
             int pageSize = DEFAULT_PAGE_SIZE;
+            boolean showAll = false;
             String pageSizeStr = request.getParameter("pageSize");
             if (pageSizeStr != null && !pageSizeStr.trim().isEmpty()) {
-                try {
-                    pageSize = Integer.parseInt(pageSizeStr);
-
-                    if (pageSize != 5 && pageSize != 10) {
+                if (pageSizeStr.equals("all")) {
+                    showAll = true;
+                    pageSize = Integer.MAX_VALUE;
+                } else {
+                    try {
+                        pageSize = Integer.parseInt(pageSizeStr);
+                        if (pageSize != 5 && pageSize != 10 && pageSize != 20) {
+                            pageSize = DEFAULT_PAGE_SIZE;
+                        }
+                    } catch (NumberFormatException e) {
                         pageSize = DEFAULT_PAGE_SIZE;
                     }
-                } catch (NumberFormatException e) {
-                    pageSize = DEFAULT_PAGE_SIZE;
                 }
             }
             
@@ -66,54 +77,80 @@ public class AdminBookListServlet extends HttpServlet {
             }
             
             String keyword = request.getParameter("keyword");
+            if (keyword != null) {
+                keyword = keyword.trim().replaceAll("\\s+", " ");
+                if (keyword.isEmpty()) keyword = null;
+            }
+            
+            String categoryFilter = request.getParameter("categoryId");
+            String authorFilter = request.getParameter("authorId");
+            String statusFilter = request.getParameter("status");
+            
+            int filterCategoryId = 0;
+            int filterAuthorId = 0;
+            
+            if (categoryFilter != null && !categoryFilter.trim().isEmpty()) {
+                try {
+                    filterCategoryId = Integer.parseInt(categoryFilter);
+                } catch (NumberFormatException e) {
+                    filterCategoryId = 0;
+                }
+            }
+            
+            if (authorFilter != null && !authorFilter.trim().isEmpty()) {
+                try {
+                    filterAuthorId = Integer.parseInt(authorFilter);
+                } catch (NumberFormatException e) {
+                    filterAuthorId = 0;
+                }
+            }
+            
+            if (statusFilter != null && statusFilter.trim().isEmpty()) {
+                statusFilter = null;
+            }
             
             List<Book> bookList;
             int totalBooks;
             int totalPages;
             
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                keyword = keyword.trim().replaceAll("\\s+", " ");
-                
-                bookList = bookDAO.searchBooks(keyword);
-                totalBooks = bookList.size();
-                
-                totalPages = (int) Math.ceil((double) totalBooks / pageSize);
-                if (totalPages < 1) totalPages = 1;
-                if (currentPage > totalPages) currentPage = totalPages;
-                
-                int fromIndex = (currentPage - 1) * pageSize;
-                int toIndex = Math.min(fromIndex + pageSize, totalBooks);
-                
-                if (fromIndex < totalBooks) {
-                    bookList = bookList.subList(fromIndex, toIndex);
-                } else {
-                    bookList = bookList.subList(0, Math.min(pageSize, totalBooks));
-                }
-                
-                request.setAttribute("keyword", keyword);
-                
+            totalBooks = bookDAO.countBooksFiltered(keyword, filterCategoryId, filterAuthorId, statusFilter);
+            
+            if (showAll) {
+                totalPages = 1;
+                currentPage = 1;
+                bookList = bookDAO.getBooksFiltered(keyword, filterCategoryId, filterAuthorId, statusFilter, 1, totalBooks > 0 ? totalBooks : 1);
             } else {
-                totalBooks = bookDAO.getTotalBooks();
                 totalPages = (int) Math.ceil((double) totalBooks / pageSize);
                 if (totalPages < 1) totalPages = 1;
                 if (currentPage > totalPages) currentPage = totalPages;
                 
-                bookList = bookDAO.getBooksByPage(currentPage, pageSize);
+                bookList = bookDAO.getBooksFiltered(keyword, filterCategoryId, filterAuthorId, statusFilter, currentPage, pageSize);
             }
+            
+            List<Author> authors = authorDAO.getAllAuthors();
+            List<Category> categories = categoryDAO.getAllCategories();
             
             request.setAttribute("bookList", bookList);
             request.setAttribute("totalBooks", totalBooks);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
-            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("pageSize", showAll ? "all" : String.valueOf(pageSize));
+            request.setAttribute("showAll", showAll);
             request.setAttribute("currentEmployee", employee);
+            
+            request.setAttribute("authors", authors);
+            request.setAttribute("categories", categories);
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("filterCategoryId", filterCategoryId);
+            request.setAttribute("filterAuthorId", filterAuthorId);
+            request.setAttribute("filterStatus", statusFilter);
             
             request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
                    
         } catch (Exception e) {
             System.err.println("AdminBookListServlet Error: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Loi: " + e.getMessage());
+            request.setAttribute("errorMessage", "Loi he thong: " + e.getMessage());
             request.getRequestDispatcher("/admin/book-list.jsp").forward(request, response);
         }
     }
@@ -121,40 +158,6 @@ public class AdminBookListServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
-            return;
-        }
-        
-        request.setCharacterEncoding("UTF-8");
-        
-        String keyword = request.getParameter("keyword");
-        String pageSize = request.getParameter("pageSize");
-        
-        String redirectUrl = request.getContextPath() + "/books-list";
-        StringBuilder params = new StringBuilder();
-        
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            keyword = keyword.trim().replaceAll("\\s+", " ");
-            try {
-                String encodedKeyword = URLEncoder.encode(keyword, "UTF-8");
-                params.append("keyword=").append(encodedKeyword);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        
-        if (pageSize != null && !pageSize.trim().isEmpty()) {
-            if (params.length() > 0) params.append("&");
-            params.append("pageSize=").append(pageSize);
-        }
-        
-        if (params.length() > 0) {
-            redirectUrl += "?" + params.toString();
-        }
-        
-        response.sendRedirect(redirectUrl);
+        doGet(request, response);
     }
 }

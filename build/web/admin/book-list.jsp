@@ -441,6 +441,37 @@
                     text-align: center;
                 }
             }
+            /* ========== DROPDOWN CHON SO TRANG ========== */
+            .page-size-dropdown {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .page-size-dropdown label {
+                font-size: 14px;
+                color: #555;
+            }
+
+            .page-size-dropdown select {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 14px;
+                background: white;
+                cursor: pointer;
+                min-width: 100px;
+            }
+
+            .page-size-dropdown select:hover {
+                border-color: #667eea;
+            }
+
+            .page-size-dropdown select:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            }
         </style>
     </head>
     <body>
@@ -484,178 +515,292 @@
             </div>
 
             <div class="toolbar">
-                <form action="${pageContext.request.contextPath}/books-list" method="GET" class="search-box">
-                    <input type="hidden" name="pageSize" value="${pageSize}">
-                    <input type="text" name="keyword" placeholder="Tim theo ten sach, tac gia..." 
-                           value="${keyword}">
-                    <button type="submit" class="btn btn-primary">Tim kiem</button>
-                </form>
+                <div class="toolbar-left">
+                    <a href="${pageContext.request.contextPath}/books-list" class="btn btn-info"">Lam moi</a>
+                    <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">Them sach moi</a>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <div class="page-size-group">
-                        <span>Hien thi:</span>
-                        <a href="${pageContext.request.contextPath}/books-list?page=1&pageSize=5${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
-                           class="btn-size ${pageSize == 5 ? 'active' : ''}">5</a>
-                        <a href="${pageContext.request.contextPath}/books-list?page=1&pageSize=10${not empty keyword ? '&keyword='.concat(keyword) : ''}" 
-                           class="btn-size ${pageSize == 10 ? 'active' : ''}">10</a>
-                        <span>sach/trang</span>
-                    </div>
+                    <span style="margin-left: 15px;">Hien thi:</span>
+                    <select id="pageSizeSelect" onchange="applyFilters()" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        <option value="5" ${pageSize == '5' ? 'selected' : ''}>5</option>
+                        <option value="10" ${pageSize == '10' ? 'selected' : ''}>10</option>
+                        <option value="20" ${pageSize == '20' ? 'selected' : ''}>20</option>
+                        <option value="all" ${pageSize == 'all' ? 'selected' : ''}>Tat ca</option>
+                    </select>
                 </div>
 
-                <a href="${pageContext.request.contextPath}/books-list" class="btn btn-info">
-                    Làm mới
-                </a>
-
-                <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                    Thêm sách mới
-                </a>
+                <div class="toolbar-right">
+                    <input type="text" id="searchKeyword" placeholder="Tim theo ten sach, tac gia..."
+                           value="${keyword}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 220px;" />
+                    <button onclick="applyFilters()" class="btn btn-primary">Tim kiem</button>
+                </div>
             </div>
-        </div>
 
-        <div class="table-container">
-            <c:choose>
-                <c:when test="${empty bookList}">
-                    <div class="empty-state">
-                        <h3>Không có sách nào</h3>
-                        <p>
+            <%-- ===== BO LOC MOI - TANG COMPLEXITY ===== --%>
+            <div class="filter-bar" style="display: flex; gap: 15px; margin: 15px 0; padding: 15px 20px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 13px; color: #555;">Danh muc:</label>
+                    <select id="filterCategory" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; min-width: 150px;">
+                        <option value="">-- Tat ca --</option>
+                        <c:forEach var="cat" items="${categories}">
+                            <option value="${cat.categoryId}" ${filterCategoryId == cat.categoryId ? 'selected' : ''}>
+                                ${cat.categoryName}
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 13px; color: #555;">Tac gia:</label>
+                    <select id="filterAuthor" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; min-width: 150px;">
+                        <option value="">-- Tat ca --</option>
+                        <c:forEach var="author" items="${authors}">
+                            <option value="${author.authorId}" ${filterAuthorId == author.authorId ? 'selected' : ''}>
+                                ${author.authorName}
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 13px; color: #555;">Trang thai:</label>
+                    <select id="filterStatus" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; min-width: 120px;">
+                        <option value="">-- Tat ca --</option>
+                        <option value="active" ${filterStatus == 'active' ? 'selected' : ''}>Active</option>
+                        <option value="inactive" ${filterStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
+                    </select>
+                </div>
+
+                <button onclick="applyFilters()" class="btn btn-primary" style="padding: 6px 16px;">Loc</button>
+                <button onclick="clearFilters()" class="btn btn-info" style="padding: 6px 16px;">Xoa loc</button>
+            </div>
+
+            <script>
+                function changePageSize(size) {
+                    var keyword = '${keyword}';
+                    var url = '${pageContext.request.contextPath}/books-list?page=1&pageSize=' + size;
+                    if (keyword && keyword.trim() !== '') {
+                        url += '&keyword=' + encodeURIComponent(keyword);
+                    }
+                    window.location.href = url;
+                }
+            </script>
+
+            <div class="info-text">
+                <c:choose>
+                    <c:when test="${showAll}">
+                        Hien thi tat ca ${totalBooks} sach
+                    </c:when>
+                    <c:otherwise>
+                        Hien thi ${bookList.size()} / ${totalBooks} sach | 
+                        Trang ${currentPage} / ${totalPages}
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+            <div class="table-container">
+                <c:choose>
+                    <c:when test="${empty bookList}">
+                        <div class="empty-state">
+                            <h3>Không có sách nào</h3>
+                            <p>
+                                <c:choose>
+                                    <c:when test="${not empty keyword}">
+                                        Không tìm thấy sách với từ khóa "<strong>${keyword}</strong>"
+                                    </c:when>
+                                    <c:otherwise>
+                                        Hệ thống chưa có sách. Hãy thêm sách mới!
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
+                            <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
+                                Thêm sách đầu tiên
+                            </a>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ảnh bìa</th>
+                                    <th>Tên sách</th>
+                                    <th>Tác giả</th>
+                                    <th>Danh mục</th>
+                                    <th>Giá</th>
+                                    <th>Số trang</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="book" items="${bookList}">
+                                    <tr>
+                                        <td><strong>#${book.bookId}</strong></td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${not empty book.coverUrl}">
+                                                    <img src="${pageContext.request.contextPath}/${book.coverUrl}" alt="${book.title}" class="book-cover" onerror="this.style.display='none'" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="book-cover-placeholder">📖</div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <div class="book-title" title="${book.title}">
+                                                ${book.title}
+                                            </div>
+                                            <c:if test="${not empty book.summary}">
+                                                <small style="color:#888; display:block; margin-top:5px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                                    ${book.summary}
+                                                </small>
+                                            </c:if>
+                                        </td>
+                                        <td>${not empty book.authorName ? book.authorName : '-'}</td>
+                                        <td>${not empty book.categoryName ? book.categoryName : '-'}</td>
+                                        <td class="price">
+                                            <c:choose>
+                                                <c:when test="${book.price != null && book.price > 0}">
+                                                    <fmt:formatNumber value="${book.price}" type="number" groupingUsed="true"/>
+                                                    ${not empty book.currency ? book.currency : 'VND'}
+                                                </c:when>
+                                                <c:otherwise>-</c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>${book.totalPages > 0 ? book.totalPages : '-'}</td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${book.status == 'active'}">
+                                                    <span class="status-badge status-active">Active</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-badge status-inactive">Inactive</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+
+                                                <a href="${pageContext.request.contextPath}/admin/book-form?id=${book.bookId}" 
+                                                   class="btn btn-warning" 
+                                                   title="Sửa sách">
+                                                    Sửa
+                                                </a>
+                                                <a href="${pageContext.request.contextPath}/admin/book-delete?id=${book.bookId}" 
+                                                   class="btn btn-danger" 
+                                                   onclick="return confirm('Bạn có chắc chắn muốn xóa sách này?\n\nTên sách: ${book.title}')"
+                                                   title="Xóa sách">
+                                                    Xóa
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <c:if test="${totalPages > 1 && !showAll}">
+                <div class="pagination-container">
+                    <div style="color:#666; font-size:14px;">
+                        Trang <strong>${currentPage}</strong> / <strong>${totalPages}</strong>
+                        | Tong: <strong>${totalBooks}</strong> sach
+                    </div>
+                    <div class="pagination">
+                        <c:choose>
+                            <c:when test="${currentPage > 1}">
+                                <a href="javascript:goToPage(${currentPage - 1})">← Truoc</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="disabled">← Truoc</span>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <c:forEach begin="1" end="${totalPages}" var="i">
                             <c:choose>
-                                <c:when test="${not empty keyword}">
-                                    Không tìm thấy sách với từ khóa "<strong>${keyword}</strong>"
+                                <c:when test="${i == currentPage}">
+                                    <span class="active">${i}</span>
                                 </c:when>
                                 <c:otherwise>
-                                    Hệ thống chưa có sách. Hãy thêm sách mới!
+                                    <a href="javascript:goToPage(${i})">${i}</a>
                                 </c:otherwise>
                             </c:choose>
-                        </p>
-                        <a href="${pageContext.request.contextPath}/admin/book-form" class="btn btn-success">
-                            Thêm sách đầu tiên
-                        </a>
+                        </c:forEach>
+
+                        <c:choose>
+                            <c:when test="${currentPage < totalPages}">
+                                <a href="javascript:goToPage(${currentPage + 1})">Sau →</a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="disabled">Sau →</span>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
-                </c:when>
-                <c:otherwise>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Ảnh bìa</th>
-                                <th>Tên sách</th>
-                                <th>Tác giả</th>
-                                <th>Danh mục</th>
-                                <th>Giá</th>
-                                <th>Số trang</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="book" items="${bookList}">
-                                <tr>
-                                    <td><strong>#${book.bookId}</strong></td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty book.coverUrl}">
-                                                <img src="${book.coverUrl}" alt="${book.title}" class="book-cover" />
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="book-cover-placeholder">📖</div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <div class="book-title" title="${book.title}">
-                                            ${book.title}
-                                        </div>
-                                        <c:if test="${not empty book.summary}">
-                                            <small style="color:#888; display:block; margin-top:5px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                                ${book.summary}
-                                            </small>
-                                        </c:if>
-                                    </td>
-                                    <td>${not empty book.authorName ? book.authorName : '-'}</td>
-                                    <td>${not empty book.categoryName ? book.categoryName : '-'}</td>
-                                    <td class="price">
-                                        <c:choose>
-                                            <c:when test="${book.price != null && book.price > 0}">
-                                                <fmt:formatNumber value="${book.price}" type="number" groupingUsed="true"/>
-                                                ${not empty book.currency ? book.currency : 'VND'}
-                                            </c:when>
-                                            <c:otherwise>-</c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>${book.totalPages > 0 ? book.totalPages : '-'}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${book.status == 'active'}">
-                                                <span class="status-badge status-active">Active</span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="status-badge status-inactive">Inactive</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <div class="actions">
-
-                                            <a href="${pageContext.request.contextPath}/admin/book-form?id=${book.bookId}" 
-                                               class="btn btn-warning" 
-                                               title="Sửa sách">
-                                                Sửa
-                                            </a>
-                                            <a href="${pageContext.request.contextPath}/admin/book-delete?id=${book.bookId}" 
-                                               class="btn btn-danger" 
-                                               onclick="return confirm('Bạn có chắc chắn muốn xóa sách này?\n\nTên sách: ${book.title}')"
-                                               title="Xóa sách">
-                                                Xóa
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </c:otherwise>
-            </c:choose>
+                </div>
+            </c:if>
         </div>
-        <!-- pt -->
-        <c:if test="${totalPages > 1}">
-            <div class="pagination">
-                <c:choose>
-                    <c:when test="${currentPage > 1}">
-                        <a href="${pageContext.request.contextPath}/books-list?page=${currentPage - 1}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
-                            &laquo; Truoc
-                        </a>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="disabled">&laquo; Truoc</span>
-                    </c:otherwise>
-                </c:choose>
+        <script>
+            function applyFilters() {
+                var url = '${pageContext.request.contextPath}/books-list?';
+                var params = [];
 
-                <c:forEach begin="1" end="${totalPages}" var="i">
-                    <c:choose>
-                        <c:when test="${i == currentPage}">
-                            <span class="active">${i}</span>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/books-list?page=${i}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
-                                ${i}
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
-                </c:forEach>
+                var keyword = document.getElementById('searchKeyword').value.trim();
+                if (keyword)
+                    params.push('keyword=' + encodeURIComponent(keyword));
 
-                <c:choose>
-                    <c:when test="${currentPage < totalPages}">
-                        <a href="${pageContext.request.contextPath}/books-list?page=${currentPage + 1}&pageSize=${pageSize}${not empty keyword ? '&keyword='.concat(keyword) : ''}">
-                            Sau &raquo;
-                        </a>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="disabled">Sau &raquo;</span>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </c:if>
-    </div>
-</body>
+                var pageSize = document.getElementById('pageSizeSelect').value;
+                if (pageSize)
+                    params.push('pageSize=' + pageSize);
+
+                var catId = document.getElementById('filterCategory').value;
+                if (catId)
+                    params.push('categoryId=' + catId);
+
+                var authorId = document.getElementById('filterAuthor').value;
+                if (authorId)
+                    params.push('authorId=' + authorId);
+
+                var status = document.getElementById('filterStatus').value;
+                if (status)
+                    params.push('status=' + status);
+
+                window.location.href = url + params.join('&');
+            }
+
+            function clearFilters() {
+                window.location.href = '${pageContext.request.contextPath}/books-list';
+            }
+
+            // Enter key to search
+            document.getElementById('searchKeyword').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
+            });
+            
+            function goToPage(page) {
+                var url = '${pageContext.request.contextPath}/books-list?page=' + page;
+
+                var keyword = document.getElementById('searchKeyword').value.trim();
+                if (keyword) url += '&keyword=' + encodeURIComponent(keyword);
+
+                var pageSize = document.getElementById('pageSizeSelect').value;
+                if (pageSize) url += '&pageSize=' + pageSize;
+
+                var catId = document.getElementById('filterCategory').value;
+                if (catId) url += '&categoryId=' + catId;
+
+                var authorId = document.getElementById('filterAuthor').value;
+                if (authorId) url += '&authorId=' + authorId;
+
+                var status = document.getElementById('filterStatus').value;
+                if (status) url += '&status=' + status;
+
+                window.location.href = url;
+            }
+        </script>
+    </body>
 </html>

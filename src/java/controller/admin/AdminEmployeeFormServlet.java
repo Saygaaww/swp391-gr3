@@ -44,8 +44,15 @@ public class AdminEmployeeFormServlet extends HttpServlet {
             
             String idStr = request.getParameter("id");
             
-            if (idStr != null && !idStr.trim().isEmpty()) {
+             if (idStr != null && !idStr.trim().isEmpty()) {
                 int empId = Integer.parseInt(idStr);
+                
+                if (empId <= 0 || empId > 999999999) {
+                    System.err.println("Employee ID out of range: " + empId);
+                    response.sendRedirect(request.getContextPath() + "/admin/employees");
+                    return;
+                }
+                
                 Employee employee = employeeDAO.getEmployeeById(empId);
                 
                 if (employee != null) {

@@ -410,4 +410,129 @@ public class BookDAO extends DBContext {
 
         return 10000;
     }
+    
+    public List<Book> getBooksFiltered(String keyword, int categoryId, int authorId, String status, int page, int pageSize) {
+        List<Book> books = new ArrayList<>();
+        
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT b.*, a.author_name, c.category_name ");
+        sql.append("FROM Book b ");
+        sql.append("LEFT JOIN Author a ON b.author_id = a.author_id ");
+        sql.append("LEFT JOIN Category c ON b.category_id = c.category_id ");
+        sql.append("WHERE 1=1 ");
+        
+        // Dynamic WHERE
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (b.title LIKE ? OR b.summary LIKE ? OR a.author_name LIKE ?) ");
+        }
+        if (categoryId > 0) {
+            sql.append("AND b.category_id = ? ");
+        }
+        if (authorId > 0) {
+            sql.append("AND b.author_id = ? ");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND b.status = ? ");
+        }
+        
+        sql.append("ORDER BY b.created_at DESC ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(paramIndex++, kw);
+                ps.setString(paramIndex++, kw);
+                ps.setString(paramIndex++, kw);
+            }
+            if (categoryId > 0) {
+                ps.setInt(paramIndex++, categoryId);
+            }
+            if (authorId > 0) {
+                ps.setInt(paramIndex++, authorId);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            
+            int offset = (page - 1) * pageSize;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex++, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                 while (rs.next()) {
+                    books.add(extractBookFromResultSet(rs));
+                }
+            }
+            
+            System.out.println("BookDAO.getBooksFiltered: keyword=" + keyword + 
+                             ", cat=" + categoryId + ", author=" + authorId + 
+                             ", status=" + status + ", page=" + page + 
+                             " => " + books.size() + " books");
+            
+        } catch (Exception e) {
+            System.err.println("BookDAO.getBooksFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return books;
+    }
+    
+    public int countBooksFiltered(String keyword, int categoryId, int authorId, String status) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) FROM Book b ");
+        sql.append("LEFT JOIN Author a ON b.author_id = a.author_id ");
+        sql.append("WHERE 1=1 ");
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (b.title LIKE ? OR b.summary LIKE ? OR a.author_name LIKE ?) ");
+        }
+        if (categoryId > 0) {
+            sql.append("AND b.category_id = ? ");
+        }
+        if (authorId > 0) {
+            sql.append("AND b.author_id = ? ");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND b.status = ? ");
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(paramIndex++, kw);
+                ps.setString(paramIndex++, kw);
+                ps.setString(paramIndex++, kw);
+            }
+            if (categoryId > 0) {
+                ps.setInt(paramIndex++, categoryId);
+            }
+            if (authorId > 0) {
+                ps.setInt(paramIndex++, authorId);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("BookDAO.countBooksFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
 }

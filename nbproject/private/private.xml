@@ -3,9 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/E:/prj301/LibraryManagement/web/admin/reader-form.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/admin/reader-list.jsp</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminReaderListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/model/Reader.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/admin/dashboard.jsp</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/dal/AuthorDAO.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBookFormServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/ReaderDAO.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/MockLogoutServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminEmployeeListServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/model/Book.java</file>
@@ -18,6 +23,7 @@
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBorrowApproveServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminReaderFormServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminRoleListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminEmployeeFormServlet.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/dal/CategoryDAO.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/dal/BorrowDAO.java</file>
             <file>file:/E:/prj301/LibraryManagement/src/java/dal/DBContext.java</file>

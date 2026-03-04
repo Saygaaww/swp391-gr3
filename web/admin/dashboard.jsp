@@ -256,7 +256,7 @@
                     <span class="icon">📚</span>
                     <span>Danh sách sách</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/book-form" class="action-btn book">
+                <a href="${pageContext.request.contextPath}/admin/book-form" class="action-btn book">
                     <span class="icon">➕</span>
                     <span>Thêm sách mới</span>
                 </a>
@@ -289,7 +289,20 @@
                 </a>
             </div>
         </div>
-        
+        <!-- INTER 3: Duyet muon sach -->
+        <div class="quick-actions">
+            <h2 class="section-title">INTER 3 - Quan ly Muon sach</h2>
+            <div class="actions-grid">
+                <a href="${pageContext.request.contextPath}/admin/borrow-approve" class="action-btn book">
+                    <span class="icon">[D]</span>
+                    <span>Duyet yeu cau muon</span>
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/borrow-list" class="action-btn book">
+                    <span class="icon">[LS]</span>
+                    <span>Lich su yeu cau</span>
+                </a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

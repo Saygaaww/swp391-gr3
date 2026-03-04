@@ -2,55 +2,50 @@ package model;
 
 import java.sql.Timestamp;
 
-/**
- * Model class đại diện cho độc giả (Reader/User)
- * Mapping với bảng Reader trong database
- * 
- * @author Member E - Dũng
- * @version Inter 2
- */
 public class Reader {
     private int readerId;
     private String fullName;
     private String email;
     private String passwordHash;
     private String phone;
-    private String address;
-    private String status;          // active, inactive, blocked
+    private String avatar;
+    private String status;        
     private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private int roleId;             
     
-    // Constructor rỗng
+   
+    private String roleName;   
+    
     public Reader() {
     }
     
-    // Constructor đầy đủ
     public Reader(int readerId, String fullName, String email, String passwordHash,
-                  String phone, String address, String status, 
-                  Timestamp createdAt, Timestamp updatedAt) {
+                  String phone, String avatar, String status, 
+                  Timestamp createdAt, int roleId) {
         this.readerId = readerId;
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.phone = phone;
-        this.address = address;
+        this.avatar = avatar;
         this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.roleId = roleId;
     }
     
-    // Constructor không có ID (dùng khi thêm mới)
+    // Constructor khong co ID (dung khi them moi)
     public Reader(String fullName, String email, String passwordHash,
-                  String phone, String address, String status) {
+                  String phone, String avatar, String status, int roleId) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.phone = phone;
-        this.address = address;
+        this.avatar = avatar;
         this.status = status;
+        this.roleId = roleId;
     }
 
-    // Getters và Setters
+    // Getters va Setters
     public int getReaderId() {
         return readerId;
     }
@@ -91,12 +86,12 @@ public class Reader {
         this.phone = phone;
     }
 
-    public String getAddress() {
-        return address;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public String getStatus() {
@@ -115,12 +110,20 @@ public class Reader {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
+    public int getRoleId() {
+        return roleId;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     @Override
@@ -131,6 +134,8 @@ public class Reader {
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", status='" + status + '\'' +
+                ", roleId=" + roleId +
+                ", roleName='" + roleName + '\'' +
                 '}';
     }
 }

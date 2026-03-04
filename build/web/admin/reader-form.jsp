@@ -101,11 +101,6 @@
             box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
         }
         
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -175,13 +170,13 @@
 <body>
     <div class="header">
         <div>
-            <h1>${mode == 'edit' ? '✏️ Sửa Độc giả' : '➕ Thêm Độc giả'}</h1>
+            <h1>${mode == 'edit' ? 'Sua Doc gia' : 'Them Doc gia'}</h1>
             <small>Reader Form</small>
         </div>
     </div>
     
     <div class="container">
-        <a href="${pageContext.request.contextPath}/admin/readers" class="back-link">← Quay lại danh sách</a>
+        <a href="${pageContext.request.contextPath}/admin/readers" class="back-link">← Quay lai danh sach</a>
         
         <c:if test="${not empty errorMessage}">
             <div class="alert alert-danger">${errorMessage}</div>
@@ -189,82 +184,106 @@
         
         <div class="form-card">
             <div class="form-header">
-                <h2>${mode == 'edit' ? 'Cập nhật thông tin độc giả' : 'Điền thông tin độc giả mới'}</h2>
+                <h2>${mode == 'edit' ? 'Cap nhat thong tin doc gia' : 'Dien thong tin doc gia moi'}</h2>
             </div>
             
             <div class="form-body">
                 <form action="${pageContext.request.contextPath}/admin/reader-form" method="post">
                     
-                    <!-- Hidden field để phân biệt Add/Edit -->
+                    <%-- Hidden field de phan biet Add/Edit --%>
                     <c:if test="${mode == 'edit'}">
                         <input type="hidden" name="readerId" value="${reader.readerId}">
                     </c:if>
                     
+                    <%-- Ho ten + Email --%>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Họ tên <span class="required">*</span></label>
+                            <label>Ho ten <span class="required">*</span></label>
                             <input type="text" name="fullName" class="form-control" 
                                    value="${reader.fullName}" required
-                                   placeholder="Nhập họ tên độc giả">
+                                   placeholder="Nhap ho ten doc gia" maxlength="255">
                         </div>
                         
                         <div class="form-group">
                             <label>Email <span class="required">*</span></label>
                             <input type="email" name="email" class="form-control" 
                                    value="${reader.email}" required
-                                   placeholder="example@email.com">
+                                   placeholder="example@email.com" maxlength="255">
                         </div>
                     </div>
                     
+                    <%-- Mat khau + So dien thoai --%>
                     <div class="form-row">
                         <div class="form-group">
                             <label>
-                                Mật khẩu 
+                                Mat khau 
                                 <c:if test="${mode != 'edit'}"><span class="required">*</span></c:if>
                             </label>
                             <input type="password" name="password" class="form-control" 
                                    ${mode != 'edit' ? 'required' : ''}
-                                   placeholder="${mode == 'edit' ? 'Để trống nếu không đổi' : 'Nhập mật khẩu'}">
+                                   placeholder="${mode == 'edit' ? 'De trong neu khong doi' : 'Nhap mat khau'}">
                             <c:if test="${mode == 'edit'}">
-                                <p class="hint">Để trống nếu không muốn thay đổi mật khẩu</p>
+                                <p class="hint">De trong neu khong muon thay doi mat khau</p>
                             </c:if>
                         </div>
                         
                         <div class="form-group">
-                            <label>Số điện thoại</label>
+                            <label>So dien thoai</label>
                             <input type="tel" name="phone" class="form-control" 
                                    value="${reader.phone}"
-                                   placeholder="0901234567">
+                                   placeholder="0901234567" maxlength="30">
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Địa chỉ</label>
-                        <textarea name="address" class="form-control" 
-                                  placeholder="Nhập địa chỉ đầy đủ">${reader.address}</textarea>
+                    <%-- Vai tro + Trang thai (THAY 'address' BANG 'roleId') --%>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Vai tro <span class="required">*</span></label>
+                            <select name="roleId" class="form-control" required>
+                                <option value="">-- Chon vai tro --</option>
+                                <c:forEach var="role" items="${roles}">
+                                    <option value="${role.roleId}" 
+                                            ${reader.roleId == role.roleId ? 'selected' : ''}>
+                                        ${role.roleName}
+                                        <c:if test="${not empty role.description}"> - ${role.description}</c:if>
+                                    </option>
+                                </c:forEach>
+                            </select>
+                            <p class="hint">Vai tro quyet dinh quyen han cua doc gia trong he thong</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Trang thai</label>
+                            <select name="status" class="form-control">
+                                <option value="active" ${reader.status == 'active' || empty reader.status ? 'selected' : ''}>
+                                    Active - Dang hoat dong
+                                </option>
+                                <option value="inactive" ${reader.status == 'inactive' ? 'selected' : ''}>
+                                    Inactive - Tam ngung
+                                </option>
+                                <option value="blocked" ${reader.status == 'blocked' ? 'selected' : ''}>
+                                    Blocked - Bi khoa
+                                </option>
+                            </select>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Trạng thái</label>
-                        <select name="status" class="form-control">
-                            <option value="active" ${reader.status == 'active' || empty reader.status ? 'selected' : ''}>
-                                Active - Đang hoạt động
-                            </option>
-                            <option value="inactive" ${reader.status == 'inactive' ? 'selected' : ''}>
-                                Inactive - Tạm ngưng
-                            </option>
-                            <option value="blocked" ${reader.status == 'blocked' ? 'selected' : ''}>
-                                Blocked - Bị khóa
-                            </option>
-                        </select>
-                    </div>
+                    <%-- Thong tin bo sung khi edit --%>
+                    <c:if test="${mode == 'edit'}">
+                        <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 8px; margin-top: 10px;">
+                            <p style="font-size: 13px; color: #666;">
+                                <strong>ID:</strong> #${reader.readerId} | 
+                                <strong>Vai tro hien tai:</strong> ${reader.roleName}
+                            </p>
+                        </div>
+                    </c:if>
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
-                            ${mode == 'edit' ? 'Lưu thay đổi' : 'Thêm độc giả'}
+                            ${mode == 'edit' ? 'Luu thay doi' : 'Them doc gia'}
                         </button>
                         <a href="${pageContext.request.contextPath}/admin/readers" class="btn btn-secondary">
-                            Hủy
+                            Huy
                         </a>
                     </div>
                 </form>

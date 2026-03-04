@@ -174,9 +174,7 @@ public class AdminBookFormServlet extends HttpServlet {
                         }
 
                         String webFilePath = webPath + File.separator + newFileName;
-                        try (InputStream input = coverPart.getInputStream()) {
-                            Files.copy(input, Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
-                        }
+                        Files.copy(Paths.get(buildFilePath), Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
 
                         coverUrl = UPLOAD_DIR_COVERS + "/" + newFileName;
                         System.out.println("Upload anh bia: " + buildFilePath);
@@ -217,9 +215,7 @@ public class AdminBookFormServlet extends HttpServlet {
                         }
 
                         String webFilePath = webPath + File.separator + newFileName;
-                        try (InputStream input = pdfPart.getInputStream()) {
-                            Files.copy(input, Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
-                        }
+                        Files.copy(Paths.get(buildFilePath), Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
 
                         contentPath = UPLOAD_DIR_BOOKS + "/" + newFileName;
                         System.out.println("Upload PDF: " + buildFilePath);

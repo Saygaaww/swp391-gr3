@@ -19,6 +19,7 @@ public class BorrowRequest {
     // Thông tin từ JOIN
     private String readerName;
     private String readerEmail;
+    private String employeeName;
     
     public BorrowRequest() {
     }
@@ -102,6 +103,14 @@ public class BorrowRequest {
     
     public void setReaderEmail(String readerEmail) {
         this.readerEmail = readerEmail;
+    }
+    
+    public String getEmployeeName() {
+        return employeeName;
+    }
+    
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
     }
     
     @Override

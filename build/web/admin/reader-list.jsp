@@ -119,6 +119,37 @@
             border-color: #11998e;
         }
         
+        .filter-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-bar label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            min-width: 140px;
+        }
+        
+        .filter-bar select:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+        
         .btn {
             padding: 10px 20px;
             border: none;
@@ -166,6 +197,13 @@
         .btn-info {
             background: #17a2b8;
             color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
         }
         
         .table-container {
@@ -220,6 +258,28 @@
         .status-inactive {
             background: #fff3cd;
             color: #856404;
+        }
+        
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .role-admin {
+            background: #d6d6f5;
+            color: #3b3b8d;
+        }
+        
+        .role-user {
+            background: #e0f0ff;
+            color: #0056b3;
+        }
+        
+        .role-other {
+            background: #e9ecef;
+            color: #495057;
         }
         
         .actions {
@@ -320,7 +380,7 @@
             <small>Reader Management</small>
         </div>
         <div class="header-right">
-            <span>👤 ${currentEmployee.fullName}</span>
+            <span>${currentEmployee.fullName}</span>
             <a href="${pageContext.request.contextPath}/mock-logout" class="btn-logout">Đăng xuất</a>
         </div>
     </div>
@@ -328,8 +388,19 @@
     <div class="container">
         <a href="${pageContext.request.contextPath}/admin/dashboard" class="back-link">← Quay lại Dashboard</a>
         
+        <%-- Thong bao loi/thanh cong --%>
         <c:if test="${not empty errorMessage}">
             <div class="alert alert-danger">${errorMessage}</div>
+        </c:if>
+        
+        <c:if test="${not empty sessionScope.errorMessage}">
+            <div class="alert alert-danger">${sessionScope.errorMessage}</div>
+            <c:remove var="errorMessage" scope="session"/>
+        </c:if>
+        
+        <c:if test="${not empty sessionScope.successMessage}">
+            <div class="alert alert-success">${sessionScope.successMessage}</div>
+            <c:remove var="successMessage" scope="session"/>
         </c:if>
         
         <c:if test="${param.success == 'added'}">
@@ -340,6 +411,7 @@
             <div class="alert alert-success">Cập nhật độc giả thành công!</div>
         </c:if>
         
+        <%-- Thong ke --%>
         <div class="stats-card">
             <div class="stat-item">
                 <h3>${totalReaders}</h3>
@@ -359,11 +431,12 @@
             </div>
         </div>
         
+        <%-- Toolbar tim kiem --%>
         <div class="toolbar">
-            <form action="${pageContext.request.contextPath}/admin/readers" method="post" class="search-box">
-                <input type="text" name="keyword" placeholder="🔍 Tìm theo tên, email hoặc SĐT..." value="${keyword}">
-                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-            </form>
+            <div class="search-box">
+                <input type="text" id="searchKeyword" placeholder="Tìm theo tên, email hoặc SĐT..." value="${keyword}">
+                <button onclick="applyFilters()" class="btn btn-primary">Tìm kiếm</button>
+            </div>
             
             <div style="display: flex; gap: 10px;">
                 <a href="${pageContext.request.contextPath}/admin/readers" class="btn btn-info">Làm mới</a>
@@ -371,17 +444,49 @@
             </div>
         </div>
         
+        <%-- BO LOC MOI (TANG COMPLEXITY + LOC) --%>
+        <div class="filter-bar">
+            <label>Trạng thái:</label>
+            <select id="filterStatus">
+                <option value="">-- Tất cả --</option>
+                <option value="active" ${filterStatus == 'active' ? 'selected' : ''}>Active</option>
+                <option value="inactive" ${filterStatus == 'inactive' ? 'selected' : ''}>Inactive</option>
+                <option value="blocked" ${filterStatus == 'blocked' ? 'selected' : ''}>Blocked</option>
+            </select>
+            
+            <label>Vai trò:</label>
+            <select id="filterRole">
+                <option value="">-- Tất cả --</option>
+                <c:forEach var="role" items="${roles}">
+                    <option value="${role.roleId}" ${filterRoleId == role.roleId ? 'selected' : ''}>
+                        ${role.roleName}
+                    </option>
+                </c:forEach>
+            </select>
+            
+            <label>Hiển thị:</label>
+            <select id="pageSizeSelect">
+                <option value="5" ${pageSize == '5' ? 'selected' : ''}>5</option>
+                <option value="10" ${pageSize == '10' ? 'selected' : ''}>10</option>
+                <option value="20" ${pageSize == '20' ? 'selected' : ''}>20</option>
+            </select>
+            
+            <button onclick="applyFilters()" class="btn btn-primary" style="padding: 8px 16px;">Lọc</button>
+            <button onclick="clearFilters()" class="btn btn-secondary">Xóa lọc</button>
+        </div>
+        
         <c:if test="${not empty keyword}">
             <div class="alert" style="background: #e7f3ff; color: #004085; border: 1px solid #b8daff;">
-                🔍 Kết quả tìm kiếm cho: "<strong>${keyword}</strong>" - Tìm thấy <strong>${totalReaders}</strong> kết quả
+                Kết quả tìm kiếm cho: "<strong>${keyword}</strong>" - Tìm thấy <strong>${totalReaders}</strong> kết quả
             </div>
         </c:if>
         
+        <%-- BANG DU LIEU --%>
         <div class="table-container">
             <c:choose>
                 <c:when test="${empty readerList}">
                     <div class="empty-state">
-                        <h3>📭 Không có độc giả nào</h3>
+                        <h3>Không có độc giả nào</h3>
                         <p>
                             <c:choose>
                                 <c:when test="${not empty keyword}">
@@ -402,7 +507,7 @@
                                 <th>Họ tên</th>
                                 <th>Email</th>
                                 <th>Số điện thoại</th>
-                                <th>Địa chỉ</th>
+                                <th>Vai trò</th>
                                 <th>Trạng thái</th>
                                 <th>Ngày tạo</th>
                                 <th>Thao tác</th>
@@ -416,11 +521,16 @@
                                     <td>${reader.email}</td>
                                     <td>${not empty reader.phone ? reader.phone : '-'}</td>
                                     <td>
+                                        <%-- THAY address BANG roleName --%>
                                         <c:choose>
-                                            <c:when test="${not empty reader.address}">
-                                                <span title="${reader.address}">
-                                                    ${reader.address.length() > 30 ? reader.address.substring(0, 30).concat('...') : reader.address}
-                                                </span>
+                                            <c:when test="${reader.roleName == 'ADMIN'}">
+                                                <span class="role-badge role-admin">${reader.roleName}</span>
+                                            </c:when>
+                                            <c:when test="${reader.roleName == 'USER'}">
+                                                <span class="role-badge role-user">${reader.roleName}</span>
+                                            </c:when>
+                                            <c:when test="${not empty reader.roleName}">
+                                                <span class="role-badge role-other">${reader.roleName}</span>
                                             </c:when>
                                             <c:otherwise>-</c:otherwise>
                                         </c:choose>
@@ -444,20 +554,24 @@
                                     <td>
                                         <div class="actions">
                                             <a href="${pageContext.request.contextPath}/admin/reader-form?id=${reader.readerId}" 
-                                               class="btn btn-warning" title="Sửa">✏️</a>
+                                               class="btn btn-warning" title="Sửa">Sửa</a>
                                             
                                             <c:choose>
                                                 <c:when test="${reader.status == 'blocked'}">
-                                                    <a href="${pageContext.request.contextPath}/admin/readers?action=unblock&id=${reader.readerId}" 
-                                                       class="btn btn-success" 
-                                                       onclick="return confirm('Mở khóa độc giả này?')"
-                                                       title="Mở khóa">🔓</a>
+                                                    <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;">
+                                                        <input type="hidden" name="action" value="unblock">
+                                                        <input type="hidden" name="id" value="${reader.readerId}">
+                                                        <button type="submit" class="btn btn-success" style="padding:6px 12px; font-size:12px;"
+                                                                onclick="return confirm('Mở khóa độc giả này?')">Mở khóa</button>
+                                                    </form>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <a href="${pageContext.request.contextPath}/admin/readers?action=block&id=${reader.readerId}" 
-                                                       class="btn btn-danger" 
-                                                       onclick="return confirm('Khóa độc giả này?')"
-                                                       title="Khóa">🔒</a>
+                                                    <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;">
+                                                        <input type="hidden" name="action" value="block">
+                                                        <input type="hidden" name="id" value="${reader.readerId}">
+                                                        <button type="submit" class="btn btn-danger"
+                                                                onclick="return confirm('Khóa độc giả này?')">Khóa</button>
+                                                    </form>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
@@ -470,6 +584,7 @@
             </c:choose>
         </div>
         
+        <%-- PAGINATION --%>
         <c:if test="${totalPages > 1}">
             <div class="pagination-container">
                 <div>
@@ -480,7 +595,7 @@
                 <div class="pagination">
                     <c:choose>
                         <c:when test="${currentPage > 1}">
-                            <a href="${pageContext.request.contextPath}/admin/readers?page=${currentPage - 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}">← Trước</a>
+                            <a href="javascript:goToPage(${currentPage - 1})">← Trước</a>
                         </c:when>
                         <c:otherwise>
                             <span class="disabled">← Trước</span>
@@ -493,14 +608,14 @@
                                 <span class="active">${i}</span>
                             </c:when>
                             <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/admin/readers?page=${i}${not empty keyword ? '&keyword='.concat(keyword) : ''}">${i}</a>
+                                <a href="javascript:goToPage(${i})">${i}</a>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>
                     
                     <c:choose>
                         <c:when test="${currentPage < totalPages}">
-                            <a href="${pageContext.request.contextPath}/admin/readers?page=${currentPage + 1}${not empty keyword ? '&keyword='.concat(keyword) : ''}">Sau →</a>
+                            <a href="javascript:goToPage(${currentPage + 1})">Sau →</a>
                         </c:when>
                         <c:otherwise>
                             <span class="disabled">Sau →</span>
@@ -510,5 +625,55 @@
             </div>
         </c:if>
     </div>
+    
+    <script>
+        function applyFilters() {
+            var url = '${pageContext.request.contextPath}/admin/readers?';
+            var params = [];
+            
+            var keyword = document.getElementById('searchKeyword').value.trim();
+            if (keyword) params.push('keyword=' + encodeURIComponent(keyword));
+            
+            var status = document.getElementById('filterStatus').value;
+            if (status) params.push('status=' + status);
+            
+            var roleId = document.getElementById('filterRole').value;
+            if (roleId) params.push('roleId=' + roleId);
+            
+            var pageSize = document.getElementById('pageSizeSelect').value;
+            if (pageSize) params.push('pageSize=' + pageSize);
+            
+            window.location.href = url + params.join('&');
+        }
+        
+        function clearFilters() {
+            window.location.href = '${pageContext.request.contextPath}/admin/readers';
+        }
+        
+        function goToPage(page) {
+            var url = '${pageContext.request.contextPath}/admin/readers?page=' + page;
+            
+            var keyword = document.getElementById('searchKeyword').value.trim();
+            if (keyword) url += '&keyword=' + encodeURIComponent(keyword);
+            
+            var status = document.getElementById('filterStatus').value;
+            if (status) url += '&status=' + status;
+            
+            var roleId = document.getElementById('filterRole').value;
+            if (roleId) url += '&roleId=' + roleId;
+            
+            var pageSize = document.getElementById('pageSizeSelect').value;
+            if (pageSize) url += '&pageSize=' + pageSize;
+            
+            window.location.href = url;
+        }
+        
+        document.getElementById('searchKeyword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFilters();
+            }
+        });
+    </script>
 </body>
 </html>

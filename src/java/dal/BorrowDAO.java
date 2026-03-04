@@ -145,4 +145,133 @@ public class BorrowDAO extends DBContext {
         
         return false;
     }
+    
+    // Lay danh sach yeu cau co loc + phan trang
+    public List<BorrowRequest> getRequestsFiltered(String keyword, String status, int page, int pageSize) {
+        List<BorrowRequest> requests = new ArrayList<>();
+        
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT br.*, r.full_name AS reader_name, r.email, ");
+        sql.append("e.full_name AS employee_name ");
+        sql.append("FROM Borrow_Request br ");
+        sql.append("JOIN Reader r ON br.reader_id = r.reader_id ");
+        sql.append("LEFT JOIN Employee e ON br.processed_by_employee_id = e.employee_id ");
+        sql.append("WHERE 1=1 ");
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (r.full_name LIKE ? OR r.email LIKE ?) ");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND br.status = ? ");
+        }
+        
+        sql.append("ORDER BY br.requested_at DESC ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            int idx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx++, pageSize);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    requests.add(mapResultSet(rs));
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("getRequestsFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return requests;
+    }
+    
+    // Dem so yeu cau co loc
+    public int countRequestsFiltered(String keyword, String status) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) FROM Borrow_Request br ");
+        sql.append("JOIN Reader r ON br.reader_id = r.reader_id ");
+        sql.append("WHERE 1=1 ");
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (r.full_name LIKE ? OR r.email LIKE ?) ");
+        }
+        if (status != null && !status.isEmpty()) {
+            sql.append("AND br.status = ? ");
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            
+            int idx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.err.println("countRequestsFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    // Dem theo tung trang thai
+    public int countByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM Borrow_Request WHERE status = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.err.println("countByStatus Error: " + e.getMessage());
+        }
+        return 0;
+    }
+    
+    // Map ResultSet thanh BorrowRequest
+    private BorrowRequest mapResultSet(ResultSet rs) throws SQLException {
+        BorrowRequest req = new BorrowRequest();
+        req.setRequestId(rs.getInt("request_id"));
+        req.setReaderId(rs.getInt("reader_id"));
+        req.setStatus(rs.getString("status"));
+        req.setRequestedAt(rs.getTimestamp("requested_at"));
+        req.setNote(rs.getString("note"));
+        req.setDecisionNote(rs.getString("decision_note"));
+        req.setReaderName(rs.getString("reader_name"));
+        req.setReaderEmail(rs.getString("email"));
+        
+        int processedBy = rs.getInt("processed_by_employee_id");
+        if (!rs.wasNull()) {
+            req.setProcessedByEmployeeId(processedBy);
+        }
+        req.setProcessedAt(rs.getTimestamp("processed_at"));
+        
+        try {
+            req.setEmployeeName(rs.getString("employee_name"));
+        } catch (SQLException e) {
+
+        }
+        return req;
+    }
 }
