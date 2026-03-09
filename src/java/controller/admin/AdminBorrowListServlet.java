@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
 public class AdminBorrowListServlet extends HttpServlet {
     
     private BorrowDAO borrowDAO;
-    private static final int PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
     
     @Override
     public void init() throws ServletException {
@@ -29,13 +29,33 @@ public class AdminBorrowListServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
         request.setCharacterEncoding("UTF-8");
         
         try {
+            // Page size
+            int pageSize = DEFAULT_PAGE_SIZE;
+            boolean showAll = false;
+            String pageSizeStr = request.getParameter("pageSize");
+            if (pageSizeStr != null && !pageSizeStr.trim().isEmpty()) {
+                if (pageSizeStr.equals("all")) {
+                    showAll = true;
+                    pageSize = Integer.MAX_VALUE;
+                } else {
+                    try {
+                        pageSize = Integer.parseInt(pageSizeStr);
+                        if (pageSize != 5 && pageSize != 10 && pageSize != 20) {
+                            pageSize = DEFAULT_PAGE_SIZE;
+                        }
+                    } catch (NumberFormatException e) {
+                        pageSize = DEFAULT_PAGE_SIZE;
+                    }
+                }
+            }
+
             // Lay trang hien tai
             int currentPage = 1;
             String pageStr = request.getParameter("page");
@@ -63,12 +83,12 @@ public class AdminBorrowListServlet extends HttpServlet {
             
             // Truy van
             int totalRequests = borrowDAO.countRequestsFiltered(keyword, statusFilter);
-            int totalPages = (int) Math.ceil((double) totalRequests / PAGE_SIZE);
+            int totalPages = (int) Math.ceil((double) totalRequests / pageSize);
             if (totalPages < 1) totalPages = 1;
             if (currentPage > totalPages) currentPage = totalPages;
             
             List<BorrowRequest> requestList = borrowDAO.getRequestsFiltered(
-                keyword, statusFilter, currentPage, PAGE_SIZE);
+                keyword, statusFilter, currentPage, pageSize);
             
             // Thong ke theo trang thai
             int countPending = borrowDAO.countByStatus("pending");
@@ -86,6 +106,7 @@ public class AdminBorrowListServlet extends HttpServlet {
             request.setAttribute("countApproved", countApproved);
             request.setAttribute("countRejected", countRejected);
             request.setAttribute("currentEmployee", session.getAttribute("employee"));
+            request.setAttribute("pageSize", showAll ? "all" : String.valueOf(pageSize));
             
             request.getRequestDispatcher("/admin/borrow-list.jsp").forward(request, response);
             

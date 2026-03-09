@@ -27,16 +27,15 @@ import jakarta.servlet.http.Part;
 
 @WebServlet("/admin/book-form")
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2,
-        maxFileSize = 1024 * 1024 * 50,
-        maxRequestSize = 1024 * 1024 * 60
+    fileSizeThreshold = 1024 * 1024 * 2,
+    maxFileSize = 1024 * 1024 * 50,
+    maxRequestSize = 1024 * 1024 * 60
 )
 public class AdminBookFormServlet extends HttpServlet {
 
     private BookDAO bookDAO;
     private AuthorDAO authorDAO;
     private CategoryDAO categoryDAO;
-
     private static final String UPLOAD_DIR_COVERS = "uploads/covers";
     private static final String UPLOAD_DIR_BOOKS = "uploads/books";
 
@@ -45,7 +44,6 @@ public class AdminBookFormServlet extends HttpServlet {
         bookDAO = new BookDAO();
         authorDAO = new AuthorDAO();
         categoryDAO = new CategoryDAO();
-        System.out.println("AdminBookFormServlet initialized with file upload");
     }
 
     @Override
@@ -54,7 +52,7 @@ public class AdminBookFormServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -65,33 +63,25 @@ public class AdminBookFormServlet extends HttpServlet {
 
             if (idStr != null && !idStr.trim().isEmpty()) {
                 int bookId = Integer.parseInt(idStr);
-
                 if (bookId <= 0 || bookId > 999999999) {
                     response.sendRedirect(request.getContextPath() + "/books-list");
                     return;
                 }
-
                 book = bookDAO.getBookById(bookId);
-
                 if (book == null) {
                     response.sendRedirect(request.getContextPath() + "/books-list");
                     return;
                 }
-
                 mode = "edit";
             } else {
                 book = new Book();
             }
 
-            List<Author> authors = authorDAO.getAllAuthors();
-            List<Category> categories = categoryDAO.getAllCategories();
-
             request.setAttribute("book", book);
             request.setAttribute("mode", mode);
-            request.setAttribute("authors", authors);
-            request.setAttribute("categories", categories);
+            request.setAttribute("authors", authorDAO.getAllAuthors());
+            request.setAttribute("categories", categoryDAO.getAllCategories());
             request.setAttribute("currentEmployee", session.getAttribute("employee"));
-
             request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
@@ -108,7 +98,7 @@ public class AdminBookFormServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -117,17 +107,10 @@ public class AdminBookFormServlet extends HttpServlet {
         try {
             Employee employee = (Employee) session.getAttribute("employee");
 
-            BigDecimal maxPriceFromDB = bookDAO.getMaxPrice();
-            int maxPagesFromDB = bookDAO.getMaxTotalPages();
-            BigDecimal maxPriceAllowed = maxPriceFromDB.multiply(new BigDecimal("1.2"));
-            int maxPagesAllowed = (int) (maxPagesFromDB * 1.2);
-
-            if (maxPriceAllowed.compareTo(new BigDecimal("1000000")) < 0) {
-                maxPriceAllowed = new BigDecimal("100000000");
-            }
-            if (maxPagesAllowed < 1000) {
-                maxPagesAllowed = 10000;
-            }
+            BigDecimal maxPriceAllowed = bookDAO.getMaxPrice().multiply(new BigDecimal("1.2"));
+            int maxPagesAllowed = (int) (bookDAO.getMaxTotalPages() * 1.2);
+            if (maxPriceAllowed.compareTo(new BigDecimal("1000000")) < 0) maxPriceAllowed = new BigDecimal("100000000");
+            if (maxPagesAllowed < 1000) maxPagesAllowed = 10000;
 
             String bookIdStr = request.getParameter("bookId");
             boolean isEdit = (bookIdStr != null && !bookIdStr.trim().isEmpty());
@@ -143,194 +126,66 @@ public class AdminBookFormServlet extends HttpServlet {
             String authorIdStr = request.getParameter("authorId");
             String categoryIdStr = request.getParameter("categoryId");
 
-            String oldCoverUrl = request.getParameter("oldCoverUrl");
-            String oldContentPath = request.getParameter("oldContentPath");
-
-            String coverUrl = oldCoverUrl;
-
-            Part coverPart = request.getPart("coverFile");
-            if (coverPart != null && coverPart.getSize() > 0) {
-                String fileName = getFileName(coverPart);
-
-                if (fileName != null && !fileName.isEmpty()) {
-                    String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-
-                    if (fileExt.equals("jpg") || fileExt.equals("jpeg")
-                            || fileExt.equals("png") || fileExt.equals("gif")) {
-
-                        String newFileName = UUID.randomUUID().toString() + "." + fileExt;
-
-                        String buildPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR_COVERS;
-
-                        String webPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web")
-                                + File.separator + UPLOAD_DIR_COVERS;
-
-                        new File(buildPath).mkdirs();
-                        new File(webPath).mkdirs();
-
-                        String buildFilePath = buildPath + File.separator + newFileName;
-                        try (InputStream input = coverPart.getInputStream()) {
-                            Files.copy(input, Paths.get(buildFilePath), StandardCopyOption.REPLACE_EXISTING);
-                        }
-
-                        String webFilePath = webPath + File.separator + newFileName;
-                        Files.copy(Paths.get(buildFilePath), Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
-
-                        coverUrl = UPLOAD_DIR_COVERS + "/" + newFileName;
-                        System.out.println("Upload anh bia: " + buildFilePath);
-                        System.out.println("Backup to: " + webFilePath);
-
-                    } else {
-                        request.setAttribute("error", "Anh bia chi chap nhan JPG, PNG, GIF!");
-                        reloadFormWithError(request, response, isEdit, bookIdStr);
-                        return;
-                    }
-                }
+            String coverUrl = request.getParameter("oldCoverUrl");
+            String uploadResult = handleFileUpload(request, "coverFile", UPLOAD_DIR_COVERS,
+                                                    new String[]{"jpg", "jpeg", "png", "gif"});
+            if ("INVALID".equals(uploadResult)) {
+                request.setAttribute("error", "Anh bia chi chap nhan JPG, PNG, GIF!");
+                reloadFormWithError(request, response, isEdit, bookIdStr);
+                return;
             }
+            if (uploadResult != null) coverUrl = uploadResult;
 
-            String contentPath = oldContentPath;
-
-            Part pdfPart = request.getPart("contentFile");
-            if (pdfPart != null && pdfPart.getSize() > 0) {
-                String fileName = getFileName(pdfPart);
-
-                if (fileName != null && !fileName.isEmpty()) {
-                    String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-
-                    if (fileExt.equals("pdf")) {
-
-                        String newFileName = UUID.randomUUID().toString() + ".pdf";
-
-                        String buildPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR_BOOKS;
-
-                        String webPath = getServletContext().getRealPath("").replace("build" + File.separator + "web", "web")
-                                + File.separator + UPLOAD_DIR_BOOKS;
-
-                        new File(buildPath).mkdirs();
-                        new File(webPath).mkdirs();
-
-                        String buildFilePath = buildPath + File.separator + newFileName;
-                        try (InputStream input = pdfPart.getInputStream()) {
-                            Files.copy(input, Paths.get(buildFilePath), StandardCopyOption.REPLACE_EXISTING);
-                        }
-
-                        String webFilePath = webPath + File.separator + newFileName;
-                        Files.copy(Paths.get(buildFilePath), Paths.get(webFilePath), StandardCopyOption.REPLACE_EXISTING);
-
-                        contentPath = UPLOAD_DIR_BOOKS + "/" + newFileName;
-                        System.out.println("Upload PDF: " + buildFilePath);
-                        System.out.println("Backup to: " + webFilePath);
-
-                    } else {
-                        request.setAttribute("error", "File noi dung chi chap nhan PDF!");
-                        reloadFormWithError(request, response, isEdit, bookIdStr);
-                        return;
-                    }
-                }
+            String contentPath = request.getParameter("oldContentPath");
+            uploadResult = handleFileUpload(request, "contentFile", UPLOAD_DIR_BOOKS,
+                                             new String[]{"pdf"});
+            if ("INVALID".equals(uploadResult)) {
+                request.setAttribute("error", "File noi dung chi chap nhan PDF!");
+                reloadFormWithError(request, response, isEdit, bookIdStr);
+                return;
             }
+            if (uploadResult != null) contentPath = uploadResult;
 
             StringBuilder errors = new StringBuilder();
 
-            if (title == null || title.trim().isEmpty()) {
-                errors.append("Ten sach khong duoc de trong. ");
-            } else if (title.trim().length() > 500) {
-                errors.append("Ten sach khong duoc qua 500 ky tu. ");
-            }
+            if (title == null || title.trim().isEmpty()) errors.append("Ten sach khong duoc de trong. ");
+            else if (title.trim().length() > 500) errors.append("Ten sach khong duoc qua 500 ky tu. ");
 
             BigDecimal price = BigDecimal.ZERO;
             if (priceStr != null && !priceStr.trim().isEmpty()) {
                 try {
                     price = new BigDecimal(priceStr.trim());
-                    if (price.compareTo(BigDecimal.ZERO) < 0) {
-                        errors.append("Gia tien khong duoc am. ");
-                    }
-                    if (price.compareTo(maxPriceAllowed) > 0) {
-                        errors.append("Gia tien khong duoc vuot qua " + maxPriceAllowed.toBigInteger() + " VND. ");
-                    }
+                    if (price.compareTo(BigDecimal.ZERO) < 0) errors.append("Gia tien khong duoc am. ");
+                    if (price.compareTo(maxPriceAllowed) > 0) errors.append("Gia tien vuot qua gioi han. ");
                 } catch (NumberFormatException e) {
                     errors.append("Gia tien khong hop le. ");
                 }
             }
 
-            int totalPages = 0;
+            int totalPages = parseIntSafe(totalPagesStr, 0);
             if (totalPagesStr != null && !totalPagesStr.trim().isEmpty()) {
-                try {
-                    totalPages = Integer.parseInt(totalPagesStr.trim());
-                    if (totalPages < 1) {
-                        errors.append("So trang phai lon hon 0. ");
-                    }
-                    if (totalPages > maxPagesAllowed) {
-                        errors.append("So trang khong duoc vuot qua " + maxPagesAllowed + ". ");
-                    }
-                } catch (NumberFormatException e) {
-                    errors.append("So trang khong hop le. ");
-                }
+                if (totalPages < 1) errors.append("So trang phai lon hon 0. ");
+                if (totalPages > maxPagesAllowed) errors.append("So trang vuot qua gioi han. ");
             }
 
-            int previewPages = 0;
-            if (previewPagesStr != null && !previewPagesStr.trim().isEmpty()) {
-                try {
-                    previewPages = Integer.parseInt(previewPagesStr.trim());
-                    if (previewPages < 0) {
-                        errors.append("So trang xem truoc khong duoc am. ");
-                    }
-                    if (previewPages > totalPages && totalPages > 0) {
-                        errors.append("So trang xem truoc khong duoc lon hon tong so trang. ");
-                    }
-                } catch (NumberFormatException e) {
-                    errors.append("So trang xem truoc khong hop le. ");
-                }
-            }
+            int previewPages = parseIntSafe(previewPagesStr, 0);
+            if (previewPages < 0) errors.append("So trang xem truoc khong duoc am. ");
+            if (previewPages > totalPages && totalPages > 0) errors.append("So trang xem truoc lon hon tong trang. ");
 
-            int authorId = 0;
-            if (authorIdStr != null && !authorIdStr.trim().isEmpty()) {
-                try {
-                    authorId = Integer.parseInt(authorIdStr.trim());
-                    if (authorId > 0) {
-                        Author author = authorDAO.getAuthorById(authorId);
-                        if (author == null) {
-                            errors.append("Tac gia khong ton tai. ");
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    errors.append("ID tac gia khong hop le. ");
-                }
-            }
+            int authorId = parseIntSafe(authorIdStr, 0);
+            if (authorId > 0 && authorDAO.getAuthorById(authorId) == null) errors.append("Tac gia khong ton tai. ");
 
-            int categoryId = 0;
-            if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
-                try {
-                    categoryId = Integer.parseInt(categoryIdStr.trim());
-                    if (categoryId > 0) {
-                        Category category = categoryDAO.getCategoryById(categoryId);
-                        if (category == null) {
-                            errors.append("Danh muc khong ton tai. ");
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    errors.append("ID danh muc khong hop le. ");
-                }
-            }
+            int categoryId = parseIntSafe(categoryIdStr, 0);
+            if (categoryId > 0 && categoryDAO.getCategoryById(categoryId) == null) errors.append("Danh muc khong ton tai. ");
 
-            if (status != null && !status.isEmpty()) {
-                if (!status.equals("active") && !status.equals("inactive") && !status.equals("draft")) {
-                    status = "active";
-                }
+            if (status != null && !status.equals("active") && !status.equals("inactive") && !status.equals("draft")) {
+                status = "active";
             }
 
             int bookId = 0;
             if (isEdit) {
-                try {
-                    bookId = Integer.parseInt(bookIdStr.trim());
-                    if (bookId > 0) {
-                        Book existingBook = bookDAO.getBookById(bookId);
-                        if (existingBook == null) {
-                            errors.append("Sach khong ton tai. ");
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    errors.append("ID sach khong hop le. ");
-                }
+                bookId = parseIntSafe(bookIdStr, 0);
+                if (bookId > 0 && bookDAO.getBookById(bookId) == null) errors.append("Sach khong ton tai. ");
             }
 
             if (errors.length() > 0) {
@@ -354,7 +209,6 @@ public class AdminBookFormServlet extends HttpServlet {
             book.setCategoryId(categoryId);
 
             boolean success;
-
             if (isEdit) {
                 book.setBookId(bookId);
                 book.setUpdatedByEmployeeId(employee.getEmployeeId());
@@ -382,10 +236,46 @@ public class AdminBookFormServlet extends HttpServlet {
         }
     }
 
+    private String handleFileUpload(HttpServletRequest request, String partName,
+                                     String uploadDir, String[] allowedExts)
+            throws IOException, ServletException {
+
+        Part filePart = request.getPart(partName);
+        if (filePart == null || filePart.getSize() <= 0) return null;
+
+        String fileName = getFileName(filePart);
+        if (fileName == null || fileName.isEmpty()) return null;
+
+        String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+
+        boolean valid = false;
+        for (String ext : allowedExts) {
+            if (ext.equals(fileExt)) { valid = true; break; }
+        }
+        if (!valid) return "INVALID";
+
+        String newFileName = UUID.randomUUID().toString() + "." + fileExt;
+        String buildPath = getServletContext().getRealPath("") + File.separator + uploadDir;
+        String webPath = getServletContext().getRealPath("").replace(
+            "build" + File.separator + "web", "web") + File.separator + uploadDir;
+
+        new File(buildPath).mkdirs();
+        new File(webPath).mkdirs();
+
+        String buildFilePath = buildPath + File.separator + newFileName;
+        try (InputStream input = filePart.getInputStream()) {
+            Files.copy(input, Paths.get(buildFilePath), StandardCopyOption.REPLACE_EXISTING);
+        }
+        Files.copy(Paths.get(buildFilePath),
+                   Paths.get(webPath + File.separator + newFileName),
+                   StandardCopyOption.REPLACE_EXISTING);
+
+        return uploadDir + "/" + newFileName;
+    }
+
     private String getFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
-        String[] tokens = contentDisp.split(";");
-        for (String token : tokens) {
+        for (String token : contentDisp.split(";")) {
             if (token.trim().startsWith("filename")) {
                 return token.substring(token.indexOf("=") + 2, token.length() - 1);
             }
@@ -393,8 +283,14 @@ public class AdminBookFormServlet extends HttpServlet {
         return null;
     }
 
+    private int parseIntSafe(String str, int defaultVal) {
+        if (str == null || str.trim().isEmpty()) return defaultVal;
+        try { return Integer.parseInt(str.trim()); }
+        catch (NumberFormatException e) { return defaultVal; }
+    }
+
     private void reloadFormWithError(HttpServletRequest request, HttpServletResponse response,
-            boolean isEdit, String bookIdStr)
+                                      boolean isEdit, String bookIdStr)
             throws ServletException, IOException {
 
         if (isEdit && bookIdStr != null && !bookIdStr.isEmpty()) {
@@ -409,7 +305,6 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("mode", "add");
             request.setAttribute("book", new Book());
         }
-
         request.setAttribute("authors", authorDAO.getAllAuthors());
         request.setAttribute("categories", categoryDAO.getAllCategories());
         request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);

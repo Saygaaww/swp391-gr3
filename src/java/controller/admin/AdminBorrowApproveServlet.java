@@ -29,7 +29,7 @@ public class AdminBorrowApproveServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -58,7 +58,7 @@ public class AdminBorrowApproveServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -86,7 +86,6 @@ public class AdminBorrowApproveServlet extends HttpServlet {
                     System.out.println("Da duyet yeu cau ID: " + requestId);
                 }
             } else if ("reject".equals(action)) {
-                // Tu choi yeu cau
                 success = borrowDAO.rejectRequest(requestId, employee.getEmployeeId(), note);
                 if (success) {
                     System.out.println("Da tu choi yeu cau ID: " + requestId);

@@ -15,183 +15,119 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/admin/roles")
 public class AdminRoleListServlet extends HttpServlet {
-    
+
     private RoleDAO roleDAO;
     private EmployeeDAO employeeDAO;
-    
+
     @Override
     public void init() throws ServletException {
         roleDAO = new RoleDAO();
         employeeDAO = new EmployeeDAO();
-        System.out.println("AdminRoleListServlet initialized");
     }
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
+
         Employee currentEmployee = (Employee) session.getAttribute("employee");
-        
         if (!"ADMIN".equalsIgnoreCase(currentEmployee.getRoleName())) {
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard?error=unauthorized");
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
-        
+
         try {
             List<Role> roleList = roleDAO.getAllRoles();
-            
             for (Role role : roleList) {
-                int count = employeeDAO.countEmployeesByRole(role.getRoleId());
-                role.setEmployeeCount(count);
+                role.setEmployeeCount(employeeDAO.countEmployeesByRole(role.getRoleId()));
             }
-            
+
             request.setAttribute("roleList", roleList);
             request.setAttribute("currentEmployee", currentEmployee);
-            
             request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
-            
+
         } catch (Exception e) {
-            System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi: " + e.getMessage());
             request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
         }
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        
+
         Employee currentEmployee = (Employee) session.getAttribute("employee");
-        
         if (!"ADMIN".equalsIgnoreCase(currentEmployee.getRoleName())) {
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard?error=unauthorized");
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
-        
+
         request.setCharacterEncoding("UTF-8");
-        
         String action = request.getParameter("action");
-        
+
         try {
             if ("add".equals(action)) {
                 String roleName = request.getParameter("roleName");
                 String description = request.getParameter("description");
-                
-                if (roleName != null && !roleName.trim().isEmpty()) {
-                    if (roleName.trim().length() > 50) {
-                        System.err.println("Role name too long");
-                    } else {
-                        Role role = new Role(roleName.trim().toUpperCase(), description);
-                        boolean success = roleDAO.addRole(role);
-                        
-                        if (success) {
-                            System.out.println("Role added: " + roleName);
-                        } else {
-                            System.err.println("Failed to add role: " + roleName);
-                        }
-                    }
+
+                if (roleName != null && !roleName.trim().isEmpty() && roleName.trim().length() <= 50) {
+                    roleDAO.addRole(new Role(roleName.trim().toUpperCase(), description));
                 }
-                
+
             } else if ("edit".equals(action)) {
-                String roleIdStr = request.getParameter("roleId");
+                int roleId = parseId(request.getParameter("roleId"));
                 String roleName = request.getParameter("roleName");
                 String description = request.getParameter("description");
-                
-                if (roleIdStr != null && roleName != null) {
-                    int roleId;
-                    try {
-                        roleId = Integer.parseInt(roleIdStr.trim());
-                    } catch (NumberFormatException e) {
-                        System.err.println("Invalid role ID format: " + roleIdStr);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
-                    if (roleId <= 0 || roleId > 999999999) {
-                        System.err.println("Role ID out of range: " + roleId);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
-                    Role existingRole = roleDAO.getRoleById(roleId);
-                    if (existingRole == null) {
-                        System.err.println("Role not found: " + roleId);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
+
+                if (roleId > 0 && roleName != null && roleDAO.getRoleById(roleId) != null) {
                     Role role = new Role();
                     role.setRoleId(roleId);
                     role.setRoleName(roleName.trim().toUpperCase());
                     role.setDescription(description);
-                    
-                    boolean success = roleDAO.updateRole(role);
-                    
-                    if (success) {
-                        System.out.println("Role updated: " + roleName);
-                    }
+                    roleDAO.updateRole(role);
                 }
-                
+
             } else if ("delete".equals(action)) {
-                String roleIdStr = request.getParameter("roleId");
-                
-                if (roleIdStr != null) {
-                    int roleId;
-                    try {
-                        roleId = Integer.parseInt(roleIdStr.trim());
-                    } catch (NumberFormatException e) {
-                        System.err.println("Invalid role ID format: " + roleIdStr);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
-                    if (roleId <= 0 || roleId > 999999999) {
-                        System.err.println("Role ID out of range: " + roleId);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
-                    Role existingRole = roleDAO.getRoleById(roleId);
-                    if (existingRole == null) {
-                        System.err.println("Role not found: " + roleId);
-                        response.sendRedirect(request.getContextPath() + "/admin/roles");
-                        return;
-                    }
-                    
+                int roleId = parseId(request.getParameter("roleId"));
+
+                if (roleId > 0 && roleDAO.getRoleById(roleId) != null) {
                     int count = employeeDAO.countEmployeesByRole(roleId);
-                    
                     if (count > 0) {
-                        System.err.println("Cannot delete role with " + count + " employees");
-                        request.setAttribute("errorMessage", 
+                        request.setAttribute("errorMessage",
                             "Khong the xoa vai tro dang co " + count + " nhan vien!");
                     } else {
-                        boolean success = roleDAO.deleteRole(roleId);
-                        
-                        if (success) {
-                            System.out.println("Role deleted: " + roleId);
-                        }
+                        roleDAO.deleteRole(roleId);
                     }
                 }
             }
-            
+
         } catch (Exception e) {
-            System.err.println("Error in doPost: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         response.sendRedirect(request.getContextPath() + "/admin/roles");
+    }
+
+    // Parse ID an toan, tra ve 0 neu loi
+    private int parseId(String str) {
+        if (str == null || str.trim().isEmpty()) return 0;
+        try {
+            int id = Integer.parseInt(str.trim());
+            return (id > 0 && id <= 999999999) ? id : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

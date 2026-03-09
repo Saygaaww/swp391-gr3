@@ -316,6 +316,102 @@ public class EmployeeDAO extends DBContext {
         return 0;
     }
     
+    // Lay danh sach nhan vien co loc + phan trang (dung cho EmployeeListServlet)
+    public List<Employee> getEmployeesFiltered(String keyword, int roleId, String status,
+                                                int page, int pageSize) {
+        List<Employee> employees = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT e.*, r.role_name ");
+        sql.append("FROM Employee e ");
+        sql.append("LEFT JOIN Role r ON e.role_id = r.role_id ");
+        sql.append("WHERE 1=1 ");
+
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (e.full_name LIKE ? OR e.email LIKE ?) ");
+        }
+        if (roleId > 0) sql.append("AND e.role_id = ? ");
+        if (status != null && !status.isEmpty()) sql.append("AND e.status = ? ");
+
+        sql.append("ORDER BY e.created_at DESC ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int idx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+            if (roleId > 0) ps.setInt(idx++, roleId);
+            if (status != null && !status.isEmpty()) ps.setString(idx++, status);
+
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx++, pageSize);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                employees.add(extractEmployeeFromResultSet(rs));
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error in getEmployeesFiltered: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return employees;
+    }
+
+    // Dem so nhan vien co loc (dung cho phan trang)
+    public int countEmployeesFiltered(String keyword, int roleId, String status) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT COUNT(*) FROM Employee e WHERE 1=1 ");
+
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append("AND (e.full_name LIKE ? OR e.email LIKE ?) ");
+        }
+        if (roleId > 0) sql.append("AND e.role_id = ? ");
+        if (status != null && !status.isEmpty()) sql.append("AND e.status = ? ");
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int idx = 1;
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+            if (roleId > 0) ps.setInt(idx++, roleId);
+            if (status != null && !status.isEmpty()) ps.setString(idx++, status);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+
+        } catch (Exception e) {
+            System.err.println("Error in countEmployeesFiltered: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Dem nhan vien theo trang thai
+    public int countEmployeesByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM Employee WHERE status = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            System.err.println("Error in countEmployeesByStatus: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
     public int countEmployeesByKeyword(String keyword) {
         String sql = "SELECT COUNT(*) FROM Employee " +
                      "WHERE full_name LIKE ? OR email LIKE ?";

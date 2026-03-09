@@ -38,7 +38,7 @@ public class AdminBookListServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         

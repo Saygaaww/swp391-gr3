@@ -359,6 +359,199 @@
                         </button>
                         <a href="${pageContext.request.contextPath}/books-list" class="btn btn-secondary">Quay lại</a>
                     </div>
+                    
+                    <script>
+                        document.querySelector('form').addEventListener('submit', function(e) {
+                            var errors = [];
+                            
+                            var title = document.querySelector('input[name="title"]');
+                            if (!title.value.trim()) {
+                                errors.push('Ten sach khong duoc de trong');
+                                title.style.borderColor = '#dc3545';
+                            } else if (title.value.trim().length > 500) {
+                                errors.push('Ten sach khong duoc qua 500 ky tu');
+                                title.style.borderColor = '#dc3545';
+                            } else {
+                                title.style.borderColor = '#28a745';
+                            }
+                            
+                            var price = document.querySelector('input[name="price"]');
+                            if (!price.value || price.value.trim() === '' || price.value === '0.00') {
+                                errors.push('Vui long nhap gia sach');
+                                price.style.borderColor = '#dc3545';
+                            } else if (parseFloat(price.value) < 0) {
+                                errors.push('Gia tien khong duoc am');
+                                price.style.borderColor = '#dc3545';
+                            } else {
+                                price.style.borderColor = '#28a745';
+                            }
+                            
+                            var totalPages = document.querySelector('input[name="totalPages"]');
+                            if (!totalPages.value || totalPages.value.trim() === '') {
+                                errors.push('Vui long nhap tong so trang');
+                                totalPages.style.borderColor = '#dc3545';
+                            } else if (parseInt(totalPages.value) < 1) {
+                                errors.push('So trang phai lon hon 0');
+                                totalPages.style.borderColor = '#dc3545';
+                            } else {
+                                totalPages.style.borderColor = '#28a745';
+                            }
+                            
+                            var previewPages = document.querySelector('input[name="previewPages"]');
+                            if (previewPages.value && totalPages.value) {
+                                if (parseInt(previewPages.value) < 0) {
+                                    errors.push('So trang xem truoc khong duoc am');
+                                    previewPages.style.borderColor = '#dc3545';
+                                } else if (parseInt(previewPages.value) > parseInt(totalPages.value)) {
+                                    errors.push('So trang xem truoc khong duoc lon hon tong so trang');
+                                    previewPages.style.borderColor = '#dc3545';
+                                } else {
+                                    previewPages.style.borderColor = '#28a745';
+                                }
+                            }
+                            
+                            var authorId = document.querySelector('select[name="authorId"]');
+                            if (!authorId.value) {
+                                errors.push('Vui long chon tac gia');
+                                authorId.style.borderColor = '#dc3545';
+                            } else {
+                                authorId.style.borderColor = '#28a745';
+                            }
+                            
+                            var categoryId = document.querySelector('select[name="categoryId"]');
+                            if (!categoryId.value) {
+                                errors.push('Vui long chon danh muc');
+                                categoryId.style.borderColor = '#dc3545';
+                            } else {
+                                categoryId.style.borderColor = '#28a745';
+                            }
+                            
+                            var coverFile = document.querySelector('input[name="coverFile"]');
+                            if (coverFile.files.length > 0) {
+                                var coverExt = coverFile.files[0].name.split('.').pop().toLowerCase();
+                                if (!['jpg','jpeg','png','gif'].includes(coverExt)) {
+                                    errors.push('Anh bia chi chap nhan JPG, PNG, GIF');
+                                    coverFile.style.borderColor = '#dc3545';
+                                } else if (coverFile.files[0].size > 5 * 1024 * 1024) {
+                                    errors.push('Anh bia khong duoc qua 5MB');
+                                    coverFile.style.borderColor = '#dc3545';
+                                } else {
+                                    coverFile.style.borderColor = '#28a745';
+                                }
+                            }
+                            
+                            // Kiem tra file PDF (neu co chon)
+                            var contentFile = document.querySelector('input[name="contentFile"]');
+                            if (contentFile.files.length > 0) {
+                                var pdfExt = contentFile.files[0].name.split('.').pop().toLowerCase();
+                                if (pdfExt !== 'pdf') {
+                                    errors.push('File noi dung chi chap nhan PDF');
+                                    contentFile.style.borderColor = '#dc3545';
+                                } else if (contentFile.files[0].size > 50 * 1024 * 1024) {
+                                    errors.push('File PDF khong duoc qua 50MB');
+                                    contentFile.style.borderColor = '#dc3545';
+                                } else {
+                                    contentFile.style.borderColor = '#28a745';
+                                }
+                            }
+                            
+                            if (errors.length > 0) {
+                                e.preventDefault();
+                                
+                                var alertDiv = document.querySelector('.alert-error');
+                                if (!alertDiv) {
+                                    alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-error';
+                                    document.querySelector('.card-header').after(alertDiv);
+                                }
+                                alertDiv.innerHTML = '<strong>Vui long sua cac loi sau:</strong><br>' + errors.join('<br>');
+                                alertDiv.scrollIntoView({behavior: 'smooth'});
+                            }
+                        });
+                        
+                        // Xoa vien do khi nguoi dung bat dau nhap lai
+                        document.querySelectorAll('input, select, textarea').forEach(function(el) {
+                            el.addEventListener('input', function() {
+                                this.style.borderColor = '#e0e0e0';
+                            });
+                            el.addEventListener('change', function() {
+                                this.style.borderColor = '#e0e0e0';
+                            });
+                        });
+                    </script>
+                    
+                    <script>
+                        document.querySelector('form').addEventListener('submit', function(e) {
+                            var errors = [];
+                            
+                            var title = document.querySelector('input[name="title"]');
+                            if (!title.value.trim()) {
+                                errors.push('Ten sach khong duoc de trong');
+                                title.style.borderColor = '#dc3545';
+                            } else if (title.value.trim().length > 500) {
+                                errors.push('Ten sach khong duoc qua 500 ky tu');
+                                title.style.borderColor = '#dc3545';
+                            } else {
+                                title.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            var price = document.querySelector('input[name="price"]');
+                            if (price.value && parseFloat(price.value) < 0) {
+                                errors.push('Gia tien khong duoc am');
+                                price.style.borderColor = '#dc3545';
+                            } else {
+                                price.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            var totalPages = document.querySelector('input[name="totalPages"]');
+                            var previewPages = document.querySelector('input[name="previewPages"]');
+                            if (totalPages.value && parseInt(totalPages.value) < 1) {
+                                errors.push('So trang phai lon hon 0');
+                                totalPages.style.borderColor = '#dc3545';
+                            } else {
+                                totalPages.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            if (previewPages.value && totalPages.value) {
+                                if (parseInt(previewPages.value) > parseInt(totalPages.value)) {
+                                    errors.push('So trang xem truoc khong duoc lon hon tong so trang');
+                                    previewPages.style.borderColor = '#dc3545';
+                                } else {
+                                    previewPages.style.borderColor = '#e0e0e0';
+                                }
+                            }
+                            
+                            var coverFile = document.querySelector('input[name="coverFile"]');
+                            if (coverFile.files.length > 0) {
+                                var ext = coverFile.files[0].name.split('.').pop().toLowerCase();
+                                if (!['jpg','jpeg','png','gif'].includes(ext)) {
+                                    errors.push('Anh bia chi chap nhan JPG, PNG, GIF');
+                                    coverFile.style.borderColor = '#dc3545';
+                                }
+                            }
+                            
+                            var contentFile = document.querySelector('input[name="contentFile"]');
+                            if (contentFile.files.length > 0) {
+                                var ext = contentFile.files[0].name.split('.').pop().toLowerCase();
+                                if (ext !== 'pdf') {
+                                    errors.push('File noi dung chi chap nhan PDF');
+                                    contentFile.style.borderColor = '#dc3545';
+                                }
+                            }
+                            
+                            if (errors.length > 0) {
+                                e.preventDefault();
+                                var alertDiv = document.querySelector('.alert-error');
+                                if (!alertDiv) {
+                                    alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-error';
+                                    document.querySelector('.card-header').after(alertDiv);
+                                }
+                                alertDiv.innerHTML = errors.join('<br>');
+                                alertDiv.scrollIntoView({behavior: 'smooth'});
+                            }
+                        });
+                    </script>
                 </form>
             </div>
         </div>

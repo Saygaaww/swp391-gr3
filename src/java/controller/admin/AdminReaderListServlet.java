@@ -35,7 +35,7 @@ public class AdminReaderListServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -44,15 +44,21 @@ public class AdminReaderListServlet extends HttpServlet {
         
         try {
             int pageSize = DEFAULT_PAGE_SIZE;
+            boolean showAll = false;
             String pageSizeStr = request.getParameter("pageSize");
             if (pageSizeStr != null && !pageSizeStr.trim().isEmpty()) {
-                try {
-                    pageSize = Integer.parseInt(pageSizeStr);
-                    if (pageSize != 5 && pageSize != 10 && pageSize != 20) {
+                if (pageSizeStr.equals("all")) {
+                    showAll = true;
+                    pageSize = Integer.MAX_VALUE;
+                } else {
+                    try {
+                        pageSize = Integer.parseInt(pageSizeStr);
+                        if (pageSize != 5 && pageSize != 10 && pageSize != 20) {
+                            pageSize = DEFAULT_PAGE_SIZE;
+                        }
+                    } catch (NumberFormatException e) {
                         pageSize = DEFAULT_PAGE_SIZE;
                     }
-                } catch (NumberFormatException e) {
-                    pageSize = DEFAULT_PAGE_SIZE;
                 }
             }
             
@@ -107,7 +113,7 @@ public class AdminReaderListServlet extends HttpServlet {
             request.setAttribute("totalReaders", totalReaders);
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
-            request.setAttribute("pageSize", String.valueOf(pageSize));
+            request.setAttribute("pageSize", showAll ? "all" : String.valueOf(pageSize));
             request.setAttribute("currentEmployee", currentEmployee);
             request.setAttribute("activeCount", activeCount);
             request.setAttribute("blockedCount", blockedCount);
@@ -135,7 +141,7 @@ public class AdminReaderListServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         

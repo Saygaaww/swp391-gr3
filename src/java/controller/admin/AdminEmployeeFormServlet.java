@@ -32,7 +32,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -89,7 +89,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/mock-login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -149,13 +149,13 @@ public class AdminEmployeeFormServlet extends HttpServlet {
                 success = employeeDAO.updateEmployee(employee);
                 
                 if (password != null && !password.trim().isEmpty()) {
-                    employeeDAO.updateEmployeePassword(employee.getEmployeeId(), password);
+                    employeeDAO.updateEmployeePassword(employee.getEmployeeId(), util.PasswordUtil.hash(password));
                 }
                 
                 System.out.println(success ? "Cập nhật nhân viên thành công" : "Cập nhật thất bại");
                 
             } else {
-                employee.setPasswordHash(password);
+                employee.setPasswordHash(util.PasswordUtil.hash(password));
                 success = employeeDAO.addEmployee(employee);
                 
                 System.out.println(success ? "Thêm nhân viên thành công" : "Thêm thất bại");

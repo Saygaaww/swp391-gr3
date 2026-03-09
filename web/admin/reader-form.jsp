@@ -229,9 +229,12 @@
                         
                         <div class="form-group">
                             <label>So dien thoai</label>
-                            <input type="tel" name="phone" class="form-control" 
+                            <input type="tel" name="phone" id="phoneInput" class="form-control" 
                                    value="${reader.phone}"
-                                   placeholder="0901234567" maxlength="30">
+                                   placeholder="0901234567" minlength="10" maxlength="15"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePhoneCounter();"
+                                   onpaste="setTimeout(function(){ document.getElementById('phoneInput').value = document.getElementById('phoneInput').value.replace(/[^0-9]/g, ''); updatePhoneCounter(); }, 0);">
+                            <p class="hint" id="phoneHint">Chi nhap so (10-15 ky tu). <span id="phoneCount">0</span>/15</p>
                         </div>
                     </div>
                     
@@ -286,6 +289,109 @@
                             Huy
                         </a>
                     </div>
+                            
+                    <script>
+                        // Real-time phone counter
+                        function updatePhoneCounter() {
+                            var phone = document.getElementById('phoneInput');
+                            var counter = document.getElementById('phoneCount');
+                            var hint = document.getElementById('phoneHint');
+                            if (phone && counter) {
+                                counter.textContent = phone.value.length;
+                                if (phone.value.length > 0 && phone.value.length < 10) {
+                                    hint.style.color = '#dc3545';
+                                } else if (phone.value.length >= 10) {
+                                    hint.style.color = '#28a745';
+                                } else {
+                                    hint.style.color = '#999';
+                                }
+                            }
+                        }
+                        // Init counter on page load
+                        updatePhoneCounter();
+                        
+                        document.querySelector('form').addEventListener('submit', function(e) {
+                            var errors = [];
+                            
+                            // Validate ho ten
+                            var fullName = document.querySelector('input[name="fullName"]');
+                            if (fullName && !fullName.value.trim()) {
+                                errors.push('Ho ten khong duoc de trong');
+                                fullName.style.borderColor = '#dc3545';
+                            } else if (fullName && fullName.value.trim().length > 255) {
+                                errors.push('Ho ten khong duoc qua 255 ky tu');
+                                fullName.style.borderColor = '#dc3545';
+                            } else if (fullName) {
+                                fullName.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            // Validate email
+                            var email = document.querySelector('input[name="email"]');
+                            if (email && !email.value.trim()) {
+                                errors.push('Email khong duoc de trong');
+                                email.style.borderColor = '#dc3545';
+                            } else if (email && !/^[A-Za-z0-9+_.-]+@(.+)$/.test(email.value.trim())) {
+                                errors.push('Email khong dung dinh dang');
+                                email.style.borderColor = '#dc3545';
+                            } else if (email) {
+                                email.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            // Validate mat khau (bat buoc khi them moi)
+                            var password = document.querySelector('input[name="password"]');
+                            var isEdit = document.querySelector('input[name="readerId"]') != null;
+                            if (password && !isEdit && !password.value.trim()) {
+                                errors.push('Mat khau khong duoc de trong khi them moi');
+                                password.style.borderColor = '#dc3545';
+                            } else if (password && password.value.trim() && password.value.trim().length < 3) {
+                                errors.push('Mat khau phai co it nhat 3 ky tu');
+                                password.style.borderColor = '#dc3545';
+                            } else if (password) {
+                                password.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            // Validate so dien thoai (chi so, 10-15 ky tu)
+                            var phone = document.getElementById('phoneInput');
+                            if (phone && phone.value.trim()) {
+                                var cleanPhone = phone.value.replace(/\s/g, '');
+                                phone.value = cleanPhone; // strip any remaining whitespace
+                                if (!/^[0-9]+$/.test(cleanPhone)) {
+                                    errors.push('So dien thoai chi duoc chua cac chu so');
+                                    phone.style.borderColor = '#dc3545';
+                                } else if (cleanPhone.length < 10) {
+                                    errors.push('So dien thoai phai co it nhat 10 chu so');
+                                    phone.style.borderColor = '#dc3545';
+                                } else if (cleanPhone.length > 15) {
+                                    errors.push('So dien thoai khong duoc qua 15 chu so');
+                                    phone.style.borderColor = '#dc3545';
+                                } else {
+                                    phone.style.borderColor = '#e0e0e0';
+                                }
+                            }
+                            
+                            // Validate vai tro
+                            var roleId = document.querySelector('select[name="roleId"]');
+                            if (roleId && !roleId.value) {
+                                errors.push('Vui long chon vai tro');
+                                roleId.style.borderColor = '#dc3545';
+                            } else if (roleId) {
+                                roleId.style.borderColor = '#e0e0e0';
+                            }
+                            
+                            if (errors.length > 0) {
+                                e.preventDefault();
+                                var alertDiv = document.querySelector('.alert-danger');
+                                if (!alertDiv) {
+                                    alertDiv = document.createElement('div');
+                                    alertDiv.className = 'alert alert-danger';
+                                    alertDiv.style.cssText = 'padding:15px 20px;border-radius:8px;margin-bottom:20px;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;';
+                                    document.querySelector('.form-card').before(alertDiv);
+                                }
+                                alertDiv.innerHTML = errors.join('<br>');
+                                alertDiv.scrollIntoView({behavior: 'smooth'});
+                            }
+                        });
+                    </script>        
                 </form>
             </div>
         </div>
