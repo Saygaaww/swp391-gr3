@@ -118,6 +118,91 @@ public class AuthorDAO {
     }
     
     /**
+     * Create new author
+     * @param author Author object with name and bio
+     * @return true if created successfully, false otherwise
+     */
+    public boolean createAuthor(Author author) {
+        String sql = "INSERT INTO Author (AuthorName, bio) VALUES (?, ?)";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, author.getAuthorName());
+            ps.setString(2, author.getBio());
+            
+            int rowsAffected = ps.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        author.setAuthorId(rs.getInt(1));
+                        LOGGER.info("Author created successfully with ID: " + author.getAuthorId());
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error creating author: " + author.getAuthorName(), e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Update existing author
+     * @param author Author object with ID, name and bio
+     * @return true if updated successfully, false otherwise
+     */
+    public boolean updateAuthor(Author author) {
+        String sql = "UPDATE Author SET AuthorName = ?, bio = ? WHERE AuthorID = ?";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, author.getAuthorName());
+            ps.setString(2, author.getBio());
+            ps.setInt(3, author.getAuthorId());
+            
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                LOGGER.info("Author updated successfully: ID " + author.getAuthorId());
+                return true;
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating author: ID " + author.getAuthorId(), e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if author name already exists
+     * @param authorName Name to check
+     * @param excludeAuthorId Author ID to exclude from check (for update scenarios)
+     * @return true if name exists, false otherwise
+     */
+    public boolean authorNameExists(String authorName, Integer excludeAuthorId) {
+        String sql = "SELECT COUNT(*) FROM Author WHERE LOWER(AuthorName) = LOWER(?)";
+        if (excludeAuthorId != null) {
+            sql += " AND AuthorID != ?";
+        }
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, authorName);
+            if (excludeAuthorId != null) {
+                ps.setInt(2, excludeAuthorId);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking author name existence: " + authorName, e);
+        }
+        
+        return false;
+    }
+    
+    /**
      * Map ResultSet to Author object - CORRECTED VERSION
      */
     private Author mapResultSetToAuthor(ResultSet rs) throws SQLException {

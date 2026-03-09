@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Book;
 import util.StringUtil;
+import util.AuthUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +39,20 @@ public class CategoryController extends HttpServlet {
                 handleCategoryListing(request, response);
             } else if (pathInfo.startsWith("/detail/")) {
                 handleCategoryDetail(request, response, pathInfo);
+            } else if (pathInfo.equals("/create")) {
+                // Only Librarian/Seller can create categories
+                if (!AuthUtil.canManageCatalog(request)) {
+                    handleUnauthorized(request, response);
+                    return;
+                }
+                handleCategoryForm(request, response, null);
+            } else if (pathInfo.startsWith("/edit/")) {
+                // Only Librarian/Seller can edit categories
+                if (!AuthUtil.canManageCatalog(request)) {
+                    handleUnauthorized(request, response);
+                    return;
+                }
+                handleCategoryForm(request, response, pathInfo);
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
@@ -52,7 +67,32 @@ public class CategoryController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        doGet(request, response);
+        
+        String action = request.getParameter("action");
+        String pathInfo = request.getPathInfo();
+        
+        try {
+            if ("create".equals(action) || (pathInfo != null && pathInfo.equals("/create"))) {
+                if (!AuthUtil.canManageCatalog(request)) {
+                    handleUnauthorized(request, response);
+                    return;
+                }
+                handleCreateCategory(request, response);
+            } else if ("update".equals(action) || (pathInfo != null && pathInfo.startsWith("/update/"))) {
+                if (!AuthUtil.canManageCatalog(request)) {
+                    handleUnauthorized(request, response);
+                    return;
+                }
+                handleUpdateCategory(request, response, pathInfo);
+            } else {
+                doGet(request, response);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error in CategoryController POST", e);
+            request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+            dispatcher.forward(request, response);
+        }
     }
     
     private void handleCategoryListing(HttpServletRequest request, HttpServletResponse response) 
@@ -96,6 +136,9 @@ public class CategoryController extends HttpServlet {
             request.setAttribute("pageTitle", "Danh sách thể loại - Thư viện Số FPT");
             request.setAttribute("totalCategories", categoryDAO.getAllCategories().size());
             
+            // Authorization flag for JSP
+            request.setAttribute("canManageCatalog", AuthUtil.canManageCatalog(request));
+            
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/list.jsp");
             dispatcher.forward(request, response);
             
@@ -138,6 +181,216 @@ public class CategoryController extends HttpServlet {
             
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID thể loại không hợp lệ");
+        }
+    }
+    
+    /**
+     * Show category form for create or edit
+     */
+    private void handleCategoryForm(HttpServletRequest request, HttpServletResponse response, String pathInfo) 
+            throws ServletException, IOException {
+        
+        Category category = null;
+        boolean isEdit = false;
+        
+        if (pathInfo != null && pathInfo.startsWith("/edit/")) {
+            try {
+                String categoryIdStr = pathInfo.substring("/edit/".length());
+                int categoryId = Integer.parseInt(categoryIdStr);
+                
+                CategoryDAO categoryDAO = new CategoryDAO();
+                try {
+                    category = categoryDAO.getCategoryById(categoryId);
+                    if (category == null) {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Thể loại không tồn tại");
+                        return;
+                    }
+                    isEdit = true;
+                } finally {
+                    categoryDAO.close();
+                }
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID thể loại không hợp lệ");
+                return;
+            }
+        } else {
+            // Create mode
+            category = new Category();
+            isEdit = false;
+        }
+        
+        request.setAttribute("category", category);
+        request.setAttribute("isEdit", isEdit);
+        request.setAttribute("pageTitle", (isEdit ? "Chỉnh sửa" : "Thêm mới") + " thể loại - Thư viện Số FPT");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+        dispatcher.forward(request, response);
+    }
+    
+    /**
+     * Handle create category request
+     */
+    private void handleCreateCategory(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String categoryName = StringUtil.cleanInput(request.getParameter("categoryName"));
+        String description = StringUtil.cleanInput(request.getParameter("description"));
+        
+        // Validation
+        if (StringUtil.isBlank(categoryName)) {
+            request.setAttribute("error", "Tên thể loại không được để trống");
+            Category category = new Category();
+            category.setCategoryName(categoryName);
+            category.setDescription(description);
+            request.setAttribute("category", category);
+            request.setAttribute("isEdit", false);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+            dispatcher.forward(request, response);
+            return;
+        }
+        
+        CategoryDAO categoryDAO = new CategoryDAO();
+        try {
+            // Check duplicate
+            if (categoryDAO.categoryNameExists(categoryName, null)) {
+                request.setAttribute("error", "Tên thể loại \"" + categoryName + "\" đã tồn tại");
+                Category category = new Category();
+                category.setCategoryName(categoryName);
+                category.setDescription(description);
+                request.setAttribute("category", category);
+                request.setAttribute("isEdit", false);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+            
+            Category category = new Category();
+            category.setCategoryName(categoryName);
+            category.setDescription(description);
+            
+            if (categoryDAO.createCategory(category)) {
+                LOGGER.info("Category created successfully: " + category.getCategoryId());
+                response.sendRedirect(request.getContextPath() + "/categories/detail/" + category.getCategoryId());
+            } else {
+                request.setAttribute("error", "Không thể tạo thể loại mới. Vui lòng thử lại.");
+                request.setAttribute("category", category);
+                request.setAttribute("isEdit", false);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                dispatcher.forward(request, response);
+            }
+        } finally {
+            categoryDAO.close();
+        }
+    }
+    
+    /**
+     * Handle update category request
+     */
+    private void handleUpdateCategory(HttpServletRequest request, HttpServletResponse response, String pathInfo) 
+            throws ServletException, IOException {
+        
+        try {
+            String categoryIdStr;
+            if (pathInfo != null && pathInfo.startsWith("/update/")) {
+                categoryIdStr = pathInfo.substring("/update/".length());
+            } else {
+                categoryIdStr = request.getParameter("categoryId");
+            }
+            
+            if (categoryIdStr == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu ID thể loại");
+                return;
+            }
+            
+            int categoryId = Integer.parseInt(categoryIdStr);
+            String categoryName = StringUtil.cleanInput(request.getParameter("categoryName"));
+            String description = StringUtil.cleanInput(request.getParameter("description"));
+            
+            // Validation
+            if (StringUtil.isBlank(categoryName)) {
+                request.setAttribute("error", "Tên thể loại không được để trống");
+                CategoryDAO categoryDAO = new CategoryDAO();
+                try {
+                    Category category = categoryDAO.getCategoryById(categoryId);
+                    if (category != null) {
+                        category.setCategoryName(categoryName);
+                        category.setDescription(description);
+                    }
+                    request.setAttribute("category", category);
+                    request.setAttribute("isEdit", true);
+                } finally {
+                    categoryDAO.close();
+                }
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
+            
+            CategoryDAO categoryDAO = new CategoryDAO();
+            try {
+                Category existingCategory = categoryDAO.getCategoryById(categoryId);
+                if (existingCategory == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Thể loại không tồn tại");
+                    return;
+                }
+                
+                // Check duplicate name
+                if (categoryDAO.categoryNameExists(categoryName, categoryId)) {
+                    request.setAttribute("error", "Tên thể loại \"" + categoryName + "\" đã tồn tại");
+                    Category category = new Category();
+                    category.setCategoryId(categoryId);
+                    category.setCategoryName(categoryName);
+                    category.setDescription(description);
+                    request.setAttribute("category", category);
+                    request.setAttribute("isEdit", true);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                    dispatcher.forward(request, response);
+                    return;
+                }
+                
+                Category category = new Category();
+                category.setCategoryId(categoryId);
+                category.setCategoryName(categoryName);
+                category.setDescription(description);
+                
+                if (categoryDAO.updateCategory(category)) {
+                    LOGGER.info("Category updated successfully: " + categoryId);
+                    response.sendRedirect(request.getContextPath() + "/categories/detail/" + categoryId);
+                } else {
+                    request.setAttribute("error", "Không thể cập nhật thể loại. Vui lòng thử lại.");
+                    request.setAttribute("category", category);
+                    request.setAttribute("isEdit", true);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                    dispatcher.forward(request, response);
+                }
+            } finally {
+                categoryDAO.close();
+            }
+            
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID thể loại không hợp lệ");
+        }
+    }
+    
+    /**
+     * Handle unauthorized access
+     */
+    private void handleUnauthorized(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        request.setAttribute("error", "Bạn không có quyền truy cập chức năng này. Chỉ Librarian/Seller mới có thể quản lý thể loại.");
+        request.setAttribute("pageTitle", "Không có quyền truy cập - Thư viện Số FPT");
+        
+        if (!AuthUtil.isLoggedIn(request)) {
+            String requestedURL = request.getRequestURI();
+            if (request.getQueryString() != null) {
+                requestedURL += "?" + request.getQueryString();
+            }
+            request.getSession().setAttribute("redirectAfterLogin", requestedURL);
+            response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
+        } else {
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/error/unauthorized.jsp");
+            dispatcher.forward(request, response);
         }
     }
 }

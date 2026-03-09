@@ -118,6 +118,91 @@ public class CategoryDAO {
     }
     
     /**
+     * Create new category
+     * @param category Category object with name and description
+     * @return true if created successfully, false otherwise
+     */
+    public boolean createCategory(Category category) {
+        String sql = "INSERT INTO Category (CategoryName, Description) VALUES (?, ?)";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, category.getCategoryName());
+            ps.setString(2, category.getDescription());
+            
+            int rowsAffected = ps.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        category.setCategoryId(rs.getInt(1));
+                        LOGGER.info("Category created successfully with ID: " + category.getCategoryId());
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error creating category: " + category.getCategoryName(), e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Update existing category
+     * @param category Category object with ID, name and description
+     * @return true if updated successfully, false otherwise
+     */
+    public boolean updateCategory(Category category) {
+        String sql = "UPDATE Category SET CategoryName = ?, Description = ? WHERE CategoryID = ?";
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, category.getCategoryName());
+            ps.setString(2, category.getDescription());
+            ps.setInt(3, category.getCategoryId());
+            
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                LOGGER.info("Category updated successfully: ID " + category.getCategoryId());
+                return true;
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating category: ID " + category.getCategoryId(), e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if category name already exists
+     * @param categoryName Name to check
+     * @param excludeCategoryId Category ID to exclude from check (for update scenarios)
+     * @return true if name exists, false otherwise
+     */
+    public boolean categoryNameExists(String categoryName, Integer excludeCategoryId) {
+        String sql = "SELECT COUNT(*) FROM Category WHERE LOWER(CategoryName) = LOWER(?)";
+        if (excludeCategoryId != null) {
+            sql += " AND CategoryID != ?";
+        }
+        
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+            if (excludeCategoryId != null) {
+                ps.setInt(2, excludeCategoryId);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error checking category name existence: " + categoryName, e);
+        }
+        
+        return false;
+    }
+    
+    /**
      * Get top categories by book count
      */
     public List<Category> getTopCategoriesByBookCount(int limit) {
