@@ -12,12 +12,28 @@
             <i class="fa fa-envelope"></i> support@libraria.com
         </div>
         <div>
-            <a href="auth/login.jsp" class="text-light text-decoration-none">
-                <i class="fa fa-user"></i> Login 
-            </a>
-            <a href="auth/register.jsp" class="text-light text-decoration-none">
-                <i class="fa fa-user"></i> Register
-            </a>
+            <%
+                model.Reader user = (model.Reader) session.getAttribute("user");
+                if (user == null) {
+            %>
+                <a href="<%=request.getContextPath()%>/auth/login.jsp" class="text-light text-decoration-none me-3">
+                    <i class="fa fa-user"></i> Login
+                </a>
+                <a href="<%=request.getContextPath()%>/auth/register.jsp" class="text-light text-decoration-none">
+                    <i class="fa fa-user-plus"></i> Register
+                </a>
+            <%
+                } else {
+            %>
+                <span class="me-3">
+                    <i class="fa fa-user"></i> <%= user.getFullName() %>
+                </span>
+                <a href="<%=request.getContextPath()%>/LogoutServlet" class="text-light text-decoration-none">
+                    <i class="fa fa-sign-out"></i> Logout
+                </a>
+            <%
+                }
+            %>
         </div>
     </div>
 </div>

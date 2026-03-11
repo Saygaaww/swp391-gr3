@@ -30,7 +30,7 @@ public class LoginServlet extends HttpServlet {
 
         if (email == null || password == null
                 || email.isBlank() || password.isBlank()) {
-            request.setAttribute("error", "Vui lòng nhập đầy đủ thông tin");
+            request.setAttribute("error", "Please enter email and password");
             request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
             return;
         }
@@ -39,13 +39,13 @@ public class LoginServlet extends HttpServlet {
         Reader user = userDAO.loginByEmailPassword(email, hashedPassword);
 
         if (user == null) {
-            request.setAttribute("error", "Email hoặc mật khẩu không đúng");
+            request.setAttribute("error", "Invalid email or password");
             request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
             return;
         }
 
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-            request.setAttribute("error", "Tài khoản đã bị khóa");
+            request.setAttribute("error", "Account is locked");
             request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
             return;
         }
@@ -63,7 +63,7 @@ public class LoginServlet extends HttpServlet {
                 break;
 
             case "LIBRARIAN":
-                response.sendRedirect(request.getContextPath() + "/librarian/home");
+                response.sendRedirect(request.getContextPath() + "/librarian/home.jsp");
                 break;
 
             case "SELLER":

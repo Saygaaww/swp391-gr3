@@ -1,16 +1,12 @@
-<%-- 
-    Document   : home
-    Created on : Jan 27, 2026, 1:36:40 AM
-    Author     : admin
---%>
-
-<%@page import="model.User"%>
+<%-- Trang chủ thủ thư --%>
+<%@page pageEncoding="UTF-8"%>
+<%@page import="model.Reader"%>
 <%@include file="/includes/header.jsp"%>
 
 <%
-    User user = (User) session.getAttribute("user");
+    Reader user = (Reader) session.getAttribute("user");
     if (user == null || !"LIBRARIAN".equalsIgnoreCase(user.getRoleName())) {
-        response.sendRedirect(request.getContextPath() + "/login");
+        response.sendRedirect(request.getContextPath() + "/auth/login.jsp");
         return;
     }
 %>
@@ -18,31 +14,31 @@
 <%@include file="/includes/navbar.jsp"%>
 
 <div class="container my-5">
-    <h2>? Librarian Dashboard</h2>
-    <p>Hello, <b><%= user.getFullName() %></b></p>
+    <h2>Trang quản lý thủ thư</h2>
+    <p>Xin chào, <b><%= user.getFullName() %></b></p>
 
     <div class="row mt-4">
         <div class="col-md-4">
             <div class="card p-4 shadow">
-                <h5>Manage Books</h5>
-                <p>Add / update library books</p>
-                <a href="#" class="btn btn-primary">Books</a>
+                <h5>Quản lý sách</h5>
+                <p>Thêm / cập nhật sách thư viện</p>
+                <a href="#" class="btn btn-primary">Sách</a>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card p-4 shadow">
-                <h5>Borrow Requests</h5>
-                <p>Approve or reject requests</p>
-                <a href="#" class="btn btn-primary">Requests</a>
+                <h5>Yêu cầu mượn sách</h5>
+                <p>Duyệt hoặc từ chối yêu cầu mượn</p>
+                <a href="<%= request.getContextPath() %>/PendingBorrowRequestsServlet" class="btn btn-primary">Xem yêu cầu</a>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="card p-4 shadow">
-                <h5>Reports</h5>
-                <p>Library statistics</p>
-                <a href="#" class="btn btn-primary">Reports</a>
+                <h5>Báo cáo</h5>
+                <p>Thống kê thư viện</p>
+                <a href="#" class="btn btn-primary">Báo cáo</a>
             </div>
         </div>
     </div>

@@ -1,9 +1,8 @@
-<%-- 
+<%--
     Document   : register
-    Created on : Jan 26, 2026, 4:35:09 PM
-    Author     : admin
 --%>
-
+<%@page pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -12,29 +11,25 @@
           method="post"
           style="width: 400px;">
 
-        <h3 class="text-center mb-3">Register</h3>
+        <h3 class="text-center mb-3">Đăng ký</h3>
 
-        <!-- Full name -->
         <input class="form-control mb-3"
                name="fullName"
-               placeholder="Full name"
+               placeholder="Họ và tên"
                required>
 
-        <!-- Email -->
         <input class="form-control mb-3"
                type="email"
                name="email"
-               placeholder="Email address"
+               placeholder="Email"
                required>
 
-        <!-- Password -->
         <input class="form-control mb-3"
                type="password"
                name="password"
-               placeholder="Password"
+               placeholder="Mật khẩu"
                required>
 
-        <!-- Error message -->
         <c:if test="${not empty error}">
             <div class="alert alert-danger text-center">
                 ${error}
@@ -42,12 +37,12 @@
         </c:if>
 
         <button class="btn btn-dark w-100">
-            Register
+            Đăng ký
         </button>
 
         <p class="mt-3 text-center">
-            Already have an account?
-            <a href="<%=request.getContextPath()%>/login">Login</a>
+            Đã có tài khoản?
+            <a href="<%=request.getContextPath()%>/login">Đăng nhập</a>
         </p>
     </form>
 </div>

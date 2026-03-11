@@ -10,9 +10,9 @@
 <%@include file="/includes/header-carousel.jsp"%>
 
 <div class="container my-5">
-    <h2 class="text-center">Welcome to Libraria</h2>
+    <h2 class="text-center">Chào mừng đến Thư viện số</h2>
     <p class="text-center">
-        A digital library for lifelong learners.
+        Thư viện số cho người học suốt đời.
     </p>
 </div>
 

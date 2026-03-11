@@ -32,7 +32,12 @@ public class AuthFilter implements Filter {
             uri.equals(contextPath + "/register") ||
             uri.equals(contextPath + "/LoginServlet") ||
             uri.equals(contextPath + "/RegisterServlet") ||
+            uri.equals(contextPath + "/GoogleLoginServlet") ||
+            uri.equals(contextPath + "/GoogleCallbackServlet") ||
+            uri.equals(contextPath + "/ForgotPasswordServlet") ||
+            uri.equals(contextPath + "/VerifyOtpServlet") ||
             uri.equals(contextPath + "/ResetPasswordServlet") ||
+            uri.equals(contextPath + "/LogoutServlet") ||
             uri.contains("/auth/") ||
             uri.contains("/assets/") ||
             uri.contains("/google-login")
@@ -43,28 +48,28 @@ public class AuthFilter implements Filter {
 
         /* ===== NOT LOGIN ===== */
         if (user == null) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login.jsp");
             return;
         }
 
         /* ===== ROLE CHECK ===== */
         if (uri.contains("/admin") && !"ADMIN".equals(user.getRoleName())) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login.jsp");
             return;
         }
 
         if (uri.contains("/librarian") && !"LIBRARIAN".equals(user.getRoleName())) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login.jsp");
             return;
         }
 
         if (uri.contains("/seller") && !"SELLER".equals(user.getRoleName())) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login.jsp");
             return;
         }
 
         if (uri.contains("/user") && !"USER".equals(user.getRoleName())) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login.jsp");
             return;
         }
 

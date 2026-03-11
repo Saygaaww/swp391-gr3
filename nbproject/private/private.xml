@@ -3,17 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/DigitalLibrary/web/WEB-INF/web.xml</file>
-            <file>file:/D:/DigitalLibrary/src/java/dao/UserDAO.java</file>
-            <file>file:/D:/DigitalLibrary/web/auth/forgot-password.jsp</file>
-            <file>file:/D:/DigitalLibrary/src/java/dao/OtpDAO.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/util/GoogleOAuthUtil.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/controller/auth/RegisterServlet.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/util/EmailUtil.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/controller/auth/LogoutServlet.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/controller/auth/ResetPasswordServlet.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/controller/common/AuthFilter.java</file>
-            <file>file:/D:/DigitalLibrary/src/java/dao/PasswordResetDAO.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/librarian/pending-requests.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/customer/my-borrow-history.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/dao/BorrowRequestDAO.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/META-INF/context.xml</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/model/Book.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/customer/books.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/controller/auth/RegisterServlet.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/customer/book-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/controller/borrow/RequestBorrowServlet.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/customer/home_1.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/web/librarian/home.jsp</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/controller/auth/LoginServlet.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/controller/borrow/PendingBorrowRequestsServlet.java</file>
+            <file>file:/D:/Ki5/SWP/swp391-gr3/src/java/controller/auth/LogoutServlet.java</file>
         </group>
     </open-files>
 </project-private>

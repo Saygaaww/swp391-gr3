@@ -34,14 +34,14 @@ public class RegisterServlet extends HttpServlet {
                 && !password.isEmpty() && fullName != null && !fullName.isEmpty()) {
 
             if (userDAO.isEmailExists(email)) {
-                request.setAttribute("error", "Email đã tồn tại");
+                request.setAttribute("error", "Email already exists");
                 request.getRequestDispatcher("/auth/register.jsp").forward(request, response);
                 return;
             }
 
             boolean success = userDAO.registerByEmail(fullName, email, util.PasswordUtil.hash(password));
             if (!success) {
-                request.setAttribute("error", "Đăng ký thất bại, vui lòng thử lại");
+                request.setAttribute("error", "Registration failed. Please try again.");
                 request.getRequestDispatcher("/auth/register.jsp").forward(request, response);
                 return;
             }

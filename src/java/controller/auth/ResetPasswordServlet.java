@@ -25,8 +25,8 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
     String newPassword = request.getParameter("newPassword");
 
     if (email == null || email.isEmpty()) {
-        request.setAttribute("error", "Email không hợp lệ");
-        request.getRequestDispatcher("/auth/forgot_password.jsp").forward(request, response);
+        request.setAttribute("error", "Invalid email");
+        request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);
         return;
     }
 
@@ -34,7 +34,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
     if (otp == null || otp.isEmpty()) {
 
         if (!userDAO.isEmailExists(email)) {
-            request.setAttribute("error", "Email không tồn tại trong hệ thống");
+            request.setAttribute("error", "Email not found in system");
             request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);
             return;
         }
@@ -46,21 +46,21 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             EmailUtil.sendOtpEmail(email, generatedOtp);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Không thể gửi email OTP");
+            request.setAttribute("error", "Could not send OTP email");
             request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);
             return;
         }
 
         request.setAttribute("email", email);
         request.setAttribute("showOtpForm", true);
-        request.setAttribute("message", "OTP đã được gửi về email");
+        request.setAttribute("message", "OTP has been sent to your email");
         request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);
         return;
     }
 
     /* ===== STEP 2: VERIFY OTP + RESET PASSWORD ===== */
     if (!resetDAO.verifyOtpForEmail(email, otp)) {
-        request.setAttribute("error", "OTP không hợp lệ hoặc đã hết hạn");
+        request.setAttribute("error", "Invalid or expired OTP");
         request.setAttribute("email", email);
         request.setAttribute("showOtpForm", true);
         request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);
@@ -68,7 +68,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
     }
 
     if (newPassword == null || newPassword.isEmpty()) {
-        request.setAttribute("error", "Vui lòng nhập mật khẩu mới");
+        request.setAttribute("error", "Please enter a new password");
         request.setAttribute("email", email);
         request.setAttribute("showOtpForm", true);
         request.getRequestDispatcher("/auth/forgot-password.jsp").forward(request, response);

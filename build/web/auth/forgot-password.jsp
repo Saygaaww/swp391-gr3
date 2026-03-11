@@ -4,14 +4,13 @@
     Author     : admin
 --%>
 
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <form action="<%=request.getContextPath()%>/ResetPasswordServlet" method="post">
-    <h3>Forget password</h3>
+    <h3>Quên mật khẩu</h3>
 
-    <!-- EMAIL -->
-    <label>Your Email Address:</label>
+    <label>Email của bạn:</label>
     <input type="email" name="email"
            value="${email}"
            required
@@ -19,24 +18,22 @@
 
     <br/><br/>
 
-    <!-- OTP + NEW PASSWORD -->
     <c:if test="${showOtpForm}">
-        <label>OTP Code:</label>
+        <label>Mã OTP:</label>
         <input type="text" name="otp" required />
 
         <br/><br/>
 
-        <label>New Password:</label>
+        <label>Mật khẩu mới:</label>
         <input type="password" name="newPassword" required />
 
         <br/><br/>
 
-        <button type="submit">Reset Password</button>
+        <button type="submit">Đặt lại mật khẩu</button>
     </c:if>
 
-    <!-- SEND OTP -->
     <c:if test="${!showOtpForm}">
-        <button type="submit">Send OTP</button>
+        <button type="submit">Gửi mã OTP</button>
     </c:if>
 
     <p style="color:red">${error}</p>

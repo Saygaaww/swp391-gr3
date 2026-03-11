@@ -1,9 +1,8 @@
-<%-- 
+<%--
     Document   : login
-    Created on : Jan 26, 2026, 4:35:00 PM
-    Author     : admin
 --%>
-
+<%@page pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -12,23 +11,20 @@
           method="post"
           style="width: 400px;">
 
-        <h3 class="text-center mb-3">Login</h3>
+        <h3 class="text-center mb-3">Đăng nhập</h3>
 
-        <!-- Email -->
         <input class="form-control mb-3"
                type="email"
                name="email"
-               placeholder="Email address"
+               placeholder="Email"
                required>
 
-        <!-- Password -->
         <input class="form-control mb-3"
                type="password"
                name="password"
-               placeholder="Password"
+               placeholder="Mật khẩu"
                required>
 
-        <!-- Error -->
         <c:if test="${not empty error}">
             <div class="alert alert-danger text-center">
                 ${error}
@@ -36,25 +32,23 @@
         </c:if>
 
         <button class="btn btn-dark w-100 mb-2">
-            Login
+            Đăng nhập
         </button>
 
         <a href="<%=request.getContextPath()%>/auth/forgot-password.jsp">
-            Forget password?
+            Quên mật khẩu?
         </a>
 
-        <br><!-- comment -->
+        <br>
 
-
-        <!-- Google login -->
         <a href="<%=request.getContextPath()%>/GoogleLoginServlet"
            class="btn btn-danger w-100">
-            <i class="fab fa-google"></i> Login with Google
+            <i class="fab fa-google"></i> Đăng nhập bằng Google
         </a>
 
         <p class="mt-3 text-center">
-            No account?
-            <a href="<%=request.getContextPath()%>/RegisterServlet">Register</a>
+            Chưa có tài khoản?
+            <a href="<%=request.getContextPath()%>/RegisterServlet">Đăng ký</a>
         </p>
     </form>
 </div>

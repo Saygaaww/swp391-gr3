@@ -1,9 +1,5 @@
-<%-- 
-    Document   : verify-otp
-    Created on : Jan 26, 2026, 4:35:21 PM
-    Author     : admin
---%>
-
+<%-- verify-otp --%>
+<%@page pageEncoding="UTF-8"%>
 <%@include file="/includes/header.jsp"%>
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
@@ -12,20 +8,20 @@
           method="post"
           style="width: 350px;">
 
-        <h4 class="text-center mb-2">Verify Phone Number</h4>
+        <h4 class="text-center mb-2">Xác thực số điện thoại</h4>
 
         <p class="text-center text-muted">
-            OTP has been sent to your phone
+            Mã OTP đã được gửi đến số điện thoại của bạn
         </p>
 
         <input class="form-control mb-3"
                name="otp"
-               placeholder="Enter 6-digit OTP"
+               placeholder="Nhập mã OTP 6 số"
                pattern="[0-9]{6}"
                required>
 
         <button class="btn btn-success w-100">
-            Verify
+            Xác thực
         </button>
     </form>
 </div>
