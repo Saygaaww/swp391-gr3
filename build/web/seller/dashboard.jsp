@@ -53,21 +53,12 @@
                     <p class="small mb-4">Welcome, ${employee.fullName}</p>
                 </div>
                 <nav>
-                    <a href="<%= request.getContextPath() %>/home">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                    <a href="<%= request.getContextPath() %>/seller/dashboard" class="active">
-                        <i class="fas fa-dashboard"></i> Dashboard
-                    </a>
-                    <a href="<%= request.getContextPath() %>/seller/orders">
-                        <i class="fas fa-shopping-cart"></i> Orders
-                    </a>
-                    <a href="<%= request.getContextPath() %>/seller/sales-report">
-                        <i class="fas fa-chart-line"></i> Sales Report
-                    </a>
-                    <a href="<%= request.getContextPath() %>/logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+                    <a href="<%= request.getContextPath() %>/home"><i class="fas fa-home"></i> Home</a>
+                    <a href="<%= request.getContextPath() %>/seller/dashboard" class="active"><i class="fas fa-dashboard"></i> Dashboard</a>
+                    <a href="<%= request.getContextPath() %>/seller/books"><i class="fas fa-book"></i> Books</a>
+                    <a href="<%= request.getContextPath() %>/seller/orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+                    <a href="<%= request.getContextPath() %>/seller/sales-report"><i class="fas fa-chart-line"></i> Sales Report</a>
+                    <a href="<%= request.getContextPath() %>/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </nav>
             </div>
 
@@ -90,27 +81,32 @@
 
                 <!-- Statistics Cards -->
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="stat-card">
                             <i class="fas fa-dollar-sign text-secondary mb-3" style="font-size: 2rem;"></i>
-                            <h3>
-                                <fmt:formatNumber value="${totalSales}" type="currency" currencySymbol="$"/>
-                            </h3>
+                            <h3><fmt:formatNumber value="${totalSales}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></h3>
                             <p>Total Sales</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="stat-card">
                             <i class="fas fa-shopping-bag text-secondary mb-3" style="font-size: 2rem;"></i>
                             <h3>${totalOrders}</h3>
                             <p>Total Orders</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="stat-card">
                             <i class="fas fa-clock text-secondary mb-3" style="font-size: 2rem;"></i>
                             <h3>${pendingOrders}</h3>
                             <p>Pending Orders</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-book text-secondary mb-3" style="font-size: 2rem;"></i>
+                            <h3>${totalBooks}</h3>
+                            <p>Total Books</p>
                         </div>
                     </div>
                 </div>
@@ -135,21 +131,36 @@
                                 </a>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <a href="<%= request.getContextPath() %>/admin/books" class="btn btn-outline-secondary w-100 p-3 text-dark">
+                                <a href="<%= request.getContextPath() %>/seller/books" class="btn btn-outline-secondary w-100 p-3 text-dark">
                                     <i class="fas fa-book"></i><br>
-                                    Browse Catalog
+                                    Manage Books
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Catalog Changes (recently updated books, read-only) -->
                 <div class="card mt-4 border border-secondary border-opacity-25">
                     <div class="card-header bg-white border-bottom border-secondary border-opacity-25">
-                        <h5 class="mb-0 text-dark">Recent Activity</h5>
+                        <h5 class="mb-0 text-dark"><i class="fas fa-book"></i> Catalog Changes (Recently Updated)</h5>
                     </div>
-                    <div class="card-body bg-light bg-opacity-50">
-                        <p class="text-muted mb-0">System is ready. Start managing orders and viewing reports.</p>
+                    <div class="card-body p-0">
+                        <c:choose>
+                            <c:when test="${empty catalogChanges}">
+                                <p class="text-muted mb-0 p-3">Chưa có sách nào.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <ul class="list-group list-group-flush">
+                                    <c:forEach items="${catalogChanges}" var="b">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>${b.title} <small class="text-muted">${b.authorName}</small></span>
+                                            <small class="text-muted">${b.updatedAt != null ? b.updatedAt : b.createdAt}</small>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>

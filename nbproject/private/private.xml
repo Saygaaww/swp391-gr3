@@ -4,38 +4,60 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/nbproject/build-impl.xml</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/PasswordUtil.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/SmsService.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/OtpUtil.java</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/GoogleOAuthUtil.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/EmailUtil.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/DBContext.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/model/Role.java</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/model/Reader.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/model/OtpCode.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/model/GoogleUser.java</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/WEB-INF/web.xml</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/META-INF/context.xml</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/home.jsp</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/cart.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/home_1.jsp</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/CartServlet.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/VNPayReturnServlet.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/VNPayConfig.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/VNPayUtil.java</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/checkout.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/vnpay-result.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/profile.jsp</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/orders.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/notifications.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/reviews.jsp</file>
-            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/CheckoutServlet.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/OrderHistoryServlet.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/borrow-request.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/bookmarks.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/borrow-requests.jsp</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/borrowed-items.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/reading-history.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/change-password.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/extend-requests.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/fines.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/linked-accounts.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/my-library.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/reservations.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/CustomerHomeServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/auth/EmployeeLoginServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/auth/LoginServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/util/GoogleOAuthUtil.java</file>
             <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/browse-books.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/cart.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/CartServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/orders.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/auth/login.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/MyLibraryServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/OrderDetailServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/order-detail.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/dao/OrderDAO.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/dao/PaymentDAO.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/BrowseBooksServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/AddToCartServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/dao/CartDAO.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/customer/checkout.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/customer/CheckoutServlet.java</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/home-dashboard.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/index.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/includes/header-carousel.jsp</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/web/assets/images/header-slide.jpg</file>
+            <file>file:/C:/Users/xuank/Downloads/SWP391-G3/swp391-gr3/src/java/controller/auth/GoogleCallbackServlet.java</file>
         </group>
     </open-files>
 </project-private>

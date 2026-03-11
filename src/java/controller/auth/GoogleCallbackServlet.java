@@ -14,30 +14,47 @@ import model.GoogleUser;
 import model.Reader;
 import util.GoogleOAuthUtil;
 
+/**
+ * Xử lý callback sau khi user đăng nhập Google: đổi code lấy accessToken, lấy thông tin user (GoogleOAuthUtil.getUserInfo), đăng nhập hoặc tạo Reader (ReaderDAO.loginByGoogle), lưu user vào session và redirect về customer home.
+ */
 public class GoogleCallbackServlet extends HttpServlet {
 
+    /**
+     * Nhận code từ Google; getAccessToken(code) → getUserInfo(accessToken); loginByGoogle(googleUser) trả về Reader (hoặc tạo mới); kiểm tra status ACTIVE; set session user, redirect /customer/home_1.jsp. Lỗi → redirect /login?error=...
+     */
     @Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
-    try {
-        String code = request.getParameter("code");
+        try {
+            String code = request.getParameter("code");
 
-        String accessToken = GoogleOAuthUtil.getAccessToken(code);
-        GoogleUser googleUser = GoogleOAuthUtil.getUserInfo(accessToken);
+            String accessToken = GoogleOAuthUtil.getAccessToken(code);
+            GoogleUser googleUser = GoogleOAuthUtil.getUserInfo(accessToken);
 
-        ReaderDAO userDAO = new ReaderDAO();
-        Reader user = userDAO.loginByGoogle(googleUser);
+            ReaderDAO userDAO = new ReaderDAO();
+            Reader user = userDAO.loginByGoogle(googleUser);
 
-        HttpSession session = request.getSession();
-        session.setAttribute("user", user);
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/login?error=google_login_failed");
+                return;
+            }
 
-        response.sendRedirect("home.jsp");
+            if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+                response.sendRedirect(request.getContextPath() + "/login?error=account_locked");
+                return;
+            }
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        response.sendRedirect("login.jsp?error=google_login_failed");
+            HttpSession session = request.getSession(true);
+            session.setMaxInactiveInterval(60 * 30);
+            session.setAttribute("user", user);
+
+            response.sendRedirect(request.getContextPath() + "/customer/home_1.jsp");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/login?error=google_login_failed");
+        }
     }
-}
 
 }

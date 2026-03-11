@@ -2,6 +2,7 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" scope="page"/>
 <%@include file="/includes/header.jsp"%>
 <%
     String ctx = request.getContextPath();
@@ -16,6 +17,7 @@
 
 <div class="user-home">
 <div class="container py-5">
+   
     <h2 class="fw-bold mb-4">Cart</h2>
 
     <c:if test="${not empty cartMessage}">
@@ -54,7 +56,7 @@
                                     </c:if>
                                     <br><small class="text-secondary">Còn ${item.availableStock} cuốn</small>
                                 </td>
-                                <td><fmt:formatNumber value="${item.unitPrice}" type="currency" currencySymbol="$"/></td>
+                                <td><fmt:formatNumber value="${item.unitPrice}" type="number" groupingUsed="true" maxFractionDigits="0"/> ₫</td>
                                 <td>
                                     <form action="<%= ctx %>/customer/cart" method="post" class="d-inline">
                                         <input type="hidden" name="action" value="update">
@@ -62,7 +64,7 @@
                                         <input type="number" name="quantity" value="${item.quantity}" min="1" max="${item.availableStock}" class="form-control form-control-sm" style="width:70px" onchange="this.form.submit()">
                                     </form>
                                 </td>
-                                <td><fmt:formatNumber value="${item.subtotal}" type="currency" currencySymbol="$"/></td>
+                                <td><fmt:formatNumber value="${item.subtotal}" type="number" groupingUsed="true" maxFractionDigits="0"/> ₫</td>
                                 <td>
                                     <form action="<%= ctx %>/customer/cart" method="post" class="d-inline" onsubmit="return confirm('Xóa Sách Này?')">
                                         <input type="hidden" name="action" value="remove">
@@ -78,7 +80,7 @@
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <a href="<%= ctx %>/customer/home" class="btn btn-outline-dark">Về Trang Chủ</a>
                 <div>
-                    <strong>Tổng: <fmt:formatNumber value="${cartTotal}" type="currency" currencySymbol="$"/></strong>
+                    <strong>Tổng: <fmt:formatNumber value="${cartTotal}" type="number" groupingUsed="true" maxFractionDigits="0"/> ₫</strong>
                     <a href="<%= ctx %>/customer/checkout" class="btn btn-card ms-3">Checkout</a>
                 </div>
             </div>

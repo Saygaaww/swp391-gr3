@@ -4,11 +4,17 @@
  */
 package model;
 
+import com.google.api.client.util.Key;
+
 public class GoogleUser {
 
+    @Key
     private String id;
+    @Key
     private String email;
+    @Key
     private String name;
+    @Key
     private String picture;
 
     public GoogleUser() {}

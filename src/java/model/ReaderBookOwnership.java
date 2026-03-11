@@ -12,6 +12,8 @@ public class ReaderBookOwnership {
     private LocalDateTime acquiredAt;
     private String acquiredVia;
     private String status;
+    /** Đơn hàng tạo ra quyền sở hữu (để thu hồi khi cancel/refund). */
+    private Integer orderId;
     // Join
     private String bookTitle;
     private String bookCoverUrl;
@@ -31,6 +33,8 @@ public class ReaderBookOwnership {
     public void setAcquiredVia(String acquiredVia) { this.acquiredVia = acquiredVia; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public Integer getOrderId() { return orderId; }
+    public void setOrderId(Integer orderId) { this.orderId = orderId; }
     public String getBookTitle() { return bookTitle; }
     public void setBookTitle(String bookTitle) { this.bookTitle = bookTitle; }
     public String getBookCoverUrl() { return bookCoverUrl; }

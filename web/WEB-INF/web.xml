@@ -188,6 +188,14 @@
         <servlet-name>SalesReportServlet</servlet-name>
         <servlet-class>controller.seller.SalesReportServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SellerBookManagementServlet</servlet-name>
+        <servlet-class>controller.seller.BookManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SellerOrderDetailServlet</servlet-name>
+        <servlet-class>controller.seller.SellerOrderDetailServlet</servlet-class>
+    </servlet>
     
     <!-- ============================================ -->
     <!-- SERVLETS: Admin Features                      -->
@@ -413,6 +421,14 @@
     <servlet-mapping>
         <servlet-name>SalesReportServlet</servlet-name>
         <url-pattern>/seller/sales-report</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SellerBookManagementServlet</servlet-name>
+        <url-pattern>/seller/books</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SellerOrderDetailServlet</servlet-name>
+        <url-pattern>/seller/order-detail</url-pattern>
     </servlet-mapping>
     
     <!-- ============================================ -->

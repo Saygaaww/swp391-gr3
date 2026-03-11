@@ -82,7 +82,7 @@
                     <div class="col-md-4">
                         <div class="stat-card">
                             <i class="fas fa-dollar-sign fa-2x mb-2 text-secondary"></i>
-                            <h3><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="$"/></h3>
+                            <h3><fmt:formatNumber value="${totalRevenue}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></h3>
                             <p class="text-muted mb-0">Total Revenue</p>
                         </div>
                     </div>
@@ -134,6 +134,60 @@
                                 </a>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Overdue List (read-only) -->
+                <div class="card mt-4 border border-secondary border-opacity-25">
+                    <div class="card-header bg-white border-bottom border-secondary border-opacity-25">
+                        <h5 class="mb-0 text-dark"><i class="fas fa-exclamation-triangle text-warning"></i> Overdue List</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <c:choose>
+                            <c:when test="${empty overdueList}">
+                                <p class="text-muted mb-0 p-3">Không có mục mượn quá hạn.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light"><tr><th>Reader</th><th>Book</th><th>Due Date</th></tr></thead>
+                                        <tbody>
+                                            <c:forEach items="${overdueList}" var="o">
+                                                <tr>
+                                                    <td>${o.readerName}</td>
+                                                    <td>${o.bookTitle}</td>
+                                                    <td>${o.dueDate != null ? o.dueDate : '—'}</td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+
+                <!-- Catalog Changes (recent books, read-only) -->
+                <div class="card mt-4 border border-secondary border-opacity-25">
+                    <div class="card-header bg-white border-bottom border-secondary border-opacity-25">
+                        <h5 class="mb-0 text-dark"><i class="fas fa-book"></i> Catalog Changes (Recently Updated)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <c:choose>
+                            <c:when test="${empty catalogChanges}">
+                                <p class="text-muted mb-0 p-3">Chưa có sách nào.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <ul class="list-group list-group-flush">
+                                    <c:forEach items="${catalogChanges}" var="b">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>${b.title} <small class="text-muted">${b.authorName}</small></span>
+                                            <small class="text-muted">${b.updatedAt != null ? b.updatedAt : b.createdAt}</small>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>

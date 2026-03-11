@@ -9,8 +9,24 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Servlet quản lý giỏ hàng: xem giỏ (GET), cập nhật số lượng hoặc xóa mục
+ * (POST). Chỉ cho phép khi đã đăng nhập (Reader). Tổng tiền lấy từ
+ * CartDAO.getCartTotal (VND).
+ */
 public class CartServlet extends HttpServlet {
 
+    /**
+     * Hiển thị trang giỏ hàng. - Kiểm tra đăng nhập (user trong session); chưa
+     * đăng nhập → redirect /login. - Lấy hoặc tạo giỏ cho reader
+     * (getOrCreateCart), tính tổng tiền (getCartTotal). - Set cart, cartTotal
+     * vào request, forward tới customer/cart.jsp.
+     *
+     * @param request
+     * @param response
+     * @throws jakarta.servlet.ServletException
+     * @throws java.io.IOException
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -35,6 +51,17 @@ public class CartServlet extends HttpServlet {
         request.getRequestDispatcher("/customer/cart.jsp").forward(request, response);
     }
 
+    /**
+     * Cập nhật giỏ hàng: update số lượng hoặc remove mục. - action=update:
+     * cartItemId, quantity; nếu quantity > availableStock thì giới hạn về
+     * stock; gọi updateCartItemQuantity. - action=remove: cartItemId; gọi
+     * removeItemFromCart. Sau khi xử lý → redirect /customer/cart.
+     *
+     * @param request
+     * @param response
+     * @throws jakarta.servlet.ServletException
+     * @throws java.io.IOException
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

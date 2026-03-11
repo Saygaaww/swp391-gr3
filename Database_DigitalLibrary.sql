@@ -397,31 +397,31 @@ VALUES
 ('1984',
 'Dystopian future society',
 'A chilling depiction of surveillance and totalitarianism.',
-9.99, 'USD', 328, 20, 'active',
+240000, 'VND', 328, 20, 'active',
 1, 1, 1),
 
 ('Harry Potter and the Sorcerer''s Stone',
 'Young wizard begins journey',
 'A magical adventure at Hogwarts school.',
-12.50, 'USD', 309, 25, 'active',
+300000, 'VND', 309, 25, 'active',
 2, 2, 1),
 
 ('Norwegian Wood',
 'Love and loss story',
 'A nostalgic novel exploring youth and relationships.',
-10.75, 'USD', 296, 15, 'active',
+258000, 'VND', 296, 15, 'active',
 3, 5, 2),
 
 ('Sapiens',
 'History of humankind',
 'Explores evolution and civilization.',
-15.00, 'USD', 443, 30, 'active',
+360000, 'VND', 443, 30, 'active',
 4, 4, 2),
 
 ('How to Win Friends & Influence People',
 'Classic self-help',
 'Timeless principles for communication and leadership.',
-11.20, 'USD', 291, 20, 'active',
+268000, 'VND', 291, 20, 'active',
 5, 3, 1);
 
 
@@ -438,6 +438,83 @@ INSERT INTO BookCopy (book_id, copy_code, status) VALUES
 
 (5, 'DLC-C1', 'available');
 
+
+-- ========== 10 sách thêm (ảnh bìa HTTPS thật - Open Library / Wikimedia) ==========
+INSERT INTO Author (author_name, bio) VALUES
+('F. Scott Fitzgerald', 'American novelist, author of The Great Gatsby'),
+('Harper Lee', 'American novelist, To Kill a Mockingbird'),
+('Jane Austen', 'English novelist, Pride and Prejudice'),
+('Paulo Coelho', 'Brazilian novelist, The Alchemist'),
+('Dan Brown', 'American thriller writer, The Da Vinci Code'),
+('Khaled Hosseini', 'Afghan-American novelist, The Kite Runner'),
+('Antoine de Saint-Exupéry', 'French writer, The Little Prince'),
+('Frank Herbert', 'American sci-fi author, Dune'),
+('Ernest Hemingway', 'American novelist, Nobel Prize, The Old Man and the Sea'),
+('Gabriel García Márquez', 'Colombian novelist, One Hundred Years of Solitude');
+
+
+INSERT INTO Book
+(title, summary, description, cover_url, price, currency, total_pages, preview_pages, status, author_id, category_id, created_by_employee_id)
+VALUES
+('The Great Gatsby',
+'American dream in the Jazz Age',
+'Story of Jay Gatsby and his obsession with the past and love.',
+'https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg',
+280000, 'VND', 180, 15, 'active', 6, 5, 1),
+
+('To Kill a Mockingbird',
+'Racial injustice in the American South',
+'A young girl and her father defend an innocent black man.',
+'https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg',
+220000, 'VND', 336, 20, 'active', 7, 5, 1),
+
+('Pride and Prejudice',
+'Romance and social manners in Regency England',
+'Elizabeth Bennet and Mr. Darcy navigate pride and prejudice.',
+'https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg',
+198000, 'VND', 432, 25, 'active', 8, 5, 1),
+
+('The Alchemist',
+'A shepherd''s journey to find his Personal Legend',
+'Paulo Coelho''s tale of following dreams and omens.',
+'https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg',
+265000, 'VND', 208, 20, 'active', 9, 3, 1),
+
+('The Da Vinci Code',
+'Thriller linking art, history and secret societies',
+'Robert Langdon uncovers a conspiracy hidden in Leonardo''s works.',
+'https://covers.openlibrary.org/b/isbn/9780307474278-L.jpg',
+320000, 'VND', 489, 30, 'active', 10, 5, 1),
+
+('The Kite Runner',
+'Friendship and redemption in Afghanistan',
+'A story of betrayal and atonement across decades.',
+'https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg',
+275000, 'VND', 371, 22, 'active', 11, 5, 1),
+
+('The Little Prince',
+'A prince travels planets and learns about love and responsibility',
+'Beloved fable for all ages by Saint-Exupéry.',
+'https://covers.openlibrary.org/b/isbn/9780156012195-L.jpg',
+185000, 'VND', 96, 10, 'active', 12, 2, 1),
+
+('Dune',
+'Epic sci-fi on the desert planet Arrakis',
+'Paul Atreides and the spice, the Fremen, and destiny.',
+'https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg',
+350000, 'VND', 688, 40, 'active', 13, 1, 1),
+
+('The Old Man and the Sea',
+'An old fisherman''s battle with a giant marlin',
+'Hemingway''s tale of endurance and respect between man and nature.',
+'https://covers.openlibrary.org/b/isbn/9780684801223-L.jpg',
+195000, 'VND', 127, 15, 'active', 14, 5, 1),
+
+('One Hundred Years of Solitude',
+'The rise and fall of the Buendía family in Macondo',
+'Magical realism masterpiece by García Márquez.',
+'https://covers.openlibrary.org/b/isbn/9780060883287-L.jpg',
+298000, 'VND', 417, 28, 'active', 15, 5, 1);
 
 
 INSERT INTO Fine_Type (name, description, default_amount, per_day_rate)
@@ -458,4 +535,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Book') AND
 BEGIN
     ALTER TABLE Book ADD stock_quantity INT NOT NULL DEFAULT 0;
 END
+GO
+
+-- Khi seller Cancel/Refund đơn: thu hồi quyền sở hữu sách (theo order_id) và hoàn tồn kho.
+-- Cột order_id cho biết quyền sở hữu được cấp từ đơn nào.
+ALTER TABLE Reader_Book_Ownership ADD order_id INT NULL;
+ALTER TABLE Reader_Book_Ownership ADD CONSTRAINT FK_Ownership_Order FOREIGN KEY (order_id) REFERENCES [Order](order_id);
 GO

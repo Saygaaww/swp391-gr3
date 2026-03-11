@@ -8,7 +8,14 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Đánh giá & xếp hạng: GET hiển thị danh sách review của reader và sách đã sở hữu; POST gửi/ cập nhật review (bookId, rating 1-5, comment) — chỉ cho sách đã sở hữu (ReviewDAO.upsert).
+ */
 public class ReviewsServlet extends HttpServlet {
+
+    /**
+     * Lấy reviews của reader (getByReader), ownedBooks (getByReader); set attributes, forward reviews.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -24,6 +31,9 @@ public class ReviewsServlet extends HttpServlet {
         request.getRequestDispatcher("/customer/reviews.jsp").forward(request, response);
     }
 
+    /**
+     * Gửi/cập nhật review: bookId, rating (1-5), comment; kiểm tra đã sở hữu sách; gọi ReviewDAO.upsert; redirect /customer/reviews.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

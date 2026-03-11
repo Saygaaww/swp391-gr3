@@ -29,31 +29,28 @@ public class ReadingHistoryDAO {
 
     /** Cập nhật hoặc tạo mới: 1 dòng (reader_id, book_id), cập nhật last_read_position và last_read_at. */
     public boolean upsert(int readerId, int bookId, int lastReadPosition) {
-        String check = "SELECT history_id FROM Reading_History WHERE reader_id = ? AND book_id = ?";
-        String update = "UPDATE Reading_History SET last_read_position = ?, last_read_at = SYSUTCDATETIME() WHERE reader_id = ? AND book_id = ?";
-        String insert = "INSERT INTO Reading_History(reader_id, book_id, last_read_position, last_read_at) VALUES (?, ?, ?, SYSUTCDATETIME())";
-        try (Connection con = DBContext.getConnection()) {
-            try (PreparedStatement ps = con.prepareStatement(check)) {
-                ps.setInt(1, readerId);
-                ps.setInt(2, bookId);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    try (PreparedStatement u = con.prepareStatement(update)) {
-                        u.setInt(1, lastReadPosition);
-                        u.setInt(2, readerId);
-                        u.setInt(3, bookId);
-                        return u.executeUpdate() > 0;
-                    }
-                }
-            }
-            try (PreparedStatement ins = con.prepareStatement(insert)) {
-                ins.setInt(1, readerId);
-                ins.setInt(2, bookId);
-                ins.setInt(3, lastReadPosition);
-                return ins.executeUpdate() > 0;
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return false;
+        if (bookId <= 0 || readerId <= 0) return false;
+        String sql = """
+            MERGE Reading_History AS t
+            USING (SELECT ? AS reader_id, ? AS book_id, ? AS last_read_position) AS s
+            ON t.reader_id = s.reader_id AND t.book_id = s.book_id
+            WHEN MATCHED THEN
+                UPDATE SET t.last_read_position = s.last_read_position, t.last_read_at = SYSUTCDATETIME()
+            WHEN NOT MATCHED THEN
+                INSERT (reader_id, book_id, last_read_position, last_read_at)
+                VALUES (s.reader_id, s.book_id, s.last_read_position, SYSUTCDATETIME());
+            """;
+        try (Connection con = DBContext.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, readerId);
+            ps.setInt(2, bookId);
+            ps.setInt(3, lastReadPosition);
+            int n = ps.executeUpdate();
+            return n > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private ReadingHistory map(ResultSet rs) throws SQLException {

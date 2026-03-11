@@ -7,8 +7,14 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 
+/**
+ * DAO thanh toán (Payment): tạo bản ghi thanh toán (COD/VNPay), lấy theo order_id, cập nhật trạng thái (success/pending).
+ */
 public class PaymentDAO {
 
+    /**
+     * Tạo bản ghi Payment (order_id, amount, payment_method, transaction_code, status pending). Trả về payment_id hoặc -1.
+     */
     public int createPayment(int orderId, BigDecimal amount, String paymentMethod, String transactionCode) {
         String sql = """
             INSERT INTO Payment(order_id, amount, payment_method, payment_status, transaction_code)
@@ -29,7 +35,9 @@ public class PaymentDAO {
         return -1;
     }
 
-    /** Lấy payment theo order (1 order có thể có 1 payment). */
+    /**
+     * Lấy payment theo order_id (dùng xem chi tiết đơn, xác nhận thanh toán).
+     */
     public Payment getByOrderId(int orderId) {
         String sql = "SELECT * FROM Payment WHERE order_id = ?";
         try (Connection con = DBContext.getConnection();
@@ -58,6 +66,9 @@ public class PaymentDAO {
         return p;
     }
 
+    /**
+     * Cập nhật payment_status và transaction_code; nếu status = success thì set paid_at = now.
+     */
     public boolean updatePaymentStatus(int orderId, String status, String transactionCode) {
         String sql = "UPDATE Payment SET payment_status = ?, transaction_code = ?, paid_at = ? WHERE order_id = ?";
         try (Connection con = DBContext.getConnection();

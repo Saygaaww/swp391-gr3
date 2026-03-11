@@ -68,7 +68,7 @@ public class BookManagementServlet extends HttpServlet {
             book.setDescription(request.getParameter("description"));
             book.setCoverUrl(request.getParameter("coverUrl"));
             book.setPrice(new BigDecimal(request.getParameter("price")));
-            book.setCurrency("USD");
+            book.setCurrency("VND");
             book.setTotalPages(Integer.parseInt(request.getParameter("totalPages")));
             book.setPreviewPages(Integer.parseInt(request.getParameter("previewPages")));
             book.setStatus("active");
@@ -91,7 +91,7 @@ public class BookManagementServlet extends HttpServlet {
             book.setDescription(request.getParameter("description"));
             book.setCoverUrl(request.getParameter("coverUrl"));
             book.setPrice(new BigDecimal(request.getParameter("price")));
-            book.setCurrency("USD");
+            book.setCurrency("VND");
             book.setTotalPages(Integer.parseInt(request.getParameter("totalPages")));
             book.setPreviewPages(Integer.parseInt(request.getParameter("previewPages")));
             book.setStatus(request.getParameter("status"));

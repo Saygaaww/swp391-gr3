@@ -9,9 +9,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO giỏ hàng: Cart và Cart_Item. Giá đơn vị và tổng tiền dùng giá sách hiện tại (Book.price) — đơn vị VND.
+ */
 public class CartDAO {
 
-    /* ================= GET OR CREATE CART ================= */
+    /**
+     * Lấy giỏ active của reader; nếu chưa có thì tạo mới (createCart) rồi lấy lại. Trả về Cart kèm danh sách items (getCartItems).
+     */
     public Cart getOrCreateCart(int readerId) {
         Cart cart = getActiveCart(readerId);
         if (cart == null) {
@@ -43,7 +48,9 @@ public class CartDAO {
         return null;
     }
 
-    /* ================= CREATE CART ================= */
+    /**
+     * Tạo giỏ mới cho reader (status active). Trả về cart_id (generated key) hoặc -1 nếu lỗi.
+     */
     public int createCart(int readerId) {
         String sql = "INSERT INTO Cart(reader_id, status) VALUES (?, 'active')";
 
@@ -64,7 +71,9 @@ public class CartDAO {
         return -1;
     }
 
-    /* ================= GET CART ITEMS ================= */
+    /**
+     * Lấy tất cả mục trong giỏ (JOIN Book, Author): cart_item_id, book_id, quantity, unit_price; title, cover_url, price (giá hiện tại), author_name, available_stock (ISNULL stock_quantity).
+     */
     public List<CartItem> getCartItems(int cartId) {
         List<CartItem> items = new ArrayList<>();
         String sql = """
@@ -92,7 +101,9 @@ public class CartDAO {
         return items;
     }
 
-    /* ================= ADD ITEM TO CART ================= */
+    /**
+     * Thêm sách vào giỏ: nếu đã có mục cùng book_id thì cộng quantity (updateCartItemQuantity); chưa có thì INSERT Cart_Item. Trả về true nếu thành công.
+     */
     public boolean addItemToCart(int cartId, int bookId, int quantity, BigDecimal unitPrice) {
         // Check if item already exists
         String checkSql = "SELECT cart_item_id, quantity FROM Cart_Item WHERE cart_id = ? AND book_id = ?";
@@ -131,7 +142,9 @@ public class CartDAO {
         return false;
     }
 
-    /** Lay mot cart item theo id (de biet bookId phuc vu validate stock). */
+    /**
+     * Lấy một CartItem theo cart_item_id (dùng để kiểm tra available_stock khi update quantity).
+     */
     public CartItem getCartItemById(int cartItemId) {
         String sql = """
             SELECT ci.*, b.title, b.cover_url, b.price, a.author_name,
@@ -154,7 +167,9 @@ public class CartDAO {
         return null;
     }
 
-    /* ================= UPDATE CART ITEM QUANTITY ================= */
+    /**
+     * Cập nhật số lượng của một mục giỏ (Cart_Item) theo cart_item_id.
+     */
     public boolean updateCartItemQuantity(int cartItemId, int quantity) {
         String sql = "UPDATE Cart_Item SET quantity = ? WHERE cart_item_id = ?";
 
@@ -172,7 +187,9 @@ public class CartDAO {
         return false;
     }
 
-    /* ================= REMOVE ITEM FROM CART ================= */
+    /**
+     * Xóa một mục khỏi giỏ (DELETE Cart_Item theo cart_item_id).
+     */
     public boolean removeItemFromCart(int cartItemId) {
         String sql = "DELETE FROM Cart_Item WHERE cart_item_id = ?";
 
@@ -188,7 +205,9 @@ public class CartDAO {
         return false;
     }
 
-    /* ================= CLEAR CART ================= */
+    /**
+     * Xóa tất cả mục trong giỏ (DELETE Cart_Item WHERE cart_id). Dùng sau khi thanh toán thành công.
+     */
     public boolean clearCart(int cartId) {
         String sql = "DELETE FROM Cart_Item WHERE cart_id = ?";
 
@@ -204,7 +223,9 @@ public class CartDAO {
         return false;
     }
 
-    /* ================= UPDATE CART STATUS ================= */
+    /**
+     * Cập nhật trạng thái giỏ (active / checked_out). Cập nhật updated_at.
+     */
     public boolean updateCartStatus(int cartId, String status) {
         String sql = "UPDATE Cart SET status = ?, updated_at = SYSUTCDATETIME() WHERE cart_id = ?";
 
@@ -222,11 +243,14 @@ public class CartDAO {
         return false;
     }
 
-    /* ================= GET CART TOTAL ================= */
+    /**
+     * Tính tổng tiền giỏ: SUM(quantity * b.price) từ Cart_Item JOIN Book (dùng giá sách hiện tại, VND).
+     */
     public BigDecimal getCartTotal(int cartId) {
         String sql = """
-            SELECT SUM(ci.quantity * ci.unit_price) as total
+            SELECT SUM(ci.quantity * b.price) as total
             FROM Cart_Item ci
+            JOIN Book b ON ci.book_id = b.book_id
             WHERE ci.cart_id = ?
         """;
 
@@ -247,7 +271,7 @@ public class CartDAO {
         return BigDecimal.ZERO;
     }
 
-    /* ================= MAP RESULTSET ================= */
+    /** Ánh xạ ResultSet → Cart (cart_id, reader_id, status). */
     private Cart mapCart(ResultSet rs) throws SQLException {
         Cart cart = new Cart();
         cart.setCartId(rs.getInt("cart_id"));
@@ -256,13 +280,16 @@ public class CartDAO {
         return cart;
     }
 
+    /** Ánh xạ ResultSet → CartItem; unitPrice dùng b.price (giá hiện tại) nếu có. */
     private CartItem mapCartItem(ResultSet rs) throws SQLException {
         CartItem item = new CartItem();
         item.setCartItemId(rs.getInt("cart_item_id"));
         item.setCartId(rs.getInt("cart_id"));
         item.setBookId(rs.getInt("book_id"));
         item.setQuantity(rs.getInt("quantity"));
-        item.setUnitPrice(rs.getBigDecimal("unit_price"));
+        // Dùng giá sách hiện tại (b.price) để hiển thị và tính tổng đúng VND
+        BigDecimal currentPrice = rs.getBigDecimal("price");
+        item.setUnitPrice(currentPrice != null ? currentPrice : rs.getBigDecimal("unit_price"));
         item.setBookTitle(rs.getString("title"));
         item.setBookCoverUrl(rs.getString("cover_url"));
         item.setAuthorName(rs.getString("author_name"));

@@ -7,7 +7,14 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Lịch sử đọc: GET hiển thị danh sách tiến độ đọc (last_position theo từng sách); POST lưu tiến độ (bookId, position) qua ReadingHistoryDAO.upsert.
+ */
 public class ReadingHistoryServlet extends HttpServlet {
+
+    /**
+     * Lấy danh sách lịch sử đọc của reader (getByReader), set historyList, forward reading-history.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

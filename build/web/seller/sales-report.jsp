@@ -23,47 +23,87 @@
                     <h4 class="text-dark">💼 Seller Panel</h4>
                 </div>
                 <nav>
-                    <a href="<%= request.getContextPath() %>/seller/dashboard">Dashboard</a>
-                    <a href="<%= request.getContextPath() %>/seller/orders">Orders</a>
-                    <a href="<%= request.getContextPath() %>/seller/sales-report" class="active">Sales Report</a>
-                    <a href="<%= request.getContextPath() %>/logout">Logout</a>
+                    <a href="<%= request.getContextPath() %>/home"><i class="fas fa-home"></i> Home</a>
+                    <a href="<%= request.getContextPath() %>/seller/dashboard"><i class="fas fa-dashboard"></i> Dashboard</a>
+                    <a href="<%= request.getContextPath() %>/seller/books"><i class="fas fa-book"></i> Books</a>
+                    <a href="<%= request.getContextPath() %>/seller/orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+                    <a href="<%= request.getContextPath() %>/seller/sales-report" class="active"><i class="fas fa-chart-line"></i> Sales Report</a>
+                    <a href="<%= request.getContextPath() %>/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </nav>
             </div>
 
             <!-- Main -->
             <div class="col-md-10 p-4">
-                <h2 class="mb-4">📊 Sales Report</h2>
+                <h2 class="mb-4"><i class="fas fa-chart-bar"></i> Sales Report</h2>
+
+                <!-- Date Filter -->
+                <div class="card border border-secondary border-opacity-25 mb-4">
+                    <div class="card-body">
+                        <form action="<%= request.getContextPath() %>/seller/sales-report" method="get" class="row g-2 align-items-end">
+                            <div class="col-auto">
+                                <label class="form-label small">From</label>
+                                <input type="date" name="fromDate" class="form-control" value="${fromDate}">
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label small">To</label>
+                                <input type="date" name="toDate" class="form-control" value="${toDate}">
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-dark"><i class="fas fa-filter"></i> Filter</button>
+                            </div>
+                            <div class="col-auto">
+                                <a href="<%= request.getContextPath() %>/seller/sales-report" class="btn btn-outline-secondary">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="row mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card border border-secondary border-opacity-25">
                             <div class="card-body text-center">
-                                <h4 class="text-dark"><fmt:formatNumber value="${totalSales}" type="currency" currencySymbol="$"/></h4>
-                                <p class="text-muted mb-0">Total Sales</p>
+                                <h4 class="text-dark"><fmt:formatNumber value="${totalSales}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></h4>
+                                <p class="text-muted mb-0 small">Revenue</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card border border-secondary border-opacity-25">
                             <div class="card-body text-center">
                                 <h4 class="text-dark">${totalOrders}</h4>
-                                <p class="text-muted mb-0">Total Orders</p>
+                                <p class="text-muted mb-0 small">Total Orders</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card border border-secondary border-opacity-25">
                             <div class="card-body text-center">
-                                <h4 class="text-dark">${paidOrders}</h4>
-                                <p class="text-muted mb-0">Paid Orders</p>
+                                <h4 class="text-success">${paidOrders}</h4>
+                                <p class="text-muted mb-0 small">Paid</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card border border-secondary border-opacity-25">
                             <div class="card-body text-center">
-                                <h4 class="text-dark">${pendingOrders}</h4>
-                                <p class="text-muted mb-0">Pending Orders</p>
+                                <h4 class="text-warning">${pendingOrders}</h4>
+                                <p class="text-muted mb-0 small">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card border border-secondary border-opacity-25">
+                            <div class="card-body text-center">
+                                <h4 class="text-danger">${cancelledOrders}</h4>
+                                <p class="text-muted mb-0 small">Cancelled</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card border border-secondary border-opacity-25">
+                            <div class="card-body text-center">
+                                <h4 class="text-info">${refundedOrders}</h4>
+                                <p class="text-muted mb-0 small">Refunded</p>
                             </div>
                         </div>
                     </div>
@@ -88,7 +128,7 @@
                                                 <td>${b.title}</td>
                                                 <td>${b.authorName}</td>
                                                 <td>${b.totalQuantity}</td>
-                                                <td><fmt:formatNumber value="${b.totalRevenue}" type="currency" currencySymbol="$"/></td>
+                                                <td><fmt:formatNumber value="${b.totalRevenue}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -109,15 +149,16 @@
                             </c:when>
                             <c:otherwise>
                                 <table class="table table-sm table-hover">
-                                    <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+                                    <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Created</th><th></th></tr></thead>
                                     <tbody>
                                         <c:forEach items="${orders}" var="o">
                                             <tr>
                                                 <td>#${o.orderId}</td>
                                                 <td>${o.readerName}</td>
-                                                <td><fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="$"/></td>
-                                                <td><span class="badge ${o.status == 'paid' ? 'bg-success' : o.status == 'pending' ? 'bg-warning' : 'bg-secondary'}">${o.status}</span></td>
+                                                <td><fmt:formatNumber value="${o.totalAmount}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></td>
+                                                <td><span class="badge ${o.status == 'paid' ? 'bg-success' : o.status == 'pending' ? 'bg-warning' : o.status == 'cancelled' ? 'bg-danger' : o.status == 'refunded' ? 'bg-info' : 'bg-secondary'}">${o.status}</span></td>
                                                 <td>${o.createdAt != null ? o.createdAt : '-'}</td>
+                                                <td><a href="<%= request.getContextPath() %>/seller/order-detail?orderId=${o.orderId}" class="btn btn-sm btn-outline-dark"><i class="fas fa-eye"></i></a></td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>

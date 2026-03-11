@@ -8,12 +8,25 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Servlet đánh dấu trang (bookmark): xem danh sách bookmark (GET), tạo/cập nhật/xóa bookmark (POST).
+ * Chỉ dành cho reader role USER; bookmark chỉ áp dụng cho sách reader đã sở hữu.
+ */
 public class BookmarksServlet extends HttpServlet {
+
+    /**
+     * Hiển thị trang bookmark của reader.
+     * Kiểm tra đăng nhập và role USER; set bookmarks (BookmarkDAO.getByReader), ownedBooks (ReaderBookOwnershipDAO.getByReader); forward bookmarks.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Reader user = (Reader) request.getSession().getAttribute("user");
         if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        if (!"USER".equalsIgnoreCase(user.getRoleName() != null ? user.getRoleName() : "")) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -24,11 +37,20 @@ public class BookmarksServlet extends HttpServlet {
         request.getRequestDispatcher("/customer/bookmarks.jsp").forward(request, response);
     }
 
+    /**
+     * Tạo/cập nhật/xóa bookmark.
+     * - action=delete: bookmarkId → delete(bookmarkId, readerId); redirect /customer/bookmarks.
+     * - action=create/update: bookId, pageNumber, note; kiểm tra reader sở hữu sách; update thì bookmarkId; pageNumber >= 1; gọi dao.create hoặc dao.update; redirect /customer/bookmarks.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Reader user = (Reader) request.getSession().getAttribute("user");
         if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        if (!"USER".equalsIgnoreCase(user.getRoleName() != null ? user.getRoleName() : "")) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }

@@ -10,9 +10,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO đơn hàng (Order, Order_Book): tạo đơn, thêm sách vào đơn, lấy đơn theo reader/date range, cập nhật trạng thái, top sách bán chạy. Tiền VND.
+ */
 public class OrderDAO {
 
-    /* ================= CREATE ORDER ================= */
+    /**
+     * Tạo đơn mới (status pending). Trả về order_id (generated key) hoặc -1.
+     */
     public int createOrder(int readerId, BigDecimal totalAmount, String currency) {
         String sql = """
             INSERT INTO [Order](reader_id, total_amount, currency, status)
@@ -38,7 +43,9 @@ public class OrderDAO {
         return -1;
     }
 
-    /* ================= ADD ORDER BOOK ================= */
+    /**
+     * Thêm một dòng sách vào đơn (Order_Book): book_id, price, quantity.
+     */
     public boolean addOrderBook(int orderId, int bookId, BigDecimal price, int quantity) {
         String sql = """
             INSERT INTO Order_Book(order_id, book_id, price, quantity)
@@ -61,7 +68,9 @@ public class OrderDAO {
         return false;
     }
 
-    /* ================= GET ORDER BY ID ================= */
+    /**
+     * Lấy đơn theo order_id (JOIN Reader: full_name, email); load OrderBooks (getOrderBooks).
+     */
     public Order getOrderById(int orderId) {
         String sql = """
             SELECT o.*, r.full_name, r.email
@@ -88,7 +97,9 @@ public class OrderDAO {
         return null;
     }
 
-    /* ================= GET ORDERS BY READER ================= */
+    /**
+     * Lấy tất cả đơn của một reader, sắp xếp created_at DESC; mỗi đơn có danh sách OrderBooks.
+     */
     public List<Order> getOrdersByReader(int readerId) {
         List<Order> orders = new ArrayList<>();
         String sql = """
@@ -117,7 +128,9 @@ public class OrderDAO {
         return orders;
     }
 
-    /* ================= GET ALL ORDERS (Admin/Seller) ================= */
+    /**
+     * Lấy tất cả đơn (admin/seller), JOIN Reader, ORDER BY created_at DESC; mỗi đơn có OrderBooks.
+     */
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String sql = """
@@ -143,7 +156,7 @@ public class OrderDAO {
         return orders;
     }
 
-    /* ================= GET ORDER BOOKS ================= */
+    /** Lấy danh sách Order_Book của đơn (JOIN Book, Author: title, cover_url, author_name). */
     private List<OrderBook> getOrderBooks(int orderId) {
         List<OrderBook> orderBooks = new ArrayList<>();
         String sql = """
@@ -170,7 +183,9 @@ public class OrderDAO {
         return orderBooks;
     }
 
-    /* ================= UPDATE ORDER STATUS ================= */
+    /**
+     * Cập nhật trạng thái đơn: pending, paid, cancelled, refunded.
+     */
     public boolean updateOrderStatus(int orderId, String status) {
         String sql = "UPDATE [Order] SET status = ? WHERE order_id = ?";
 
@@ -188,7 +203,42 @@ public class OrderDAO {
         return false;
     }
 
-    /* ================= GET TOP SELLING BOOKS (Sales Analytics) ================= */
+    /**
+     * Lấy đơn theo khoảng ngày (created_at): fromDate, toDate (format date). Dùng cho báo cáo bán hàng.
+     */
+    public List<Order> getOrdersByDateRange(String fromDate, String toDate) {
+        List<Order> orders = new ArrayList<>();
+        String sql = """
+            SELECT o.*, r.full_name, r.email
+            FROM [Order] o
+            JOIN Reader r ON o.reader_id = r.reader_id
+            WHERE 1=1
+        """;
+        if (fromDate != null && !fromDate.isEmpty()) sql += " AND CAST(o.created_at AS DATE) >= ?";
+        if (toDate != null && !toDate.isEmpty()) sql += " AND CAST(o.created_at AS DATE) <= ?";
+        sql += " ORDER BY o.created_at DESC";
+
+        try (Connection con = DBContext.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            int idx = 1;
+            if (fromDate != null && !fromDate.isEmpty()) ps.setString(idx++, fromDate);
+            if (toDate != null && !toDate.isEmpty()) ps.setString(idx++, toDate);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Order order = mapOrder(rs);
+                order.setOrderBooks(getOrderBooks(order.getOrderId()));
+                orders.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
+    /**
+     * Top sách bán chạy: chỉ đơn paid; GROUP BY book, SUM(quantity), SUM(price*quantity); ORDER BY total_quantity DESC; giới hạn limit.
+     */
     public List<TopSellingBook> getTopSellingBooks(int limit) {
         List<TopSellingBook> list = new ArrayList<>();
         String sql = """
@@ -223,7 +273,7 @@ public class OrderDAO {
         return list;
     }
 
-    /* ================= MAP RESULTSET ================= */
+    /** Ánh xạ ResultSet → Order (kèm full_name, email, created_at). */
     private Order mapOrder(ResultSet rs) throws SQLException {
         Order order = new Order();
         order.setOrderId(rs.getInt("order_id"));
@@ -238,6 +288,7 @@ public class OrderDAO {
         return order;
     }
 
+    /** Ánh xạ ResultSet → OrderBook (kèm title, cover_url, author_name). */
     private OrderBook mapOrderBook(ResultSet rs) throws SQLException {
         OrderBook ob = new OrderBook();
         ob.setOrderBookId(rs.getInt("order_book_id"));

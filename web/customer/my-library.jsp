@@ -6,7 +6,8 @@
 <% String ctx = request.getContextPath(); %>
 <style>
     .user-home { background: #fff; min-height: 100vh; color: #333; }
-    .user-home .card { border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .user-home .card { border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); transition: box-shadow 0.2s; }
+    .user-home .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .user-home .btn-card { border: 2px solid #000; color: #000; background: #fff; font-weight: 500; }
     .user-home .btn-card:hover { background: #000; color: #fff; }
 </style>
@@ -26,11 +27,13 @@
                 <c:forEach items="${ownedBooks}" var="o">
                     <div class="col-md-3">
                         <div class="card h-100">
-                            <img src="${o.bookCoverUrl != null && !o.bookCoverUrl.isEmpty() ? o.bookCoverUrl : 'https://via.placeholder.com/200x280?text=No+Cover'}" class="card-img-top" alt="${o.bookTitle}" style="height:200px;object-fit:cover;">
+                            <a href="<%= ctx %>/customer/book-detail?bookId=${o.bookId}">
+                                <img src="${o.bookCoverUrl != null && !o.bookCoverUrl.isEmpty() ? o.bookCoverUrl : 'https://via.placeholder.com/200x280?text=No+Cover'}" class="card-img-top" alt="${o.bookTitle}" style="height:200px;object-fit:cover;">
+                            </a>
                             <div class="card-body">
-                                <h6 class="card-title">${o.bookTitle}</h6>
+                                <h6 class="card-title"><a href="<%= ctx %>/customer/book-detail?bookId=${o.bookId}" class="text-dark text-decoration-none">${o.bookTitle}</a></h6>
                                 <p class="text-muted small mb-1">${o.authorName}</p>
-                                <p class="small text-secondary mb-2">Sở hữu: ${o.acquiredAt}</p>
+                                <p class="small text-secondary mb-2">Sở hữu: ${o.acquiredAt != null ? o.acquiredAt : '-'}</p>
                                 <a href="<%= ctx %>/customer/read?bookId=${o.bookId}" class="btn btn-card btn-sm w-100">Đọc sách</a>
                                 <a href="<%= ctx %>/customer/bookmarks?addBookId=${o.bookId}" class="btn btn-outline-dark btn-sm w-100 mt-1">Thêm bookmark</a>
                             </div>
@@ -40,7 +43,12 @@
             </div>
         </c:otherwise>
     </c:choose>
-    <a href="<%= ctx %>/customer/home" class="btn btn-outline-dark mt-3">← Trang chủ</a>
+
+    <div class="mt-4">
+        <a href="<%= ctx %>/customer/home_1.jsp" class="btn btn-outline-dark">← Trang chủ</a>
+        <a href="<%= ctx %>/customer/reading-history" class="btn btn-outline-dark">Lịch sử đọc</a>
+        <a href="<%= ctx %>/customer/bookmarks" class="btn btn-outline-dark">Bookmarks</a>
+    </div>
 </div>
 </div>
 <%@include file="/includes/footer.jsp"%>

@@ -13,8 +13,15 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Servlet chi tiết đơn hàng (customer): xem một đơn theo orderId.
+ * Chỉ cho phép xem đơn thuộc về reader đăng nhập (order.getReaderId() == user.getReaderId()); nếu không thuộc hoặc order null → redirect orders.
+ */
 public class OrderDetailServlet extends HttpServlet {
 
+    /**
+     * Lấy orderId từ request; kiểm tra đăng nhập; getOrderById; kiểm tra order thuộc user; lấy Payment (getByOrderId); set order, payment; forward customer/order-detail.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

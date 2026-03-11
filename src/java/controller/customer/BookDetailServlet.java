@@ -1,6 +1,7 @@
 package controller.customer;
 
 import dao.BookDAO;
+import dao.ReaderBookOwnershipDAO;
 import dao.ReviewDAO;
 import model.Book;
 import model.Reader;
@@ -15,8 +16,14 @@ import java.util.List;
 
 import model.Review;
 
+/**
+ * Servlet chi tiết sách: hiển thị thông tin sách, danh sách review, và (nếu đăng nhập) review của user + trạng thái đã sở hữu (alreadyOwned) để ẩn nút mua / hiện "Đọc sách".
+ */
 public class BookDetailServlet extends HttpServlet {
 
+    /**
+     * Lấy bookId; getBookById; getByBook reviews; nếu user đăng nhập: getByReaderAndBook myReview, hasOwnership alreadyOwned; set book, reviews, myReview, alreadyOwned; forward book-detail.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -45,14 +52,18 @@ public class BookDetailServlet extends HttpServlet {
         ReviewDAO reviewDAO = new ReviewDAO();
         List<Review> reviews = reviewDAO.getByBook(bookId);
 
-        // Nếu đã đăng nhập, lấy review của user cho sách này (để hiển thị form chỉnh sửa nếu có)
+        // Nếu đã đăng nhập, lấy review của user và kiểm tra đã sở hữu sách chưa
         Review myReview = null;
+        boolean alreadyOwned = false;
         Reader user = (Reader) request.getSession().getAttribute("user");
         if (user != null) {
             myReview = reviewDAO.getByReaderAndBook(user.getReaderId(), bookId);
+            ReaderBookOwnershipDAO ownershipDAO = new ReaderBookOwnershipDAO();
+            alreadyOwned = ownershipDAO.hasOwnership(user.getReaderId(), bookId);
         }
 
         request.setAttribute("book", book);
+        request.setAttribute("alreadyOwned", alreadyOwned);
         request.setAttribute("reviews", reviews);
         request.setAttribute("myReview", myReview);
         request.getRequestDispatcher("/customer/book-detail.jsp").forward(request, response);

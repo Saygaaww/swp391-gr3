@@ -12,7 +12,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 
 import java.util.Arrays;
 
@@ -33,9 +33,8 @@ public class GoogleOAuthUtil {
             "https://www.googleapis.com/oauth2/v2/userinfo";
 
     private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-    // ================= STEP 1: LOGIN URL =================
     public static String getGoogleLoginUrl() {
         GoogleAuthorizationCodeFlow flow =
                 new GoogleAuthorizationCodeFlow.Builder(
@@ -53,7 +52,6 @@ public class GoogleOAuthUtil {
                 .build();
     }
 
-    // ================= STEP 2: CODE → ACCESS TOKEN =================
     public static String getAccessToken(String code) throws Exception {
         GoogleAuthorizationCodeFlow flow =
                 new GoogleAuthorizationCodeFlow.Builder(
@@ -72,7 +70,6 @@ public class GoogleOAuthUtil {
         return tokenResponse.getAccessToken();
     }
 
-    // ================= STEP 3: ACCESS TOKEN → USER INFO =================
     public static GoogleUser getUserInfo(String accessToken) throws Exception {
         HttpRequestFactory requestFactory =
                 HTTP_TRANSPORT.createRequestFactory();
@@ -83,8 +80,6 @@ public class GoogleOAuthUtil {
 
         String json = request.execute().parseAsString();
 
-        return JSON_FACTORY
-                .createJsonParser(json)
-                .parse(GoogleUser.class);
+        return JSON_FACTORY.createJsonParser(json).parse(GoogleUser.class);
     }
 }

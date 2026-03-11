@@ -31,7 +31,7 @@
                 <h1 class="fw-bold mb-2">${book.title}</h1>
                 <p class="text-muted mb-1"><strong>Tác giả:</strong> ${not empty book.authorName ? book.authorName : '—'}</p>
                 <p class="text-muted mb-1"><strong>Thể loại:</strong> ${not empty book.categoryName ? book.categoryName : '—'}</p>
-                <p class="mb-2"><strong>Giá:</strong> <fmt:formatNumber value="${book.price}" type="currency" currencySymbol="$"/> <c:if test="${not empty book.currency}">(${book.currency})</c:if></p>
+                <p class="mb-2"><strong>Giá:</strong> <fmt:formatNumber value="${book.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/> <c:if test="${not empty book.currency}">(${book.currency})</c:if></p>
                 <p class="text-secondary mb-3">Còn ${book.stockQuantity} cuốn</p>
 
                 <c:if test="${not empty book.summary}">
@@ -40,6 +40,10 @@
                 </c:if>
 
                 <c:choose>
+                    <c:when test="${alreadyOwned}">
+                        <span class="text-success fw-bold">Bạn đã sở hữu sách này</span>
+                        <a href="<%= ctx %>/customer/read?bookId=${book.bookId}" class="btn btn-card ms-2">Đọc sách</a>
+                    </c:when>
                     <c:when test="${book.stockQuantity <= 0}">
                         <button type="button" class="btn btn-outline-secondary disabled">Hết hàng</button>
                     </c:when>

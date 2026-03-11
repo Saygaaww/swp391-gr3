@@ -64,15 +64,15 @@
                                     </div>
                                 </td>
                                 <td class="text-center">${ob.quantity}</td>
-                                <td class="text-end"><fmt:formatNumber value="${ob.price}" type="currency" currencySymbol="$"/></td>
-                                <td class="text-end"><fmt:formatNumber value="${ob.subtotal}" type="currency" currencySymbol="$"/></td>
+                                <td class="text-end"><fmt:formatNumber value="${ob.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></td>
+                                <td class="text-end"><fmt:formatNumber value="${ob.subtotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></td>
                             </tr>
                         </c:forEach>
                     </tbody>
                 </table>
             </div>
             <div class="card-footer text-end">
-                <strong>Tổng cộng: <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="$"/> (${order.currency})</strong>
+                <strong>Tổng cộng: <fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/> (${order.currency})</strong>
             </div>
         </div>
 

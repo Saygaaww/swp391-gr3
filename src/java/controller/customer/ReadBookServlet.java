@@ -9,9 +9,14 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 /**
- * Trang đọc sách (chỉ sách đã sở hữu). Có form lưu tiến độ (trang đã đọc).
+ * Servlet trang đọc sách: chỉ cho phép đọc sách reader đã sở hữu; lưu/và hiển thị tiến độ đọc (trang đã đọc) qua ReadingHistory.
  */
 public class ReadBookServlet extends HttpServlet {
+
+    /**
+     * Hiển thị trang đọc sách (read.jsp) với bookId.
+     * Kiểm tra đăng nhập; lấy bookId; kiểm tra sở hữu (getByReaderAndBook)—không sở hữu redirect my-library; lấy lastPosition từ ReadingHistory (getByReader, tìm bản ghi theo bookId), mặc định 1; set book, lastPosition; forward read.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,6 +48,10 @@ public class ReadBookServlet extends HttpServlet {
         request.getRequestDispatcher("/customer/read.jsp").forward(request, response);
     }
 
+    /**
+     * Lưu tiến độ đọc: bookId, position (số trang).
+     * Kiểm tra đăng nhập và sở hữu sách; position < 0 thì coi là 0; gọi ReadingHistoryDAO.upsert(readerId, bookId, position); redirect /customer/read?bookId=...&saved=1 hoặc &error=save_failed.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,7 +75,12 @@ public class ReadBookServlet extends HttpServlet {
             return;
         }
         ReadingHistoryDAO dao = new ReadingHistoryDAO();
-        dao.upsert(user.getReaderId(), bookId, position);
-        response.sendRedirect(request.getContextPath() + "/customer/read?bookId=" + bookId);
+        boolean saved = dao.upsert(user.getReaderId(), bookId, position);
+        String redirect = request.getContextPath() + "/customer/read?bookId=" + bookId;
+        if (saved) {
+            response.sendRedirect(redirect + "&saved=1");
+        } else {
+            response.sendRedirect(redirect + "&error=save_failed");
+        }
     }
 }

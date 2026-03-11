@@ -27,7 +27,7 @@
                     <c:forEach items="${cart.items}" var="item">
                         <div class="d-flex justify-content-between border-bottom py-2">
                             <span>${item.bookTitle} x ${item.quantity}</span>
-                            <span><fmt:formatNumber value="${item.subtotal}" type="currency" currencySymbol="$"/></span>
+                            <span><fmt:formatNumber value="${item.subtotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></span>
                         </div>
                     </c:forEach>
                 </div>
@@ -35,7 +35,7 @@
         </div>
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header fw-bold">Tổng: <fmt:formatNumber value="${cartTotal}" type="currency" currencySymbol="$"/></div>
+                <div class="card-header fw-bold">Tổng: <fmt:formatNumber value="${cartTotal}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></div>
                 <div class="card-body">
                     <p class="text-muted small">Chọn phương thức thanh toán:</p>
                     <form action="<%= ctx %>/customer/checkout" method="post">
@@ -43,14 +43,14 @@
                             Thanh toán khi nhận hàng (COD)
                         </button>
                         <button type="submit" name="paymentMethod" value="vnpay" class="btn btn-dark w-100">
-                            <img src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" height="24" alt="VNPay"> Thanh toán VNPay
+                            <img src="https://tse2.mm.bing.net/th/id/OIP.pn3RUm1xk1HiAxWIgC6CIwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" height="24" alt="VNPay"> Thanh toán VNPay
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <a href="<%= ctx %>/customer/home" class="btn btn-outline-dark mt-3">← Trang chủ</a>
+    <a href="<%= ctx %>/customer/cart" class="btn btn-outline-dark mt-3">← Giỏ Hàng</a>
 </div>
 </div>
 <%@include file="/includes/footer.jsp"%>

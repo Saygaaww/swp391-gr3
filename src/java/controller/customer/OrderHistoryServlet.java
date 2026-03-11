@@ -8,8 +8,15 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Servlet lịch sử đơn hàng của reader: hiển thị danh sách đơn (GET).
+ * Chỉ cho reader đã đăng nhập; lấy danh sách từ OrderDAO.getOrdersByReader(readerId), forward orders.jsp.
+ */
 public class OrderHistoryServlet extends HttpServlet {
 
+    /**
+     * Lấy tất cả đơn hàng của reader đăng nhập (getOrdersByReader), set orders, forward customer/orders.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -57,33 +57,60 @@ public class ReaderDAO {
                 return mapReader(rs);
             }
 
-            /* 👉 chưa có → tạo reader mới */
-            String insertReader = """
-                INSERT INTO Reader(full_name, email, password_hash, avatar, status, role_id)
-                VALUES (?, ?, '', ?, 'ACTIVE', 4)
-            """;
+            // Check if email already exists in Reader table (registered via email/password)
+            String checkEmail = "SELECT reader_id FROM Reader WHERE email = ?";
+            PreparedStatement psEmail = con.prepareStatement(checkEmail);
+            psEmail.setString(1, gUser.getEmail());
+            ResultSet rsEmail = psEmail.executeQuery();
 
-            PreparedStatement ps1 = con.prepareStatement(insertReader, Statement.RETURN_GENERATED_KEYS);
-            ps1.setString(1, gUser.getName());
-            ps1.setString(2, gUser.getEmail());
-            ps1.setString(3, gUser.getPicture());
-            ps1.executeUpdate();
-
-            ResultSet key = ps1.getGeneratedKeys();
-            if (key.next()) {
-                int readerId = key.getInt(1);
+            if (rsEmail.next()) {
+                // Email exists — link Google account to existing reader
+                int existingReaderId = rsEmail.getInt("reader_id");
 
                 String insertAccount = """
                     INSERT INTO Reader_Account(reader_id, provider, provider_user_id)
                     VALUES (?, 'GOOGLE', ?)
                 """;
-
                 PreparedStatement ps2 = con.prepareStatement(insertAccount);
-                ps2.setInt(1, readerId);
+                ps2.setInt(1, existingReaderId);
                 ps2.setString(2, gUser.getId());
                 ps2.executeUpdate();
+
+                // Update avatar if not set
+                String updateAvatar = "UPDATE Reader SET avatar = ? WHERE reader_id = ? AND (avatar IS NULL OR avatar = '')";
+                PreparedStatement psAvatar = con.prepareStatement(updateAvatar);
+                psAvatar.setString(1, gUser.getPicture());
+                psAvatar.setInt(2, existingReaderId);
+                psAvatar.executeUpdate();
+            } else {
+                // New user — create reader with USER role (role_id = 4)
+                String insertReader = """
+                    INSERT INTO Reader(full_name, email, password_hash, avatar, status, role_id)
+                    VALUES (?, ?, '', ?, 'ACTIVE', 4)
+                """;
+
+                PreparedStatement ps1 = con.prepareStatement(insertReader, Statement.RETURN_GENERATED_KEYS);
+                ps1.setString(1, gUser.getName());
+                ps1.setString(2, gUser.getEmail());
+                ps1.setString(3, gUser.getPicture());
+                ps1.executeUpdate();
+
+                ResultSet key = ps1.getGeneratedKeys();
+                if (key.next()) {
+                    int readerId = key.getInt(1);
+
+                    String insertAccount = """
+                        INSERT INTO Reader_Account(reader_id, provider, provider_user_id)
+                        VALUES (?, 'GOOGLE', ?)
+                    """;
+                    PreparedStatement ps2 = con.prepareStatement(insertAccount);
+                    ps2.setInt(1, readerId);
+                    ps2.setString(2, gUser.getId());
+                    ps2.executeUpdate();
+                }
             }
 
+            // Recursive call to fetch the newly created/linked reader
             return loginByGoogle(gUser);
 
         } catch (Exception e) {

@@ -14,12 +14,19 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 /**
- * Xử lý khi VNPay redirect về sau thanh toán.
- * Chỉ khi thanh toán thành công (vnp_ResponseCode=00) mới tạo đơn, trừ stock, xóa giỏ.
- * Thanh toán thất bại/hủy: giỏ hàng vẫn giữ nguyên.
+ * Xử lý khi VNPay redirect về sau khi khách thanh toán trên cổng VNPay.
+ * Chỉ khi thanh toán thành công (vnp_ResponseCode=00) và chữ ký hợp lệ mới: tạo đơn, trừ stock, cấp ownership, xóa giỏ, tạo bản ghi Payment, cập nhật trạng thái đơn paid.
+ * Thanh toán thất bại hoặc hủy: không thay đổi giỏ hàng, chỉ hiển thị thông báo trên vnpay-result.jsp.
  */
 public class VNPayReturnServlet extends HttpServlet {
 
+    /**
+     * Xử lý GET khi VNPay redirect về (url có vnp_* params).
+     * 1) Xác thực chữ ký (VNPayUtil.verifyReturn): không hợp lệ → set message "Chữ ký không hợp lệ", success=false, forward vnpay-result.jsp.
+     * 2) Lấy vnp_ResponseCode, vnp_TxnRef, vnp_TransactionNo; so khớp pendingVnPayRef và pendingVnPayReaderId trong session; xóa pending khỏi session (dù thành công hay thất bại).
+     * 3) Nếu responseCode=00 và ref khớp: lấy giỏ active của reader; kiểm tra tồn kho; tạo order, addOrderBook, reduceStock, grant ownership, clearCart, updateCartStatus; tạo Payment (VNPAY, success), updateOrderStatus paid; set message + success=true + orderId.
+     * 4) Nếu thất bại/hủy: set message + success=false, không tạo đơn. Cuối cùng forward vnpay-result.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -69,7 +76,7 @@ public class VNPayReturnServlet extends HttpServlet {
                 return;
             }
             OrderDAO orderDAO = new OrderDAO();
-            int orderId = orderDAO.createOrder(pendingReaderId, cartTotal, "USD");
+            int orderId = orderDAO.createOrder(pendingReaderId, cartTotal, "VND");
             if (orderId <= 0) {
                 request.setAttribute("message", "Tạo đơn hàng thất bại. Liên hệ hỗ trợ. Giỏ hàng vẫn giữ.");
                 request.setAttribute("success", false);
@@ -81,7 +88,7 @@ public class VNPayReturnServlet extends HttpServlet {
                 orderDAO.addOrderBook(orderId, item.getBookId(), item.getUnitPrice(), item.getQuantity());
                 bookDAO.reduceStock(item.getBookId(), item.getQuantity());
                 if (!ownershipDAO.hasOwnership(pendingReaderId, item.getBookId())) {
-                    ownershipDAO.grant(pendingReaderId, item.getBookId(), "order");
+                    ownershipDAO.grant(pendingReaderId, item.getBookId(), "order", orderId);
                 }
             }
             cartDAO.clearCart(cart.getCartId());

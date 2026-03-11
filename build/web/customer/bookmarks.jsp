@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Trang</label>
-                        <input type="number" name="pageNumber" min="1" class="form-control" required placeholder="Số trang">
+                        <input type="number" name="pageNumber" min="1" class="form-control" value="${param.pageNumber != null ? param.pageNumber : ''}" required placeholder="Số trang">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Ghi chú</label>
@@ -50,6 +50,9 @@
             </div>
         </div>
     </c:if>
+    <c:if test="${empty ownedBooks}">
+        <div class="alert alert-info">Bạn chưa có sách nào trong My Library. Chỉ có thể thêm bookmark cho sách đã sở hữu. <a href="<%= ctx %>/customer/browse-books" class="alert-link">Mua sách</a> hoặc xem <a href="<%= ctx %>/customer/my-library" class="alert-link">My Library</a>.</div>
+    </c:if>
 
     <h5 class="mt-4">Danh sách bookmark</h5>
     <c:choose>
@@ -58,18 +61,19 @@
         </c:when>
         <c:otherwise>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
-                        <tr><th>Sách</th><th>Trang</th><th>Ghi chú</th><th>Ngày tạo</th><th></th></tr>
+                        <tr><th>Sách</th><th>Trang</th><th>Ghi chú</th><th>Ngày tạo</th><th>Thao tác</th></tr>
                     </thead>
                     <tbody>
                         <c:forEach items="${bookmarks}" var="bm">
                             <tr>
-                                <td>${bm.bookTitle}</td>
+                                <td><a href="<%= ctx %>/customer/book-detail?bookId=${bm.bookId}" class="text-dark text-decoration-none">${bm.bookTitle}</a></td>
                                 <td>${bm.pageNumber}<c:if test="${bm.bookTotalPages != null}"> / ${bm.bookTotalPages}</c:if></td>
-                                <td>${bm.note != null ? bm.note : '-'}</td>
-                                <td>${bm.createdAt}</td>
+                                <td>${bm.note != null && !bm.note.isEmpty() ? bm.note : '-'}</td>
+                                <td>${bm.createdAt != null ? bm.createdAt : '-'}</td>
                                 <td>
+                                    <a href="<%= ctx %>/customer/read?bookId=${bm.bookId}#page=${bm.pageNumber}" class="btn btn-outline-dark btn-sm me-1">Đọc tới trang</a>
                                     <form action="<%= ctx %>/customer/bookmarks" method="post" class="d-inline" onsubmit="return confirm('Xóa bookmark này?');">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="bookmarkId" value="${bm.bookmarkId}">
@@ -83,7 +87,12 @@
             </div>
         </c:otherwise>
     </c:choose>
-    <a href="<%= ctx %>/customer/home" class="btn btn-card mt-3">← Trang chủ</a>
+
+    <div class="mt-4">
+        <a href="<%= ctx %>/customer/home_1.jsp" class="btn btn-outline-dark">← Trang chủ</a>
+        <a href="<%= ctx %>/customer/my-library" class="btn btn-outline-dark">My Library</a>
+        <a href="<%= ctx %>/customer/reading-history" class="btn btn-outline-dark">Lịch sử đọc</a>
+    </div>
 </div>
 </div>
 <%@include file="/includes/footer.jsp"%>

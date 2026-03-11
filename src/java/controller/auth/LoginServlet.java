@@ -10,17 +10,30 @@ import java.io.IOException;
 import util.PasswordUtil;
 
 /**
- * Unified login for both Reader (user) and Employee.
- * Tries Reader first, then Employee. Redirects by role.
+ * Servlet đăng nhập thống nhất cho Cả Reader (khách đọc) và Employee (nhân viên).
+ * Dùng chung một form /login: thử đăng nhập Reader trước, không được thì thử Employee.
+ * Sau khi đăng nhập thành công, chuyển hướng theo role (customer → home, admin/librarian/seller → dashboard tương ứng).
  */
 public class LoginServlet extends HttpServlet {
 
+    /**
+     * Hiển thị trang đăng nhập (form email + password).
+     * GET /login → forward tới auth/login.jsp.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("/auth/login.jsp").forward(request, response);
     }
 
+    /**
+     * Xử lý submit form đăng nhập.
+     * 1) Kiểm tra email/password không rỗng; nếu rỗng → set error, forward lại login.jsp.
+     * 2) Băm mật khẩu bằng PasswordUtil.hash, set session timeout 30 phút.
+     * 3) Thử đăng nhập Reader (ReaderDAO.loginByEmailPassword): nếu thành công và status ACTIVE → lưu user vào session, redirect /customer/home_1.jsp.
+     * 4) Nếu không phải Reader, thử Employee (EmployeeDAO.loginByEmailPassword): nếu thành công và status active → lưu employee + userType vào session, redirect theo role (ADMIN→/admin/dashboard, LIBRARIAN→/librarian/dashboard, SELLER→/seller/dashboard).
+     * 5) Nếu cả hai đều thất bại → set error "Email hoặc mật khẩu không đúng", forward lại login.jsp.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

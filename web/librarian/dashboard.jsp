@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -80,9 +81,39 @@
                     <div class="col-md-6">
                         <div class="stat-card">
                             <i class="fas fa-book fa-2x mb-2 text-secondary"></i>
-                            <h3>0</h3>
-                            <p class="text-muted mb-0">Active Borrows</p>
+                            <h3>${fn:length(overdueList)}</h3>
+                            <p class="text-muted mb-0">Overdue</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Overdue List (read-only) -->
+                <div class="card mt-4 border border-secondary border-opacity-25">
+                    <div class="card-header bg-white border-bottom border-secondary border-opacity-25">
+                        <h5 class="mb-0 text-dark"><i class="fas fa-exclamation-triangle text-warning"></i> Overdue List</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <c:choose>
+                            <c:when test="${empty overdueList}">
+                                <p class="text-muted mb-0 p-3">Không có mục mượn quá hạn.</p>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light"><tr><th>Reader</th><th>Book</th><th>Due Date</th></tr></thead>
+                                        <tbody>
+                                            <c:forEach items="${overdueList}" var="o">
+                                                <tr>
+                                                    <td>${o.readerName}</td>
+                                                    <td>${o.bookTitle}</td>
+                                                    <td>${o.dueDate != null ? o.dueDate : '—'}</td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
 

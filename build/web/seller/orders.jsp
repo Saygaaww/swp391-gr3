@@ -23,10 +23,12 @@
                     <h4 class="text-dark">💼 Seller Panel</h4>
                 </div>
                 <nav>
-                    <a href="<%= request.getContextPath() %>/seller/dashboard"> <i class="fas fa-dashboard"></i> Dashboard </a>
-                    <a href="<%= request.getContextPath() %>/seller/orders" class="active"> <i class="fas fa-shopping-cart"></i> Orders </a>
-                    <a href="<%= request.getContextPath() %>/seller/sales-report"> <i class="fas fa-chart-line"></i> Sales Report </a>
-                    <a href="<%= request.getContextPath() %>/logout"> <i class="fas fa-sign-out-alt"></i> Logout </a>
+                    <a href="<%= request.getContextPath() %>/home"><i class="fas fa-home"></i> Home</a>
+                    <a href="<%= request.getContextPath() %>/seller/dashboard"><i class="fas fa-dashboard"></i> Dashboard</a>
+                    <a href="<%= request.getContextPath() %>/seller/books"><i class="fas fa-book"></i> Books</a>
+                    <a href="<%= request.getContextPath() %>/seller/orders" class="active"><i class="fas fa-shopping-cart"></i> Orders</a>
+                    <a href="<%= request.getContextPath() %>/seller/sales-report"><i class="fas fa-chart-line"></i> Sales Report</a>
+                    <a href="<%= request.getContextPath() %>/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </nav>
             </div>
 
@@ -64,7 +66,7 @@
                                             <tr>
                                                 <td>#${order.orderId}</td>
                                                 <td>${order.readerName}<br><small class="text-muted">${order.readerEmail}</small></td>
-                                                <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="$"/></td>
+                                                <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" maxFractionDigits="0" minFractionDigits="0"/></td>
                                                 <td>
                                                     <span class="badge 
                                                         ${order.status == 'pending' ? 'bg-warning' : ''}
@@ -76,12 +78,31 @@
                                                 </td>
                                                 <td>${order.createdAt}</td>
                                                 <td>
+                                                    <a href="<%= request.getContextPath() %>/seller/order-detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-dark me-1" title="View Detail">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <c:if test="${order.status == 'pending'}">
+                                                        <form action="<%= request.getContextPath() %>/seller/orders" method="post" style="display:inline;">
+                                                            <input type="hidden" name="orderId" value="${order.orderId}">
+                                                            <input type="hidden" name="action" value="markPaid">
+                                                            <button type="submit" class="btn btn-sm btn-success me-1" onclick="return confirm('Xác nhận đã thu tiền (COD)?')" title="Xác nhận đã thanh toán">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        </form>
+                                                        <form action="<%= request.getContextPath() %>/seller/orders" method="post" style="display:inline;">
+                                                            <input type="hidden" name="orderId" value="${order.orderId}">
+                                                            <input type="hidden" name="action" value="cancel">
+                                                            <button type="submit" class="btn btn-sm btn-danger me-1" onclick="return confirm('Cancel this order?')" title="Hủy đơn">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    </c:if>
                                                     <c:if test="${order.status == 'paid'}">
-                                                        <form action="<%= request.getContextPath() %>/seller/orders" method="post" style="display: inline;">
+                                                        <form action="<%= request.getContextPath() %>/seller/orders" method="post" style="display:inline;">
                                                             <input type="hidden" name="orderId" value="${order.orderId}">
                                                             <input type="hidden" name="action" value="refund">
-                                                            <button type="submit" class="btn btn-sm btn-warning">
-                                                                <i class="fas fa-undo"></i> Refund
+                                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Refund this order?')" title="Refund">
+                                                                <i class="fas fa-undo"></i>
                                                             </button>
                                                         </form>
                                                     </c:if>

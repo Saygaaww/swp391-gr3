@@ -64,8 +64,10 @@ public class VNPayUtil {
     }
 
     /**
-     * Xác thực chữ ký trả về từ VNPay (vnp_SecureHash)
-     */
+     * Xác thực chữ ký trả về từ VNPay (vnp_SecureHash) 
+     * @param request 
+     * @return 
+     */ 
     public static boolean verifyReturn(HttpServletRequest request) {
         Map<String, String> params = new TreeMap<>();
         Enumeration<String> names = request.getParameterNames();
@@ -97,6 +99,9 @@ public class VNPayUtil {
         }
     }
 
+    /**
+     * Tạo chữ ký HMAC-SHA512 của chuỗi data dùng key (vnp_HashSecret). Dùng để tạo vnp_SecureHash và xác thực khi VNPay redirect về.
+     */
     private static String hmacSHA512(String key, String data) throws Exception {
         Mac hmac = Mac.getInstance("HmacSHA512");
         SecretKeySpec spec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
@@ -107,8 +112,8 @@ public class VNPayUtil {
         return hex.toString();
     }
 
-    /** Chuyển USD sang VND (tỷ giá mẫu - bạn tự cập nhật) */
-    public static long usdToVnd(java.math.BigDecimal usd) {
-        return usd.multiply(java.math.BigDecimal.valueOf(24000)).longValue();
+    /** Trả về số tiền VND dạng long (giá trong DB đã là VND). Giữ lại cho tương thích nếu có code cũ dùng. */
+    public static long toVndLong(java.math.BigDecimal vndAmount) {
+        return vndAmount == null ? 0L : vndAmount.longValue();
     }
 }

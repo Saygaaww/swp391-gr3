@@ -12,8 +12,15 @@ import model.Employee;
 import java.io.IOException;
 
 
+/**
+ * Filter xác thực: kiểm tra đăng nhập và role trước khi vào đường dẫn /customer, /admin, /librarian, /seller.
+ * Public: /, /login, /register, /auth/*, /google-*, /vnpay-return, /vnpay-result, tài nguyên tĩnh. Employee: /admin (role ADMIN; /admin/books cho cả SELLER,LIBRARIAN), /librarian (LIBRARIAN), /seller (SELLER). Customer: /customer, /user (role USER). Còn lại: nếu chưa login → redirect /login.
+ */
 public class AuthFilter implements Filter {
 
+    /**
+     * Lấy URI và session (user, employee). Nếu URI thuộc public → cho qua. Nếu chứa /admin|/librarian|/seller → kiểm tra employee và role tương ứng; /admin/books cho ADMIN,LIBRARIAN,SELLER. Nếu chứa /customer|/user → kiểm tra user và role USER. Set no-cache header rồi chain.doFilter; nếu không thuộc nhóm nào và chưa login → redirect /login.
+     */
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -44,6 +51,8 @@ public class AuthFilter implements Filter {
             uri.contains("/js/") ||
             uri.contains("/images/") ||
             uri.contains("/google-login") ||
+            uri.contains("/google-callback") ||
+            uri.contains("/GoogleCallbackServlet") ||
             uri.contains("/employee/login") ||
             uri.contains("/vnpay-return") ||
             uri.contains("/vnpay-result") ||
@@ -52,7 +61,9 @@ public class AuthFilter implements Filter {
             uri.endsWith(".png") ||
             uri.endsWith(".jpg") ||
             uri.endsWith(".jpeg") ||
-            uri.endsWith(".gif")
+            uri.endsWith(".gif") ||
+            uri.endsWith(".pdf") ||
+            uri.contains("/uploads/")
         ) {
             chain.doFilter(req, res);
             return;
