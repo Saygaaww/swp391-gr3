@@ -1,0 +1,148 @@
+package util;
+
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+/**
+ * EmailUtil - Gửi email thông báo
+ * 
+ * CẤU HÌNH: Điền thông tin SMTP của bạn vào các hằng số bên dưới.
+ */
+public class EmailUtil {
+
+    private static final Logger LOGGER = Logger.getLogger(EmailUtil.class.getName());
+
+    // ===== CẤU HÌNH SMTP =====
+    // Tạm thời bật TRUE. Thay đổi username/password thành của user thật.
+    private static final boolean SEND_REAL_EMAIL = true;
+    private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final int SMTP_PORT = 587;
+    // TODO: Teacher must replace these with real App Password
+    private static final String SMTP_USERNAME = "tenmamarvall@gmail.com";
+    private static final String SMTP_PASSWORD = "wqci zhsq ffba voiy";
+    private static final String FROM_NAME = "Digital Library";
+    private static final String FROM_EMAIL = "noreply@digitallibrary.vn";
+    // ==========================
+
+    /**
+     * Gửi email OTP đặt lại mật khẩu
+     */
+    public static boolean sendOTPEmail(String toEmail, String toName, String otp) {
+        String subject = "[Digital Library] Mã xác thực đặt lại mật khẩu";
+        String htmlBody = buildOTPHTML(toName, otp);
+
+        return sendEmail(toEmail, toName, subject, htmlBody);
+    }
+
+    /**
+     * Gửi email OTP xác thực đăng nhập Google (2FA)
+     */
+    public static boolean sendLoginOTPEmail(String toEmail, String toName, String otp) {
+        String subject = "[Digital Library] Xác thực đăng nhập hệ thống";
+        String htmlBody = buildLoginOTPHTML(toName, otp);
+
+        return sendEmail(toEmail, toName, subject, htmlBody);
+    }
+
+    /**
+     * Gửi email chào mừng sau khi đăng ký
+     */
+    public static boolean sendWelcomeEmail(String toEmail, String toName) {
+        String subject = "[Digital Library] Chào mừng bạn đến với chúng tôi!";
+        String htmlBody = "<h2>Xin chào " + escapeHtml(toName) + "!</h2>"
+                + "<p>Tài khoản của bạn đã được tạo thành công tại Digital Library.</p>"
+                + "<p>Chúc bạn có trải nghiệm đọc sách tuyệt vời!</p>";
+        return sendEmail(toEmail, toName, subject, htmlBody);
+    }
+
+    // ===================== Private Methods =====================
+
+    private static boolean sendEmail(String toEmail, String toName, String subject, String htmlBody) {
+        if (!SEND_REAL_EMAIL || SMTP_USERNAME.equals("your-email@gmail.com")) {
+            // Chế độ development hoặc chưa cấu hình pass
+            LOGGER.info("========== [EMAIL LOG - Dev Mode] ==========");
+            LOGGER.info("To: " + toName + " <" + toEmail + ">");
+            LOGGER.info("Subject: " + subject);
+            LOGGER.info("Body: (HTML length: " + htmlBody.length() + ")");
+            LOGGER.info("============================================");
+            return true;
+        }
+
+        try {
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", SMTP_HOST);
+            props.put("mail.smtp.port", String.valueOf(SMTP_PORT));
+
+            Session session = Session.getInstance(props, new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(SMTP_USERNAME, SMTP_PASSWORD);
+                }
+            });
+
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(SMTP_USERNAME, FROM_NAME, "UTF-8"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject, "UTF-8");
+            message.setContent(htmlBody, "text/html; charset=UTF-8");
+
+            Transport.send(message);
+            LOGGER.info("Email sent successfully to: " + toEmail);
+            return true;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to send email to " + toEmail, e);
+            return false;
+        }
+    }
+
+    private static String buildOTPHTML(String toName, String otp) {
+        return "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif; background-color: #f8fafc; padding: 40px 0;'>"
+                + "<div style='max-width:600px;margin:0 auto;padding:30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;'>"
+                + "<h2 style='color:#475569; margin-bottom: 20px;'>Digital Library</h2>"
+                + "<p style='color: #334155; font-size: 16px; margin-bottom: 10px;'>Xin chào <strong>"
+                + escapeHtml(toName) + "</strong>,</p>"
+                + "<p style='color: #64748b; font-size: 15px; margin-bottom: 25px;'>Bạn vừa yêu cầu đặt lại mật khẩu. Sử dụng mã OTP bên dưới để tiếp tục:</p>"
+                + "<div style='background-color: #f1f5f9; padding: 15px 30px; border-radius: 8px; display: inline-block; margin-bottom: 25px;'>"
+                + "<span style='font-size: 32px; font-weight: bold; color: #1e293b; letter-spacing: 5px;'>"
+                + escapeHtml(otp) + "</span>"
+                + "</div>"
+                + "<p style='color: #64748b; font-size: 14px; margin-bottom: 30px;'>Mã này có hiệu lực trong <strong>1 giờ</strong>.</p>"
+                + "<hr style='border: none; border-top: 1px solid #e2e8f0; margin-bottom: 20px;'>"
+                + "<p style='color:#94a3b8; font-size:12px; line-height: 1.5;'>Nếu bạn không yêu cầu đặt lại mật khẩu, "
+                + "bạn có thể an tâm bỏ qua email này.</p>"
+                + "</div></body></html>";
+    }
+
+    private static String buildLoginOTPHTML(String toName, String otp) {
+        return "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif; background-color: #f8fafc; padding: 40px 0;'>"
+                + "<div style='max-width:600px;margin:0 auto;padding:30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;'>"
+                + "<h2 style='color:#475569; margin-bottom: 20px;'>Digital Library</h2>"
+                + "<p style='color: #334155; font-size: 16px; margin-bottom: 10px;'>Xin chào <strong>"
+                + escapeHtml(toName) + "</strong>,</p>"
+                + "<p style='color: #64748b; font-size: 15px; margin-bottom: 25px;'>Bạn đang thực hiện đăng nhập vào hệ thống. Sử dụng mã OTP bên dưới để xác thực:</p>"
+                + "<div style='background-color: #f1f5f9; padding: 15px 30px; border-radius: 8px; display: inline-block; margin-bottom: 25px;'>"
+                + "<span style='font-size: 32px; font-weight: bold; color: #1e293b; letter-spacing: 5px;'>"
+                + escapeHtml(otp) + "</span>"
+                + "</div>"
+                + "<p style='color: #64748b; font-size: 14px; margin-bottom: 30px;'>Mã này có hiệu lực trong <strong>1 giờ</strong>.</p>"
+                + "<hr style='border: none; border-top: 1px solid #e2e8f0; margin-bottom: 20px;'>"
+                + "<p style='color:#94a3b8; font-size:12px; line-height: 1.5;'>Nếu bạn không thực hiện yêu cầu này, "
+                + "vui lòng truy cập hệ thống để bảo vệ tài khoản ngay lập tức.</p>"
+                + "</div></body></html>";
+    }
+
+    private static String escapeHtml(String text) {
+        if (text == null)
+            return "";
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+}

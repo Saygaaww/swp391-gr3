@@ -1,0 +1,471 @@
+src\java\controller\CustomerController.java:15: error: package jakarta.servlet does not exist
+import jakarta.servlet.ServletException;
+                      ^
+src\java\controller\CustomerController.java:16: error: package jakarta.servlet.annotation does not exist
+import jakarta.servlet.annotation.WebServlet;
+                                 ^
+src\java\controller\CustomerController.java:17: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServlet;
+                           ^
+src\java\controller\CustomerController.java:18: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServletRequest;
+                           ^
+src\java\controller\CustomerController.java:19: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServletResponse;
+                           ^
+src\java\controller\CustomerController.java:20: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpSession;
+                           ^
+src\java\controller\CustomerController.java:32: error: cannot find symbol
+public class CustomerController extends HttpServlet {
+                                        ^
+  symbol: class HttpServlet
+src\java\controller\CustomerController.java:31: error: cannot find symbol
+@WebServlet(name = "CustomerController", urlPatterns = { "/customer", "/customer/*" })
+ ^
+  symbol: class WebServlet
+src\java\controller\CustomerController.java:35: error: cannot find symbol
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                         ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:35: error: cannot find symbol
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                                                     ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:36: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:97: error: cannot find symbol
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                          ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:97: error: cannot find symbol
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                                                      ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:98: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:144: error: cannot find symbol
+    private void handleViewCart(HttpServletRequest request, HttpServletResponse response)
+                                ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:144: error: cannot find symbol
+    private void handleViewCart(HttpServletRequest request, HttpServletResponse response)
+                                                            ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:145: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:156: error: cannot find symbol
+    private void handleAddToCart(HttpServletRequest request, HttpServletResponse response)
+                                 ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:156: error: cannot find symbol
+    private void handleAddToCart(HttpServletRequest request, HttpServletResponse response)
+                                                             ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:157: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:209: error: cannot find symbol
+    private void handleUpdateCart(HttpServletRequest request, HttpServletResponse response, String action)
+                                  ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:209: error: cannot find symbol
+    private void handleUpdateCart(HttpServletRequest request, HttpServletResponse response, String action)
+                                                              ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:210: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:230: error: cannot find symbol
+    private void handleViewReviews(HttpServletRequest request, HttpServletResponse response)
+                                   ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:230: error: cannot find symbol
+    private void handleViewReviews(HttpServletRequest request, HttpServletResponse response)
+                                                               ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:231: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:241: error: cannot find symbol
+    private void handleSubmitReview(HttpServletRequest request, HttpServletResponse response)
+                                    ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:241: error: cannot find symbol
+    private void handleSubmitReview(HttpServletRequest request, HttpServletResponse response)
+                                                                ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:242: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:274: error: cannot find symbol
+    private void handleViewCheckout(HttpServletRequest request, HttpServletResponse response)
+                                    ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:274: error: cannot find symbol
+    private void handleViewCheckout(HttpServletRequest request, HttpServletResponse response)
+                                                                ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:275: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:291: error: cannot find symbol
+    private void handleProcessCheckout(HttpServletRequest request, HttpServletResponse response)
+                                       ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:291: error: cannot find symbol
+    private void handleProcessCheckout(HttpServletRequest request, HttpServletResponse response)
+                                                                   ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:292: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:366: error: cannot find symbol
+    private void handleOrderHistory(HttpServletRequest request, HttpServletResponse response)
+                                    ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:366: error: cannot find symbol
+    private void handleOrderHistory(HttpServletRequest request, HttpServletResponse response)
+                                                                ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:367: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:375: error: cannot find symbol
+    private void handleOrderDetail(HttpServletRequest request, HttpServletResponse response)
+                                   ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:375: error: cannot find symbol
+    private void handleOrderDetail(HttpServletRequest request, HttpServletResponse response)
+                                                               ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:376: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:399: error: cannot find symbol
+    private void handleVNPayReturn(HttpServletRequest request, HttpServletResponse response)
+                                   ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:399: error: cannot find symbol
+    private void handleVNPayReturn(HttpServletRequest request, HttpServletResponse response)
+                                                               ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:400: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:484: error: cannot find symbol
+    private void handleReadBook(HttpServletRequest request, HttpServletResponse response)
+                                ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:484: error: cannot find symbol
+    private void handleReadBook(HttpServletRequest request, HttpServletResponse response)
+                                                            ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:485: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:514: error: cannot find symbol
+    private void handleReadingHistory(HttpServletRequest request, HttpServletResponse response)
+                                      ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:514: error: cannot find symbol
+    private void handleReadingHistory(HttpServletRequest request, HttpServletResponse response)
+                                                                  ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:515: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:523: error: cannot find symbol
+    private void handleSaveReadProgress(HttpServletRequest request, HttpServletResponse response)
+                                        ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:523: error: cannot find symbol
+    private void handleSaveReadProgress(HttpServletRequest request, HttpServletResponse response)
+                                                                    ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:524: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:555: error: cannot find symbol
+    private void handleBookmarks(HttpServletRequest request, HttpServletResponse response)
+                                 ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:555: error: cannot find symbol
+    private void handleBookmarks(HttpServletRequest request, HttpServletResponse response)
+                                                             ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:556: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\CustomerController.java:565: error: cannot find symbol
+    private void handleSaveBookmarks(HttpServletRequest request, HttpServletResponse response)
+                                     ^
+  symbol:   class HttpServletRequest
+  location: class CustomerController
+src\java\controller\CustomerController.java:565: error: cannot find symbol
+    private void handleSaveBookmarks(HttpServletRequest request, HttpServletResponse response)
+                                                                 ^
+  symbol:   class HttpServletResponse
+  location: class CustomerController
+src\java\controller\CustomerController.java:566: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class CustomerController
+src\java\controller\AuthController.java:15: error: package jakarta.servlet does not exist
+import jakarta.servlet.RequestDispatcher;
+                      ^
+src\java\controller\AuthController.java:16: error: package jakarta.servlet does not exist
+import jakarta.servlet.ServletException;
+                      ^
+src\java\controller\AuthController.java:17: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServlet;
+                           ^
+src\java\controller\AuthController.java:18: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServletRequest;
+                           ^
+src\java\controller\AuthController.java:19: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServletResponse;
+                           ^
+src\java\controller\AuthController.java:20: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpSession;
+                           ^
+src\java\controller\AuthController.java:29: error: cannot find symbol
+public class AuthController extends HttpServlet {
+                                    ^
+  symbol: class HttpServlet
+src\java\controller\AuthController.java:34: error: cannot find symbol
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                         ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:34: error: cannot find symbol
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+                                                     ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:35: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:72: error: cannot find symbol
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                          ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:72: error: cannot find symbol
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                                                      ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:73: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:100: error: cannot find symbol
+    private void handleRegister(HttpServletRequest request, HttpServletResponse response)
+                                ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:100: error: cannot find symbol
+    private void handleRegister(HttpServletRequest request, HttpServletResponse response)
+                                                            ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:101: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:184: error: cannot find symbol
+    private void handleLogin(HttpServletRequest request, HttpServletResponse response)
+                             ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:184: error: cannot find symbol
+    private void handleLogin(HttpServletRequest request, HttpServletResponse response)
+                                                         ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:185: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:264: error: cannot find symbol
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response)
+                              ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:264: error: cannot find symbol
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response)
+                                                          ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:275: error: cannot find symbol
+    private void handleForgotPassword(HttpServletRequest request, HttpServletResponse response)
+                                      ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:275: error: cannot find symbol
+    private void handleForgotPassword(HttpServletRequest request, HttpServletResponse response)
+                                                                  ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:276: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:315: error: cannot find symbol
+    private void handleShowResetPassword(HttpServletRequest request, HttpServletResponse response)
+                                         ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:315: error: cannot find symbol
+    private void handleShowResetPassword(HttpServletRequest request, HttpServletResponse response)
+                                                                     ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:316: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:343: error: cannot find symbol
+    private void handleResetPassword(HttpServletRequest request, HttpServletResponse response)
+                                     ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:343: error: cannot find symbol
+    private void handleResetPassword(HttpServletRequest request, HttpServletResponse response)
+                                                                 ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:344: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:393: error: cannot find symbol
+    private void loginSession(HttpServletRequest request, Reader reader) {
+                              ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:402: error: cannot find symbol
+    private void loginEmployeeSession(HttpServletRequest request, Employee employee) {
+                                      ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:437: error: cannot find symbol
+    private boolean isLoggedInAsReader(HttpServletRequest request) {
+                                       ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:441: error: cannot find symbol
+    private void forward(HttpServletRequest req, HttpServletResponse resp, String path)
+                         ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:441: error: cannot find symbol
+    private void forward(HttpServletRequest req, HttpServletResponse resp, String path)
+                                                 ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:442: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\controller\AuthController.java:446: error: cannot find symbol
+    private void setErrorAndForward(HttpServletRequest req, HttpServletResponse resp, String error, String path)
+                                    ^
+  symbol:   class HttpServletRequest
+  location: class AuthController
+src\java\controller\AuthController.java:446: error: cannot find symbol
+    private void setErrorAndForward(HttpServletRequest req, HttpServletResponse resp, String error, String path)
+                                                            ^
+  symbol:   class HttpServletResponse
+  location: class AuthController
+src\java\controller\AuthController.java:447: error: cannot find symbol
+            throws ServletException, IOException {
+                   ^
+  symbol:   class ServletException
+  location: class AuthController
+src\java\util\AuthUtil.java:3: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpServletRequest;
+                           ^
+src\java\util\AuthUtil.java:4: error: package jakarta.servlet.http does not exist
+import jakarta.servlet.http.HttpSession;
+                           ^
+100 errors
+only showing the first 100 errors, of 156 total; use -Xmaxerrs if you would like to see more

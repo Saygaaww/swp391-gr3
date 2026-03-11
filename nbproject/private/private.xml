@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/web.xml</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/authors/detail.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/dao/ReaderDAO.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/GoogleUtils.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/model/Category.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/AdminController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/BookController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/authors/list.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/css/style.css</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/BookFileController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/AuthController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/index.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/auth/login.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/model/Author.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/profile/edit-profile.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/dao/CategoryDAO.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/ProfileController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/dao/BookDAO.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/AuthorController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/books/detail.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/controller/CategoryController.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/model/Book.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/StringUtil.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/TestConnection.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/css/additional-styles.css</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/EmailUtil.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/PasswordUtil.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/css/author-category-styles.css</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/categories/list.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/util/DBUtil.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/profile/view-profile.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/src/java/dao/AuthorDAO.java</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/books/list.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/authors/form.jsp</file>
+            <file>file:/C:/Users/tenma/OneDrive/Documents/NetBeansProjects/Library/web/WEB-INF/jsp/profile/change-password.jsp</file>
+        </group>
+    </open-files>
+</project-private>
