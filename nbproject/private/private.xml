@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/AuthController.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/role-list.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/util/EmailUtil.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/dashboard.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminReaderListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/model/Reader.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/AuthorDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBookFormServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/ReaderDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBorrowDetailServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminEmployeeListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/model/Book.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/reader-form.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dao/BookmarkDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/PasswordResetDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/BookDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/employee-list.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/book-list.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/util/StringUtil.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBookListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBookDeleteServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBorrowApproveServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminReaderFormServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminRoleListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminBorrowListServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/BorrowDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/index.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/employees.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/borrow-list.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/book-detail.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/model/BorrowRequest.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/util/GoogleUtils.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/readers.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/OtpDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/borrow-detail.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/book-form.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/borrow-approve.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/reader-list.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/controller/admin/AdminEmployeeFormServlet.java</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/CategoryDAO.java</file>
+            <file>file:/E:/prj301/LibraryManagement/web/WEB-INF/jsp/admin/employee-form.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/web/includes/navbar.jsp</file>
+            <file>file:/E:/prj301/LibraryManagement/src/java/dal/DBContext.java</file>
+        </group>
+    </open-files>
+</project-private>

@@ -1,0 +1,25 @@
+# Java build
+*.class
+*.log
+*.tmp
+
+# Build folders
+build/
+dist/
+out/
+target/
+
+# temp folders
+tmp/
+tmp_*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java web
+*.war

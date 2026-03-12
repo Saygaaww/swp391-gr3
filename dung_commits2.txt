@@ -1,0 +1,11 @@
+﻿b04a8a0 Them noi dung va sua quan ly sach - by D┼⌐ng
+77bf2bd Cß║¡p nhß║¡t phß║ºn admin: th├¬m/sß╗¡a - by D┼⌐ng
+882eb89 M├┤ tß║ú ngß║»n gß╗ìn thay ─æß╗òi - by D┼⌐ng
+046f011 Add admin management modules and merge add/edit book form
+0ad17b1 Cß║¡p nhß║¡t lß║íi ph├ón trang - by D┼⌐ng
+5fb0ed5 Rollback to old working code
+ce8d8e8 Update code inter1
+d01b981 Merge real authentication from hoang-authentication branch, resolve conflicts by accepting theirs for NetBeans configs and context.xml, manual check web.xml
+facfb7e Login-logout
+7746a28 Inter1 progress: Add models (Book, Category, Employee, Author), BookDAO, AdminBookListServlet, MockLoginServlet, MockLogoutServlet, book-list.jsp with search/JOIN, mock-login.jsp
+40fad6f Add Author.java model class - by Dung
