@@ -1,56 +1,42 @@
 package model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
+/**
+ * Reader model - Tài khoản người đọc (Customer/Reader)
+ */
 public class Reader {
-    private int readerId;
+
+    private Integer readerId;
     private String fullName;
     private String email;
-    private String passwordHash;
     private String phone;
-    private String avatar;
-    private String status;        
-    private Timestamp createdAt;
-    private int roleId;             
-    
-   
-    private String roleName;   
-    
+    private String passwordHash;
+    private String avatarUrl;
+    private String status; // active, banned, unverified
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private int roleId;
+    private String roleName;
+
     public Reader() {
     }
-    
-    public Reader(int readerId, String fullName, String email, String passwordHash,
-                  String phone, String avatar, String status, 
-                  Timestamp createdAt, int roleId) {
-        this.readerId = readerId;
+
+    public Reader(String fullName, String email, String passwordHash) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.phone = phone;
-        this.avatar = avatar;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.roleId = roleId;
-    }
-    
-    // Constructor khong co ID (dung khi them moi)
-    public Reader(String fullName, String email, String passwordHash,
-                  String phone, String avatar, String status, int roleId) {
-        this.fullName = fullName;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.phone = phone;
-        this.avatar = avatar;
-        this.status = status;
-        this.roleId = roleId;
+        this.status = "active";
     }
 
-    // Getters va Setters
-    public int getReaderId() {
+    // ===================== Getters & Setters =====================
+
+    public Integer getReaderId() {
         return readerId;
     }
 
-    public void setReaderId(int readerId) {
+    public void setReaderId(Integer readerId) {
         this.readerId = readerId;
     }
 
@@ -70,14 +56,6 @@ public class Reader {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
     public String getPhone() {
         return phone;
     }
@@ -86,28 +64,29 @@ public class Reader {
         this.phone = phone;
     }
 
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    /** Alias for avatarUrl – used by ReaderDAO (column: avatar) */
     public String getAvatar() {
-        return avatar;
+        return avatarUrl;
     }
 
     public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+        this.avatarUrl = avatar;
     }
 
     public int getRoleId() {
@@ -126,16 +105,80 @@ public class Reader {
         this.roleName = roleName;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // ===================== Helper methods =====================
+
+    public boolean isActive() {
+        return "active".equals(this.status);
+    }
+
+    public boolean isBanned() {
+        return "banned".equals(this.status);
+    }
+
+    /** Trả về avatar URL hoặc URL ảnh mặc định */
+    public String getDisplayAvatar() {
+        return (avatarUrl != null && !avatarUrl.isBlank())
+                ? avatarUrl
+                : "https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(fullName != null ? fullName : "User",
+                        java.nio.charset.StandardCharsets.UTF_8) + "&background=6366f1&color=fff&size=128";
+    }
+
+    /** Lấy tên viết tắt (initials) để hiển thị avatar */
+    public String getInitials() {
+        if (fullName == null || fullName.isBlank())
+            return "?";
+        String[] parts = fullName.trim().split("\\s+");
+        if (parts.length == 1)
+            return parts[0].substring(0, 1).toUpperCase();
+        return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase();
+    }
+
+    public boolean hasPassword() {
+        return passwordHash != null && !passwordHash.isBlank();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Reader reader = (Reader) o;
+        return Objects.equals(readerId, reader.readerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(readerId);
+    }
+
     @Override
     public String toString() {
-        return "Reader{" +
-                "readerId=" + readerId +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", status='" + status + '\'' +
-                ", roleId=" + roleId +
-                ", roleName='" + roleName + '\'' +
-                '}';
+        return "Reader{readerId=" + readerId + ", fullName='" + fullName + "', email='" + email + "', status='" + status
+                + "'}";
     }
 }

@@ -31,8 +31,8 @@ public class AdminReaderFormServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
@@ -60,8 +60,8 @@ public class AdminReaderFormServlet extends HttpServlet {
                 request.setAttribute("reader", new Reader());
             }
 
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
-            request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
+            request.setAttribute("currentEmployee", session.getAttribute("user"));
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/readers");
@@ -76,8 +76,8 @@ public class AdminReaderFormServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
@@ -214,7 +214,7 @@ public class AdminReaderFormServlet extends HttpServlet {
             request.setAttribute("mode", "add");
             request.setAttribute("reader", new Reader());
             request.setAttribute("currentEmployee", request.getSession().getAttribute("employee"));
-            request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
         }
     }
 
@@ -243,6 +243,6 @@ public class AdminReaderFormServlet extends HttpServlet {
 
         request.setAttribute("reader", reader);
         request.setAttribute("currentEmployee", request.getSession().getAttribute("employee"));
-        request.getRequestDispatcher("/admin/reader-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
     }
 }

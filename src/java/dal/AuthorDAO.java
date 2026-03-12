@@ -9,7 +9,7 @@ public class AuthorDAO extends DBContext {
     
     public List<Author> getAllAuthors() {
         List<Author> authors = new ArrayList<>();
-        String sql = "SELECT * FROM Author ORDER BY author_name";
+        String sql = "SELECT * FROM Author ORDER BY AuthorName";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -17,8 +17,8 @@ public class AuthorDAO extends DBContext {
             
             while (rs.next()) {
                 Author author = new Author();
-                author.setAuthorId(rs.getInt("author_id"));
-                author.setAuthorName(rs.getString("author_name"));
+                author.setAuthorId(rs.getInt("AuthorID"));
+                author.setAuthorName(rs.getString("AuthorName"));
                 author.setBio(rs.getString("bio"));
                 authors.add(author);
             }
@@ -32,7 +32,7 @@ public class AuthorDAO extends DBContext {
     }
     
     public Author getAuthorById(int authorId) {
-        String sql = "SELECT * FROM Author WHERE author_id = ?";
+        String sql = "SELECT * FROM Author WHERE AuthorID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,8 +42,8 @@ public class AuthorDAO extends DBContext {
             
             if (rs.next()) {
                 Author author = new Author();
-                author.setAuthorId(rs.getInt("author_id"));
-                author.setAuthorName(rs.getString("author_name"));
+                author.setAuthorId(rs.getInt("AuthorID"));
+                author.setAuthorName(rs.getString("AuthorName"));
                 author.setBio(rs.getString("bio"));
                 return author;
             }
@@ -57,7 +57,7 @@ public class AuthorDAO extends DBContext {
     }
     
     public boolean addAuthor(Author author) {
-        String sql = "INSERT INTO Author (author_name, bio) VALUES (?, ?)";
+        String sql = "INSERT INTO Author (AuthorName, bio) VALUES (?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

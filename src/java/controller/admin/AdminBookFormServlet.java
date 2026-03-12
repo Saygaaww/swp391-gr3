@@ -51,8 +51,8 @@ public class AdminBookFormServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
@@ -64,12 +64,12 @@ public class AdminBookFormServlet extends HttpServlet {
             if (idStr != null && !idStr.trim().isEmpty()) {
                 int bookId = Integer.parseInt(idStr);
                 if (bookId <= 0 || bookId > 999999999) {
-                    response.sendRedirect(request.getContextPath() + "/books-list");
+                    response.sendRedirect(request.getContextPath() + "/admin/book-list");
                     return;
                 }
                 book = bookDAO.getBookById(bookId);
                 if (book == null) {
-                    response.sendRedirect(request.getContextPath() + "/books-list");
+                    response.sendRedirect(request.getContextPath() + "/admin/book-list");
                     return;
                 }
                 mode = "edit";
@@ -81,14 +81,14 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("mode", mode);
             request.setAttribute("authors", authorDAO.getAllAuthors());
             request.setAttribute("categories", categoryDAO.getAllCategories());
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
-            request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
+            request.setAttribute("currentEmployee", session.getAttribute("user"));
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
         }
     }
 
@@ -97,15 +97,15 @@ public class AdminBookFormServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
         request.setCharacterEncoding("UTF-8");
 
         try {
-            Employee employee = (Employee) session.getAttribute("employee");
+            Employee employee = (Employee) session.getAttribute("user");
 
             BigDecimal maxPriceAllowed = bookDAO.getMaxPrice().multiply(new BigDecimal("1.2"));
             int maxPagesAllowed = (int) (bookDAO.getMaxTotalPages() * 1.2);
@@ -219,7 +219,7 @@ public class AdminBookFormServlet extends HttpServlet {
             }
 
             if (success) {
-                response.sendRedirect(request.getContextPath() + "/books-list");
+                response.sendRedirect(request.getContextPath() + "/admin/book-list");
             } else {
                 request.setAttribute("error", "Khong the luu sach!");
                 reloadFormWithError(request, response, isEdit, bookIdStr);
@@ -232,7 +232,7 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("book", new Book());
             request.setAttribute("authors", authorDAO.getAllAuthors());
             request.setAttribute("categories", categoryDAO.getAllCategories());
-            request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
         }
     }
 
@@ -307,6 +307,6 @@ public class AdminBookFormServlet extends HttpServlet {
         }
         request.setAttribute("authors", authorDAO.getAllAuthors());
         request.setAttribute("categories", categoryDAO.getAllCategories());
-        request.getRequestDispatcher("/admin/book-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
     }
 }

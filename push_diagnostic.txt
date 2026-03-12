@@ -1,0 +1,173 @@
+﻿git : remote: 
+error: GH013: 
+Repository rule 
+violations found 
+for refs/heads/vu-me
+rge.        
+At line:1 char:1
++ git push origin 
+vu-merge 2>&1 | 
+Out-File 
+push_diagnostic.txt 
+-Encodin ...
++ ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo  
+            : NotS  
+  pecified: (remo   
+ te: error: ...-    
+merge.        :    
+String) [], Rem    
+oteException
+    + FullyQualifie 
+   dErrorId : Nati  
+  veCommandError
+ 
+remote: 
+remote: - GITHUB 
+PUSH PROTECTION     
+   
+remote:   ΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇö       
+ 
+remote:     Resolve 
+the following 
+violations before 
+pushing again       
+ 
+remote: 
+remote:     - Push 
+cannot contain 
+secrets        
+remote: 
+remote:             
+remote:      (?) 
+Learn how to 
+resolve a blocked 
+push        
+remote:      https:/
+/docs.github.com/cod
+e-security/secret-sc
+anning/working-with-
+secret-scanning-and-
+push-protection/work
+ing-with-push-protec
+tion-from-the-comman
+d-line#resolving-a-b
+locked-push        
+remote:             
+remote:             
+remote:       
+ΓÇöΓÇö Google OAuth 
+Client Secret ΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇö        
+remote:        
+locations:        
+remote:          - 
+commit: 7bcb53bd0aaf
+d5bd53a4854aefcf604a
+03621837        
+remote:            
+path: build/web/WEB-
+INF/classes/util/Goo
+gleUtils.class:27   
+     
+remote:          - 
+commit: 7bcb53bd0aaf
+d5bd53a4854aefcf604a
+03621837        
+remote:            
+path: build/web/WEB-
+INF/classes/util/Goo
+gleUtils.class:30   
+     
+remote:          - 
+commit: 7bcb53bd0aaf
+d5bd53a4854aefcf604a
+03621837        
+remote:            
+path: src/java/util/
+GoogleUtils.java:21 
+       
+remote:             
+remote:        (?) 
+To push, remove 
+secret from 
+commit(s) or follow 
+this URL to allow 
+the secret.        
+remote:        https
+://github.com/Saygaa
+ww/swp391-gr3/securi
+ty/secret-scanning/u
+nblock-secret/3AoHxV
+ETejJaVHvDDrc3690wvR
+g        
+remote:             
+remote:             
+remote:       
+ΓÇöΓÇö Google OAuth 
+Client ID ΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇö
+ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇö      
+  
+remote:        
+locations:        
+remote:          - 
+commit: 7bcb53bd0aaf
+d5bd53a4854aefcf604a
+03621837        
+remote:            
+path: build/web/WEB-
+INF/classes/util/Goo
+gleUtils.class:30   
+     
+remote:          - 
+commit: 7bcb53bd0aaf
+d5bd53a4854aefcf604a
+03621837        
+remote:            
+path: src/java/util/
+GoogleUtils.java:20 
+       
+remote:             
+remote:        (?) 
+To push, remove 
+secret from 
+commit(s) or follow 
+this URL to allow 
+the secret.        
+remote:        https
+://github.com/Saygaa
+ww/swp391-gr3/securi
+ty/secret-scanning/u
+nblock-secret/3AoHxa
+2w21WC33oNYFU451u5si
+M        
+remote:             
+remote: 
+remote: 
+To https://github.co
+m/Saygaaww/swp391-gr
+3.git
+ ! [remote 
+rejected] vu-merge 
+-> vu-merge (push 
+declined due to 
+repository rule 
+violations)
+error: failed to 
+push some refs to 'h
+ttps://github.com/Sa
+ygaaww/swp391-gr3.gi
+t'

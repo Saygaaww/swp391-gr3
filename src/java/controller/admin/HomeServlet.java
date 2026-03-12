@@ -59,7 +59,7 @@ public class HomeServlet extends HttpServlet {
             // Kiểm tra đăng nhập — Employee hoặc Reader
             HttpSession session = request.getSession(false);
             if (session != null) {
-                Employee emp = (Employee) session.getAttribute("employee");
+                Employee emp = (Employee) session.getAttribute("user");
                 if (emp != null) {
                     request.setAttribute("currentEmployee", emp);
                 } else {
@@ -78,6 +78,6 @@ public class HomeServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        request.getRequestDispatcher("/home.jsp").forward(request, response);
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 }

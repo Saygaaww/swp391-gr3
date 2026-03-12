@@ -1,37 +1,40 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Model class đại diện cho tác giả
- * Mapping với bảng Author trong database
+ * Author Model - Simplified version without JPA
+ * @author FPT Student Team
  */
 public class Author {
-    private int authorId;
-    private String authorName;
-    private String bio; // Đổi từ biography → bio
     
-    // Constructor rỗng
+    private Integer authorId;
+    private String authorName;
+    private String bio;
+    
+    // Related books (will be set by DAO if needed)
+    private List<Book> books = new ArrayList<>();
+    
+    // Constructors
     public Author() {
     }
     
-    // Constructor đầy đủ
-    public Author(int authorId, String authorName, String bio) {
-        this.authorId = authorId;
+    public Author(String authorName) {
         this.authorName = authorName;
-        this.bio = bio;
     }
     
-    // Constructor không có ID (dùng khi thêm mới)
     public Author(String authorName, String bio) {
         this.authorName = authorName;
         this.bio = bio;
     }
     
-    // Getters và Setters
-    public int getAuthorId() {
+    // Getters and Setters
+    public Integer getAuthorId() {
         return authorId;
     }
     
-    public void setAuthorId(int authorId) {
+    public void setAuthorId(Integer authorId) {
         this.authorId = authorId;
     }
     
@@ -51,12 +54,48 @@ public class Author {
         this.bio = bio;
     }
     
+    public List<Book> getBooks() {
+        return books;
+    }
+    
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+    
+    // Business Methods
+    public void addBook(Book book) {
+        books.add(book);
+        book.setAuthor(this);
+    }
+    
+    public void removeBook(Book book) {
+        books.remove(book);
+        book.setAuthor(null);
+    }
+    
+    public int getBookCount() {
+        return books != null ? books.size() : 0;
+    }
+    
     @Override
     public String toString() {
         return "Author{" +
                 "authorId=" + authorId +
                 ", authorName='" + authorName + '\'' +
-                ", bio='" + bio + '\'' +
+                ", bookCount=" + getBookCount() +
                 '}';
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Author)) return false;
+        Author author = (Author) o;
+        return authorId != null && authorId.equals(author.authorId);
+    }
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

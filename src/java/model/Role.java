@@ -1,38 +1,25 @@
 package model;
 
-/**
- * Model class đại diện cho vai trò (Role)
- * Mapping với bảng Role trong database
- * 
- * @author Member E - Dũng
- * @version Inter 2
- */
 public class Role {
     private int roleId;
-    private String roleName;        // ADMIN, LIBRARIAN, SELLER
+    private String roleName;
     private String description;
-    
-    // Transient field (không lưu trong DB, dùng để hiển thị)
     private int employeeCount;
-    
-    // Constructor rỗng
+
     public Role() {
     }
-    
-    // Constructor đầy đủ
-    public Role(int roleId, String roleName, String description) {
+
+    public Role(int roleId, String roleName) {
         this.roleId = roleId;
         this.roleName = roleName;
-        this.description = description;
     }
-    
-    // Constructor không có ID (dùng khi thêm mới)
+
+    /** Constructor used by AdminRoleListServlet: Role(roleName, description) */
     public Role(String roleName, String description) {
         this.roleName = roleName;
         this.description = description;
     }
 
-    // Getters và Setters
     public int getRoleId() {
         return roleId;
     }
@@ -56,21 +43,12 @@ public class Role {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public int getEmployeeCount() {
         return employeeCount;
     }
-    
+
     public void setEmployeeCount(int employeeCount) {
         this.employeeCount = employeeCount;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "roleId=" + roleId +
-                ", roleName='" + roleName + '\'' +
-                ", description='" + description + '\'' +
-                '}';
     }
 }

@@ -40,18 +40,18 @@ public class AdminBookDetailServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
-        Employee currentEmployee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("user");
 
         String idStr = request.getParameter("id");
 
         // Validate ID
         if (idStr == null || idStr.trim().isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
             return;
         }
 
@@ -59,7 +59,7 @@ public class AdminBookDetailServlet extends HttpServlet {
             int bookId = Integer.parseInt(idStr.trim());
 
             if (bookId <= 0 || bookId > 999999999) {
-                response.sendRedirect(request.getContextPath() + "/books-list");
+                response.sendRedirect(request.getContextPath() + "/admin/book-list");
                 return;
             }
 
@@ -68,7 +68,7 @@ public class AdminBookDetailServlet extends HttpServlet {
             if (book == null) {
                 request.setAttribute("errorMessage", "Khong tim thay sach ID: " + bookId);
                 request.setAttribute("currentEmployee", currentEmployee);
-                request.getRequestDispatcher("/admin/book-detail.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/jsp/admin/book-detail.jsp").forward(request, response);
                 return;
             }
 
@@ -105,15 +105,15 @@ public class AdminBookDetailServlet extends HttpServlet {
             request.setAttribute("statusColor", statusColor);
             request.setAttribute("currentEmployee", currentEmployee);
 
-            request.getRequestDispatcher("/admin/book-detail.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-detail.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             System.err.println("Invalid book ID format: " + idStr);
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
         } catch (Exception e) {
             System.err.println("AdminBookDetailServlet Error: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
         }
     }
 }

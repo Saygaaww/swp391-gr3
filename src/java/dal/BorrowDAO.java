@@ -14,9 +14,10 @@ public class BorrowDAO extends DBContext {
     public int getActiveBorrowsCount() {
         String sql = "SELECT COUNT(*) FROM Borrow WHERE status = 'active'";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next())
+                return rs.getInt(1);
         } catch (Exception e) {
             System.err.println("getActiveBorrowsCount Error: " + e.getMessage());
         }
@@ -41,12 +42,12 @@ public class BorrowDAO extends DBContext {
     // Xu ly yeu cau (duyet hoac tu choi)
     private boolean processRequest(int requestId, String newStatus, int employeeId, String note) {
         String sql = "UPDATE Borrow_Request SET status = ?, " +
-                     "processed_by_employee_id = ?, " +
-                     "processed_at = SYSUTCDATETIME(), " +
-                     "decision_note = ? " +
-                     "WHERE request_id = ?";
+                "processed_by_employee_id = ?, " +
+                "processed_at = SYSUTCDATETIME(), " +
+                "decision_note = ? " +
+                "WHERE request_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newStatus);
             ps.setInt(2, employeeId);
             ps.setString(3, note);
@@ -62,19 +63,21 @@ public class BorrowDAO extends DBContext {
     // Lay chi tiet 1 yeu cau theo ID
     public BorrowRequest getRequestById(int requestId) {
         String sql = "SELECT br.*, r.full_name AS reader_name, r.email, r.phone, " +
-                     "e.full_name AS employee_name " +
-                     "FROM Borrow_Request br " +
-                     "JOIN Reader r ON br.reader_id = r.reader_id " +
-                     "LEFT JOIN Employee e ON br.processed_by_employee_id = e.employee_id " +
-                     "WHERE br.request_id = ?";
+                "e.full_name AS employee_name " +
+                "FROM Borrow_Request br " +
+                "JOIN Reader r ON br.reader_id = r.reader_id " +
+                "LEFT JOIN Employee e ON br.processed_by_employee_id = e.employee_id " +
+                "WHERE br.request_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, requestId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     BorrowRequest req = mapResultSet(rs);
-                    try { req.setReaderPhone(rs.getString("phone")); }
-                    catch (SQLException e) { }
+                    try {
+                        req.setReaderPhone(rs.getString("phone"));
+                    } catch (SQLException e) {
+                    }
                     return req;
                 }
             }
@@ -87,7 +90,7 @@ public class BorrowDAO extends DBContext {
 
     // Lay danh sach yeu cau co loc + phan trang
     public List<BorrowRequest> getRequestsFiltered(String keyword, String status,
-                                                     int page, int pageSize) {
+            int page, int pageSize) {
         List<BorrowRequest> requests = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
@@ -109,7 +112,7 @@ public class BorrowDAO extends DBContext {
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int idx = 1;
             if (keyword != null && !keyword.isEmpty()) {
@@ -117,7 +120,8 @@ public class BorrowDAO extends DBContext {
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
             }
-            if (status != null && !status.isEmpty()) ps.setString(idx++, status);
+            if (status != null && !status.isEmpty())
+                ps.setString(idx++, status);
 
             int offset = (page - 1) * pageSize;
             ps.setInt(idx++, offset);
@@ -151,7 +155,7 @@ public class BorrowDAO extends DBContext {
         }
 
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int idx = 1;
             if (keyword != null && !keyword.isEmpty()) {
@@ -159,10 +163,12 @@ public class BorrowDAO extends DBContext {
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
             }
-            if (status != null && !status.isEmpty()) ps.setString(idx++, status);
+            if (status != null && !status.isEmpty())
+                ps.setString(idx++, status);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next())
+                    return rs.getInt(1);
             }
         } catch (Exception e) {
             System.err.println("countRequestsFiltered Error: " + e.getMessage());
@@ -174,10 +180,11 @@ public class BorrowDAO extends DBContext {
     public int countByStatus(String status) {
         String sql = "SELECT COUNT(*) FROM Borrow_Request WHERE status = ?";
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next())
+                    return rs.getInt(1);
             }
         } catch (Exception e) {
             System.err.println("countByStatus Error: " + e.getMessage());
@@ -191,18 +198,23 @@ public class BorrowDAO extends DBContext {
         req.setRequestId(rs.getInt("request_id"));
         req.setReaderId(rs.getInt("reader_id"));
         req.setStatus(rs.getString("status"));
-        req.setRequestedAt(rs.getTimestamp("requested_at"));
+        req.setRequestedAt(
+                rs.getTimestamp("requested_at") != null ? rs.getTimestamp("requested_at").toLocalDateTime() : null);
         req.setNote(rs.getString("note"));
         req.setDecisionNote(rs.getString("decision_note"));
         req.setReaderName(rs.getString("reader_name"));
         req.setReaderEmail(rs.getString("email"));
 
         int processedBy = rs.getInt("processed_by_employee_id");
-        if (!rs.wasNull()) req.setProcessedByEmployeeId(processedBy);
-        req.setProcessedAt(rs.getTimestamp("processed_at"));
+        if (!rs.wasNull())
+            req.setProcessedByEmployeeId(processedBy);
+        req.setProcessedAt(
+                rs.getTimestamp("processed_at") != null ? rs.getTimestamp("processed_at").toLocalDateTime() : null);
 
-        try { req.setEmployeeName(rs.getString("employee_name")); }
-        catch (SQLException e) { }
+        try {
+            req.setEmployeeName(rs.getString("employee_name"));
+        } catch (SQLException e) {
+        }
 
         return req;
     }

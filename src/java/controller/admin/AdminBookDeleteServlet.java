@@ -25,21 +25,21 @@ public class AdminBookDeleteServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
         try {
             String idStr = request.getParameter("id");
             if (idStr == null || idStr.trim().isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/books-list");
+                response.sendRedirect(request.getContextPath() + "/admin/book-list");
                 return;
             }
 
             int bookId = Integer.parseInt(idStr.trim());
             if (bookId <= 0 || bookId > 999999999) {
-                response.sendRedirect(request.getContextPath() + "/books-list");
+                response.sendRedirect(request.getContextPath() + "/admin/book-list");
                 return;
             }
 
@@ -49,11 +49,11 @@ public class AdminBookDeleteServlet extends HttpServlet {
                 bookDAO.deleteBook(bookId);
             }
 
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/books-list");
+            response.sendRedirect(request.getContextPath() + "/admin/book-list");
         }
     }
 

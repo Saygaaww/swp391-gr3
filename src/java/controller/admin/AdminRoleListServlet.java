@@ -30,12 +30,12 @@ public class AdminRoleListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
-        Employee currentEmployee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("user");
         if (!"ADMIN".equalsIgnoreCase(currentEmployee.getRoleName())) {
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
@@ -49,12 +49,12 @@ public class AdminRoleListServlet extends HttpServlet {
 
             request.setAttribute("roleList", roleList);
             request.setAttribute("currentEmployee", currentEmployee);
-            request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/role-list.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi: " + e.getMessage());
-            request.getRequestDispatcher("/admin/role-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/role-list.jsp").forward(request, response);
         }
     }
 
@@ -63,12 +63,12 @@ public class AdminRoleListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
-        Employee currentEmployee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("user");
         if (!"ADMIN".equalsIgnoreCase(currentEmployee.getRoleName())) {
             response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;

@@ -28,8 +28,8 @@ public class AdminBorrowListServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
@@ -105,10 +105,10 @@ public class AdminBorrowListServlet extends HttpServlet {
             request.setAttribute("countPending", countPending);
             request.setAttribute("countApproved", countApproved);
             request.setAttribute("countRejected", countRejected);
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
+            request.setAttribute("currentEmployee", session.getAttribute("user"));
             request.setAttribute("pageSize", showAll ? "all" : String.valueOf(pageSize));
             
-            request.getRequestDispatcher("/admin/borrow-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-list.jsp").forward(request, response);
             
         } catch (Exception e) {
             System.err.println("AdminBorrowListServlet Error: " + e.getMessage());

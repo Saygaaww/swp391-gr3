@@ -26,8 +26,8 @@ public class AdminBorrowDetailServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
@@ -51,14 +51,14 @@ public class AdminBorrowDetailServlet extends HttpServlet {
             
             if (borrowRequest == null) {
                 request.setAttribute("errorMessage", "Khong tim thay yeu cau ID: " + requestId);
-                request.setAttribute("currentEmployee", session.getAttribute("employee"));
-                request.getRequestDispatcher("/admin/borrow-detail.jsp").forward(request, response);
+                request.setAttribute("currentEmployee", session.getAttribute("user"));
+                request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-detail.jsp").forward(request, response);
                 return;
             }
             
             request.setAttribute("borrowRequest", borrowRequest);
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
-            request.getRequestDispatcher("/admin/borrow-detail.jsp").forward(request, response);
+            request.setAttribute("currentEmployee", session.getAttribute("user"));
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-detail.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/borrow-list");
@@ -74,15 +74,15 @@ public class AdminBorrowDetailServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
         request.setCharacterEncoding("UTF-8");
         
         try {
-            Employee employee = (Employee) session.getAttribute("employee");
+            Employee employee = (Employee) session.getAttribute("user");
             
             String requestIdStr = request.getParameter("requestId");
             String action = request.getParameter("action");

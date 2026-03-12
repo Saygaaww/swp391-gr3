@@ -9,7 +9,7 @@ public class CategoryDAO extends DBContext {
     
     public List<Category> getAllCategories() {
         List<Category> categories = new ArrayList<>();
-        String sql = "SELECT * FROM Category ORDER BY category_name";
+        String sql = "SELECT * FROM Category ORDER BY CategoryName";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -17,9 +17,9 @@ public class CategoryDAO extends DBContext {
             
             while (rs.next()) {
                 Category category = new Category();
-                category.setCategoryId(rs.getInt("category_id"));
-                category.setCategoryName(rs.getString("category_name"));
-                category.setDescription(rs.getString("description"));
+                category.setCategoryId(rs.getInt("CategoryID"));
+                category.setCategoryName(rs.getString("CategoryName"));
+                category.setDescription(rs.getString("Description"));
                 categories.add(category);
             }
             
@@ -32,7 +32,7 @@ public class CategoryDAO extends DBContext {
     }
     
     public Category getCategoryById(int categoryId) {
-        String sql = "SELECT * FROM Category WHERE category_id = ?";
+        String sql = "SELECT * FROM Category WHERE CategoryID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -42,9 +42,9 @@ public class CategoryDAO extends DBContext {
             
             if (rs.next()) {
                 Category category = new Category();
-                category.setCategoryId(rs.getInt("category_id"));
-                category.setCategoryName(rs.getString("category_name"));
-                category.setDescription(rs.getString("description"));
+                category.setCategoryId(rs.getInt("CategoryID"));
+                category.setCategoryName(rs.getString("CategoryName"));
+                category.setDescription(rs.getString("Description"));
                 return category;
             }
             
@@ -57,7 +57,7 @@ public class CategoryDAO extends DBContext {
     }
     
     public boolean addCategory(Category category) {
-        String sql = "INSERT INTO Category (category_name, description) VALUES (?, ?)";
+        String sql = "INSERT INTO Category (CategoryName, Description) VALUES (?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

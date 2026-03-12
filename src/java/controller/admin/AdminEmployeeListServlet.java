@@ -34,12 +34,12 @@ public class AdminEmployeeListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
-        Employee currentEmployee = (Employee) session.getAttribute("employee");
+        Employee currentEmployee = (Employee) session.getAttribute("user");
         request.setCharacterEncoding("UTF-8");
 
         // Xu ly block/unblock qua POST (redirect tu doPost)
@@ -59,14 +59,16 @@ public class AdminEmployeeListServlet extends HttpServlet {
                     } else if ("block".equals(action)) {
                         boolean success = employeeDAO.updateEmployeeStatus(empId, "blocked");
                         if (success) {
-                            session.setAttribute("successMessage", "Da khoa nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
+                            session.setAttribute("successMessage",
+                                    "Da khoa nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
                         } else {
                             session.setAttribute("errorMessage", "Khoa nhan vien that bai!");
                         }
                     } else if ("unblock".equals(action)) {
                         boolean success = employeeDAO.updateEmployeeStatus(empId, "active");
                         if (success) {
-                            session.setAttribute("successMessage", "Da mo khoa nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
+                            session.setAttribute("successMessage",
+                                    "Da mo khoa nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
                         } else {
                             session.setAttribute("errorMessage", "Mo khoa nhan vien that bai!");
                         }
@@ -105,14 +107,17 @@ public class AdminEmployeeListServlet extends HttpServlet {
             if (pageStr != null && !pageStr.trim().isEmpty()) {
                 try {
                     currentPage = Math.max(1, Integer.parseInt(pageStr));
-                } catch (NumberFormatException e) { currentPage = 1; }
+                } catch (NumberFormatException e) {
+                    currentPage = 1;
+                }
             }
 
             // Keyword
             String keyword = request.getParameter("keyword");
             if (keyword != null) {
                 keyword = keyword.trim().replaceAll("\\s+", " ");
-                if (keyword.isEmpty()) keyword = null;
+                if (keyword.isEmpty())
+                    keyword = null;
             }
 
             // Role filter
@@ -135,7 +140,8 @@ public class AdminEmployeeListServlet extends HttpServlet {
             // Query voi filter
             int totalEmployees = employeeDAO.countEmployeesFiltered(keyword, filterRoleId, filterStatus);
             int totalPages = Math.max(1, (int) Math.ceil((double) totalEmployees / pageSize));
-            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage > totalPages)
+                currentPage = totalPages;
 
             List<Employee> employeeList = employeeDAO.getEmployeesFiltered(
                     keyword, filterRoleId, filterStatus, currentPage, pageSize);
@@ -173,12 +179,12 @@ public class AdminEmployeeListServlet extends HttpServlet {
                 session.removeAttribute("errorMessage");
             }
 
-            request.getRequestDispatcher("/admin/employee-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/employees.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi: " + e.getMessage());
-            request.getRequestDispatcher("/admin/employee-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/employees.jsp").forward(request, response);
         }
     }
 
@@ -187,8 +193,8 @@ public class AdminEmployeeListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
 
@@ -199,7 +205,7 @@ public class AdminEmployeeListServlet extends HttpServlet {
         String idStr = request.getParameter("id");
 
         if (action != null && idStr != null) {
-            Employee currentEmployee = (Employee) session.getAttribute("employee");
+            Employee currentEmployee = (Employee) session.getAttribute("user");
             try {
                 int empId = Integer.parseInt(idStr.trim());
 
@@ -252,7 +258,8 @@ public class AdminEmployeeListServlet extends HttpServlet {
         if (keyword != null && !keyword.trim().isEmpty()) {
             try {
                 redirectUrl += "?keyword=" + URLEncoder.encode(keyword.trim(), "UTF-8");
-            } catch (UnsupportedEncodingException e) { }
+            } catch (UnsupportedEncodingException e) {
+            }
         }
 
         response.sendRedirect(redirectUrl);

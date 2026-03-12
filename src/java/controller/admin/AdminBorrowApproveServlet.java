@@ -28,8 +28,8 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
@@ -38,11 +38,11 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             
             request.setAttribute("pendingRequests", pendingRequests);
             request.setAttribute("totalRequests", pendingRequests.size());
-            request.setAttribute("currentEmployee", session.getAttribute("employee"));
+            request.setAttribute("currentEmployee", session.getAttribute("user"));
             
             System.out.println("Co " + pendingRequests.size() + " yeu cau muon cho duyet");
             
-            request.getRequestDispatcher("/admin/borrow-approve.jsp")
+            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-approve.jsp")
                    .forward(request, response);
                    
         } catch (Exception e) {
@@ -57,15 +57,15 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("employee") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+        if (session == null || session.getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
         
         request.setCharacterEncoding("UTF-8");
         
         try {
-            Employee employee = (Employee) session.getAttribute("employee");
+            Employee employee = (Employee) session.getAttribute("user");
             
             String requestIdStr = request.getParameter("requestId");
             String action = request.getParameter("action");
