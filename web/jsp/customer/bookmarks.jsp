@@ -121,7 +121,7 @@
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
-                                <a href="<%= ctx %>/customer/home" class="btn btn-card mt-3">← Trang chủ</a>
+                                <a href="<%= ctx %>/books" class="btn btn-card mt-3">← Trang chủ</a>
                             </div>
                         </div>
                         <%@include file="/includes/footer.jsp" %>

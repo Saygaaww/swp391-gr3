@@ -744,7 +744,7 @@ public class CustomerController extends HttpServlet {
         int requestId = borrowDAO.createBorrowRequest(readerId, note, items);
         if (requestId > 0) {
             request.getSession().setAttribute("successMessage", "Đã gửi yêu cầu mượn. Mã yêu cầu: #" + requestId);
-            response.sendRedirect(request.getContextPath() + "/customer/borrow-requests");
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-request-status");
         } else {
             request.getSession().setAttribute("errorMessage", "Không thể tạo yêu cầu mượn. Vui lòng thử lại.");
             response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);

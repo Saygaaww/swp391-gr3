@@ -288,6 +288,9 @@
                                 <a href="${pageContext.request.contextPath}/customer/my-library">
                                     <i class="fas fa-book-open"></i> Thư viện của tôi 
                                 </a>
+                                <a href="${pageContext.request.contextPath}/customer/bookmarks">
+                                    <i class="fas fa-bookmark"></i> Dấu trang
+                                </a>
                                 <a href="${pageContext.request.contextPath}/customer/fines">
                                     <i class="fas fa-check-circle"></i> Phạt
                                 </a>
@@ -297,7 +300,7 @@
                                     <i class="fas fa-tachometer-alt"></i> Quản trị
                                 </a>
                             </c:if>
-                                <c:if test="${sessionScope.userRole == 'Seller'}">
+                            <c:if test="${sessionScope.userRole == 'Seller'}">
                                 <a href="${pageContext.request.contextPath}/books/dashboard">
                                     <i class="fas fa-tachometer-alt"></i> Bảng Thống Kê
                                 </a>
@@ -337,9 +340,9 @@
             <a href="${pageContext.request.contextPath}/customer/reading-history" class="menu-item">
                 <i class="fas fa-history"></i> Lịch sử
             </a>
-            <a href="${pageContext.request.contextPath}/customer/borrow-request" class="menu-item">
+<!--            <a href="${pageContext.request.contextPath}/customer/borrow-request" class="menu-item">
                 <i class="fas fa-book-reader"></i> Yêu cầu mượn sách
-            </a>
+            </a>-->
             <a href="${pageContext.request.contextPath}/customer/borrow-request-status" class="menu-item">
                 <i class="fas fa-clipboard-check"></i> Trạng thái yêu cầu mượn
             </a>

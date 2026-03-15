@@ -77,7 +77,7 @@
                                 Gửi yêu cầu mượn
                             </button>
                             <a class="btn btn-outline-dark" href="<%=ctx%>/books">Chọn sách khác</a>
-                            <a class="btn btn-outline-secondary" href="<%=ctx%>/customer/borrow-requests">Xem trạng thái yêu cầu</a>
+                            <a class="btn btn-outline-secondary" href="<%=ctx%>/customer/borrow-request-status">Xem trạng thái yêu cầu</a>
                         </div>
                     </div>
                 </form>

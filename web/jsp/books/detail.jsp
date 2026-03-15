@@ -414,7 +414,7 @@
                                     <input type="hidden" name="action" value="create" />
                                     <input type="hidden" name="bookId" value="${book.bookId}" />
                                     <button type="submit" class="bd-btn bd-btn-outline">
-                                        <i class="fas fa-clock-rotate-left"></i> Đặt chỗ
+                                        <i class="fas fa-clock-rotate-left"></i> Đặt sách
                                     </button>
                                 </form>
                             </c:when>

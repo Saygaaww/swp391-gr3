@@ -635,32 +635,6 @@
                                                                 </button>
                                                             </form>
 
-                                                            <c:choose>
-                                                                <c:when test="${not empty sessionScope.user and sessionScope.userRole == 'Reader'}">
-                                                                    <a href="${pageContext.request.contextPath}/customer/borrow-request?bookId=${book.bookId}"
-                                                                       class="btn btn-primary btn-sm"
-                                                                       title="Gửi yêu cầu mượn">
-                                                                        <i class="fas fa-hand-holding"></i> Mượn
-                                                                    </a>
-                                                                    <form action="${pageContext.request.contextPath}/customer/reservations"
-                                                                          method="post" style="display:inline;">
-                                                                        <input type="hidden" name="action" value="create" />
-                                                                        <input type="hidden" name="bookId" value="${book.bookId}" />
-                                                                        <button type="submit"
-                                                                                class="btn btn-outline-secondary btn-sm"
-                                                                                title="Đặt sách khi hết bản">
-                                                                            <i class="fas fa-clock-rotate-left"></i> Đặt sách
-                                                                        </button>
-                                                                    </form>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <a href="${pageContext.request.contextPath}/auth/login"
-                                                                       class="btn btn-primary btn-sm"
-                                                                       title="Đăng nhập để mượn">
-                                                                        <i class="fas fa-hand-holding"></i> Mượn
-                                                                    </a>
-                                                                </c:otherwise>
-                                                            </c:choose>
 
                                                             <c:choose>
                                                                 <c:when test="${empty book.price or book.price == 0}">

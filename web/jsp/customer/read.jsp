@@ -38,6 +38,13 @@
         <h2 class="fw-bold mb-2">${book.bookTitle}</h2>
         <p class="text-muted small mb-4">${book.authorName}</p>
 
+        <c:if test="${param.saved == '1'}">
+            <div class="alert alert-success py-2">Đã lưu tiến độ đọc.</div>
+        </c:if>
+        <c:if test="${param.error == 'save_failed'}">
+            <div class="alert alert-danger py-2">Không lưu được tiến độ. Kiểm tra sách có trong My Library và thử lại. Nếu vẫn lỗi, xem log server.</div>
+        </c:if>
+
         <c:set var="contentUrl" value="${book.contentPath}"/>
         <c:if test="${contentUrl != null && !contentUrl.isEmpty() && !fn:startsWith(contentUrl, 'http://') && !fn:startsWith(contentUrl, 'https://')}">
             <c:set var="contentUrl" value="${pageContext.request.contextPath}/jsp/${book.contentPath}"/>
@@ -47,26 +54,48 @@
             <c:set var="contentUrl" value="${fn:replace(contentUrl, ' ', '%20')}"/>
         </c:if>
         <c:if test="${book.contentPath != null && !book.contentPath.isEmpty()}">
-            <div class="mb-3">
-                <iframe src="${contentUrl}" title="${book.bookTitle}" style="width:100%;height:70vh;border:1px solid #ddd;" class="rounded"></iframe>
+            <c:if test="${lastPosition > 1}">
+                <div class="alert alert-info py-2 d-flex align-items-center gap-2 mb-2">
+                    <i class="fa fa-bookmark"></i>
+                    <span>Lần trước bạn đọc tới <strong>trang ${lastPosition}</strong><c:if test="${book.bookTotalPages != null}"> / ${book.bookTotalPages}</c:if>.
+                        Nhập <strong>${lastPosition}</strong> vào ô số trang trên thanh công cụ PDF để tiếp tục.</span>
+                </div>
+            </c:if>
+            <div class="mb-2">
+                <iframe id="pdfViewer" data-url="${contentUrl}" data-page="${lastPosition}" title="${book.bookTitle}" style="width:100%;height:70vh;border:1px solid #ddd;" class="rounded"></iframe>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 rounded" style="background:#f8f9fa;">
+                <span class="fw-bold small text-secondary">Bookmark:</span>
+                <a href="<%= ctx%>/customer/bookmarks?addBookId=${book.bookId}&pageNumber=${lastPosition}" class="btn btn-dark btn-sm">
+                    <i class="fa fa-bookmark"></i> Đánh dấu trang ${lastPosition}
+                </a>
+                <a href="<%= ctx%>/customer/bookmarks" class="btn btn-outline-dark btn-sm">Xem tất cả bookmark</a>
             </div>
         </c:if>
         <c:if test="${book.contentPath == null || book.contentPath.isEmpty()}">
-            <div class="no-content-placeholder mb-4">
+            <div class="no-content-placeholder mb-3">
                 <p class="mb-2"><i class="fa fa-book fa-3x text-secondary"></i></p>
                 <p class="fw-bold mb-1">Nội dung sách chưa có file</p>
                 <p class="small mb-0">Thư viện có thể sẽ cập nhật file PDF sau. Bạn vẫn có thể <strong>lưu tiến độ đọc</strong> bên dưới (ví dụ nếu đọc bản in hoặc khi file đã có).</p>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 rounded" style="background:#f8f9fa;">
+                <span class="fw-bold small text-secondary">Bookmark:</span>
+                <a href="<%= ctx%>/customer/bookmarks?addBookId=${book.bookId}&pageNumber=${lastPosition}" class="btn btn-dark btn-sm">
+                    <i class="fa fa-bookmark"></i> Đánh dấu trang ${lastPosition}
+                </a>
+                <a href="<%= ctx%>/customer/bookmarks" class="btn btn-outline-dark btn-sm">Xem tất cả bookmark</a>
             </div>
         </c:if>
 
         <div class="card">
             <div class="card-header fw-bold">Lưu tiến độ đọc</div>
             <div class="card-body">
-                <form action="<%= ctx%>/customer/read" method="post" class="row g-2 align-items-end">
+                <p class="small text-muted mb-2">Để lần sau vào lại vẫn ở đúng trang: nhập <strong>số trang bạn vừa đọc tới</strong> (xem trên thanh công cụ PDF) rồi bấm <strong>Lưu tiến độ</strong> trước khi thoát.</p>
+                <form id="saveProgressForm" action="<%= ctx%>/customer/read" method="post" class="row g-2 align-items-end">
                     <input type="hidden" name="bookId" value="${book.bookId}">
                     <div class="col-auto">
                         <label class="form-label">Trang đã đọc đến</label>
-                        <input type="number" name="position" value="${lastPosition}" min="1" max="${book.bookTotalPages != null ? book.bookTotalPages : 9999}" class="form-control" style="width:100px">
+                        <input type="number" name="position" id="positionInput" value="${lastPosition}" min="1" max="${book.bookTotalPages != null ? book.bookTotalPages : 9999}" class="form-control" style="width:100px">
                     </div>
                     <c:if test="${book.bookTotalPages != null}">
                         <div class="col-auto pt-4">/ ${book.bookTotalPages} trang</div>
@@ -77,8 +106,21 @@
                 </form>
             </div>
         </div>
-        <a href="<%= ctx%>/customer/my-library" class="btn btn-outline-dark mt-3">← My Library</a>
-        <a href="<%= ctx%>/customer/reading-history" class="btn btn-outline-dark mt-3">Lịch sử đọc</a>
+        <div class="mt-3">
+            <a href="<%= ctx%>/customer/my-library" class="btn btn-outline-dark">← My Library</a>
+            <a href="<%= ctx%>/customer/reading-history" class="btn btn-outline-dark">Lịch sử đọc</a>
+            <a href="<%= ctx%>/customer/bookmarks" class="btn btn-outline-dark">Bookmarks</a>
+        </div>
     </div>
 </div>
+<script>
+    (function () {
+        var iframe = document.getElementById('pdfViewer');
+        if (!iframe)
+            return;
+        var url = iframe.getAttribute('data-url');
+        var page = iframe.getAttribute('data-page') || '1';
+        iframe.src = url + '?t=' + Date.now() + '#page=' + page;
+    })();
+</script>
 <%@include file="/includes/footer.jsp"%>

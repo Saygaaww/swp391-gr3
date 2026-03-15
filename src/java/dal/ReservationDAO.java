@@ -12,10 +12,9 @@ public class ReservationDAO extends DBContext {
 
     public boolean createReservation(int readerId, int bookId) {
         // Basic hold: pending with expiry 48h from now (can be adjusted)
-        String sql = "INSERT INTO Reservation(reader_id, book_id, status, queued_at, expires_at) " +
-                "VALUES(?, ?, 'pending', SYSUTCDATETIME(), DATEADD(hour, 48, SYSUTCDATETIME()))";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "INSERT INTO Reservation(reader_id, book_id, status, queued_at, expires_at) "
+                + "VALUES(?, ?, 'pending', SYSUTCDATETIME(), DATEADD(hour, 48, SYSUTCDATETIME()))";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, readerId);
             ps.setInt(2, bookId);
             return ps.executeUpdate() > 0;
@@ -26,10 +25,9 @@ public class ReservationDAO extends DBContext {
     }
 
     public boolean cancelReservation(int readerId, int reservationId) {
-        String sql = "UPDATE Reservation SET status = 'cancelled', cancelled_at = SYSUTCDATETIME() " +
-                "WHERE reservation_id = ? AND reader_id = ? AND status IN ('pending','active')";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "UPDATE Reservation SET status = 'cancelled', cancelled_at = SYSUTCDATETIME() "
+                + "WHERE reservation_id = ? AND reader_id = ? AND status IN ('pending','active')";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, reservationId);
             ps.setInt(2, readerId);
             return ps.executeUpdate() > 0;
@@ -41,14 +39,14 @@ public class ReservationDAO extends DBContext {
 
     public List<Reservation> getReservationsByReader(int readerId) {
         List<Reservation> list = new ArrayList<>();
-        String sql = "SELECT r.reservation_id, r.reader_id, r.book_id, r.status, r.queued_at, r.expires_at, " +
-                "r.fulfilled_at, r.cancelled_at, b.title AS book_title, b.cover_url AS book_cover_url " +
-                "FROM Reservation r " +
-                "JOIN Book b ON r.book_id = b.book_id " +
-                "WHERE r.reader_id = ? " +
-                "ORDER BY r.queued_at DESC";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = """
+                     SELECT r.reservation_id, r.reader_id, r.book_id, r.status, r.queued_at, r.expires_at, 
+                                     r.fulfilled_at, r.cancelled_at, b.Title AS book_title, b.CoverURL AS book_cover_url  
+                                     FROM Reservation r 
+                                     JOIN Book b ON r.book_id = b.BookID 
+                                     WHERE r.reader_id = ?
+                                     ORDER BY r.queued_at DESC""";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, readerId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -76,4 +74,3 @@ public class ReservationDAO extends DBContext {
         return list;
     }
 }
-
