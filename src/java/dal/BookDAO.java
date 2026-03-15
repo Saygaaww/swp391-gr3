@@ -9,14 +9,13 @@ import java.util.List;
 public class BookDAO extends DBContext {
 
     public Book getBookById(int bookId) {
-        String sql = "SELECT b.*, c.category_name, a.author_name " +
-                "FROM Book b " +
-                "LEFT JOIN Category c ON b.category_id = c.category_id " +
-                "LEFT JOIN Author a ON b.author_id = a.author_id " +
-                "WHERE b.book_id = ?";
+        String sql = "SELECT b.*, c.category_name, a.author_name "
+                + "FROM Book b "
+                + "LEFT JOIN Category c ON b.category_id = c.category_id "
+                + "LEFT JOIN Author a ON b.author_id = a.author_id "
+                + "WHERE b.book_id = ?";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, bookId);
             ResultSet rs = ps.executeQuery();
@@ -32,13 +31,12 @@ public class BookDAO extends DBContext {
     }
 
     public boolean addBook(Book book) {
-        String sql = "INSERT INTO Book (title, summary, description, cover_url, " +
-                "content_path, price, currency, total_pages, preview_pages, " +
-                "status, author_id, category_id, created_by_employee_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Book (title, summary, description, cover_url, "
+                + "content_path, price, currency, total_pages, preview_pages, "
+                + "status, author_id, category_id, created_by_employee_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, book.getTitle());
             ps.setString(2, book.getSummary());
@@ -77,15 +75,14 @@ public class BookDAO extends DBContext {
     }
 
     public boolean updateBook(Book book) {
-        String sql = "UPDATE Book SET " +
-                "title = ?, summary = ?, description = ?, cover_url = ?, " +
-                "content_path = ?, price = ?, currency = ?, total_pages = ?, " +
-                "preview_pages = ?, status = ?, author_id = ?, category_id = ?, " +
-                "updated_at = SYSUTCDATETIME(), updated_by_employee_id = ? " +
-                "WHERE book_id = ?";
+        String sql = "UPDATE Book SET "
+                + "title = ?, summary = ?, description = ?, cover_url = ?, "
+                + "content_path = ?, price = ?, currency = ?, total_pages = ?, "
+                + "preview_pages = ?, status = ?, author_id = ?, category_id = ?, "
+                + "updated_at = SYSUTCDATETIME(), updated_by_employee_id = ? "
+                + "WHERE book_id = ?";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, book.getTitle());
             ps.setString(2, book.getSummary());
@@ -124,10 +121,13 @@ public class BookDAO extends DBContext {
         return false;
     }
 
+    /**
+     * Hard delete (use with caution). Prefer softDeleteBook for keeping
+     * history.
+     */
     public boolean deleteBook(int bookId) {
         String sql = "DELETE FROM Book WHERE book_id = ?";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, bookId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -137,13 +137,27 @@ public class BookDAO extends DBContext {
         return false;
     }
 
+    /**
+     * Soft delete: mark book as inactive without removing data.
+     */
+    public boolean softDeleteBook(int bookId) {
+        String sql = "UPDATE Book SET status = 'inactive', updated_at = SYSUTCDATETIME() WHERE book_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("softDeleteBook Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public int getTotalBooks() {
         String sql = "SELECT COUNT(*) FROM Book";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            if (rs.next())
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
                 return rs.getInt(1);
+            }
         } catch (Exception e) {
             System.err.println("getTotalBooks Error: " + e.getMessage());
         }
@@ -152,44 +166,58 @@ public class BookDAO extends DBContext {
 
     public List<Book> getBooksFiltered(String keyword, int categoryId, int authorId,
             String status, int page, int pageSize) {
+
         List<Book> books = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT b.*, a.author_name, c.category_name ");
-        sql.append("FROM Book b ");
-        sql.append("LEFT JOIN Author a ON b.author_id = a.author_id ");
-        sql.append("LEFT JOIN Category c ON b.category_id = c.category_id ");
-        sql.append("WHERE 1=1 ");
-
+        String sql = """
+            SELECT b.*, 
+                   a.AuthorName AS author_name,
+                   c.CategoryName AS category_name
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorID = a.AuthorID
+            LEFT JOIN Category c ON b.CategoryID = c.CategoryID
+            WHERE 1=1
+                """;
+        System.out.println("SQL: " + sql);
+        System.out.println("Books size: " + books.size());
         if (keyword != null && !keyword.isEmpty()) {
-            sql.append("AND (b.title LIKE ? OR b.summary LIKE ? OR a.author_name LIKE ?) ");
+            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
         }
-        if (categoryId > 0)
-            sql.append("AND b.category_id = ? ");
-        if (authorId > 0)
-            sql.append("AND b.author_id = ? ");
-        if (status != null && !status.isEmpty())
-            sql.append("AND b.status = ? ");
+        if (categoryId > 0) {
+            sql += "AND b.CategoryID = ? ";
+        }
+        if (authorId > 0) {
+            sql += "AND b.AuthorID = ? ";
+        }
+        if (status != null && !status.isEmpty()) {
+            sql += "AND b.Status = ? ";
+        }
 
-        sql.append("ORDER BY b.created_at DESC ");
-        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        sql += "ORDER BY b.CreatedAt DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             int idx = 1;
+
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
             }
-            if (categoryId > 0)
+
+            if (categoryId > 0) {
                 ps.setInt(idx++, categoryId);
-            if (authorId > 0)
+            }
+
+            if (authorId > 0) {
                 ps.setInt(idx++, authorId);
-            if (status != null && !status.isEmpty())
+            }
+
+            if (status != null && !status.isEmpty()) {
                 ps.setString(idx++, status);
+            }
 
             int offset = (page - 1) * pageSize;
             ps.setInt(idx++, offset);
@@ -205,96 +233,125 @@ public class BookDAO extends DBContext {
             System.err.println("getBooksFiltered Error: " + e.getMessage());
             e.printStackTrace();
         }
+
         return books;
     }
 
     public int countBooksFiltered(String keyword, int categoryId, int authorId, String status) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM Book b ");
-        sql.append("LEFT JOIN Author a ON b.author_id = a.author_id ");
-        sql.append("WHERE 1=1 ");
+
+        String sql = """
+                     SELECT COUNT(*) 
+                                     FROM Book b 
+                                     LEFT JOIN Author a ON b.AuthorID = a.AuthorID 
+                                     WHERE 1=1""";
 
         if (keyword != null && !keyword.isEmpty()) {
-            sql.append("AND (b.title LIKE ? OR b.summary LIKE ? OR a.author_name LIKE ?) ");
+            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
         }
-        if (categoryId > 0)
-            sql.append("AND b.category_id = ? ");
-        if (authorId > 0)
-            sql.append("AND b.author_id = ? ");
-        if (status != null && !status.isEmpty())
-            sql.append("AND b.status = ? ");
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        if (categoryId > 0) {
+            sql += "AND b.CategoryID = ? ";
+        }
+
+        if (authorId > 0) {
+            sql += "AND b.AuthorID = ? ";
+        }
+
+        if (status != null && !status.isEmpty()) {
+            sql += "AND b.Status = ? ";
+        }
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             int idx = 1;
+
             if (keyword != null && !keyword.isEmpty()) {
                 String kw = "%" + keyword + "%";
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
                 ps.setString(idx++, kw);
             }
-            if (categoryId > 0)
+
+            if (categoryId > 0) {
                 ps.setInt(idx++, categoryId);
-            if (authorId > 0)
+            }
+
+            if (authorId > 0) {
                 ps.setInt(idx++, authorId);
-            if (status != null && !status.isEmpty())
+            }
+
+            if (status != null && !status.isEmpty()) {
                 ps.setString(idx++, status);
+            }
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next())
+                if (rs.next()) {
                     return rs.getInt(1);
+                }
             }
 
         } catch (Exception e) {
             System.err.println("countBooksFiltered Error: " + e.getMessage());
             e.printStackTrace();
         }
+
         return 0;
     }
 
     private Book extractBookFromResultSet(ResultSet rs) throws SQLException {
+
         Book book = new Book();
-        book.setBookId(rs.getInt("book_id"));
-        book.setTitle(rs.getString("title"));
-        book.setSummary(rs.getString("summary"));
-        book.setDescription(rs.getString("description"));
-        book.setCoverUrl(rs.getString("cover_url"));
-        book.setContentPath(rs.getString("content_path"));
-        book.setPrice(rs.getBigDecimal("price"));
-        book.setCurrency(rs.getString("currency"));
-        book.setTotalPages(rs.getInt("total_pages"));
-        book.setPreviewPages(rs.getInt("preview_pages"));
-        book.setStatus(rs.getString("status"));
-        book.setCreatedAt(
-                rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
-        book.setUpdatedAt(
-                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null);
-        book.setAuthorId(rs.getInt("author_id"));
-        book.setCategoryId(rs.getInt("category_id"));
 
-        int createdBy = rs.getInt("created_by_employee_id");
-        if (!rs.wasNull())
+        book.setBookId(rs.getInt("BookID"));
+        book.setTitle(rs.getString("Title"));
+        book.setSummary(rs.getString("Summary"));
+        book.setDescription(rs.getString("Description"));
+        book.setCoverUrl(rs.getString("CoverURL"));
+        book.setContentPath(rs.getString("ContentPath"));
+
+        book.setPrice(rs.getBigDecimal("Price"));
+        book.setCurrency(rs.getString("Currency"));
+
+        book.setTotalPages(rs.getInt("TotalPages"));
+        book.setPreviewPages(rs.getInt("PreviewPages"));
+
+        book.setStatus(rs.getString("Status"));
+
+        if (rs.getTimestamp("CreatedAt") != null) {
+            book.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
+        }
+
+        if (rs.getTimestamp("UpdatedAt") != null) {
+            book.setUpdatedAt(rs.getTimestamp("UpdatedAt").toLocalDateTime());
+        }
+
+        book.setAuthorId(rs.getInt("AuthorID"));
+        book.setCategoryId(rs.getInt("CategoryID"));
+
+        int createdBy = rs.getInt("CreatedByEmployeeID");
+        if (!rs.wasNull()) {
             book.setCreatedByEmployeeId(createdBy);
+        }
 
-        int updatedBy = rs.getInt("updated_by_employee_id");
-        if (!rs.wasNull())
+        int updatedBy = rs.getInt("UpdatedByEmployeeID");
+        if (!rs.wasNull()) {
             book.setUpdatedByEmployeeId(updatedBy);
+        }
 
         book.setCategoryName(rs.getString("category_name"));
         book.setAuthorName(rs.getString("author_name"));
+
         return book;
     }
 
     public BigDecimal getMaxPrice() {
         String sql = "SELECT MAX(price) AS max_price FROM Book";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 BigDecimal val = rs.getBigDecimal("max_price");
-                if (val != null)
+                if (val != null) {
                     return val;
+                }
             }
         } catch (Exception e) {
             System.err.println("getMaxPrice Error: " + e.getMessage());
@@ -304,13 +361,12 @@ public class BookDAO extends DBContext {
 
     public BigDecimal getMinPrice() {
         String sql = "SELECT MIN(price) AS min_price FROM Book WHERE price > 0";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 BigDecimal val = rs.getBigDecimal("min_price");
-                if (val != null)
+                if (val != null) {
                     return val;
+                }
             }
         } catch (Exception e) {
             System.err.println("getMinPrice Error: " + e.getMessage());
@@ -320,13 +376,12 @@ public class BookDAO extends DBContext {
 
     public int getMaxTotalPages() {
         String sql = "SELECT MAX(total_pages) AS max_pages FROM Book";
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 int val = rs.getInt("max_pages");
-                if (val > 0)
+                if (val > 0) {
                     return val;
+                }
             }
         } catch (Exception e) {
             System.err.println("getMaxTotalPages Error: " + e.getMessage());
@@ -335,9 +390,9 @@ public class BookDAO extends DBContext {
     }
 
     /**
-     * Trả về số lượng còn lại trong kho (stock = total_pages dùng tạm hoặc
-     * dùng cột riêng nếu có). Hiện tại sách số không cần kiểm kho nên luôn
-     * trả về 999 để tương thích với CustomerController.
+     * Trả về số lượng còn lại trong kho (stock = total_pages dùng tạm hoặc dùng
+     * cột riêng nếu có). Hiện tại sách số không cần kiểm kho nên luôn trả về
+     * 999 để tương thích với CustomerController.
      */
     public int getAvailableStock(int bookId) {
         // Sách số (e-book) không giới hạn số lượng.
@@ -346,8 +401,8 @@ public class BookDAO extends DBContext {
     }
 
     /**
-     * Giảm số lượng trong kho sau khi thanh toán thành công.
-     * Với sách số không cần thao tác thực tế – để trống.
+     * Giảm số lượng trong kho sau khi thanh toán thành công. Với sách số không
+     * cần thao tác thực tế – để trống.
      */
     public boolean reduceStock(int bookId, int quantity) {
         // Không làm gì vì sách số không giới hạn số lượng.

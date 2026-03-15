@@ -90,7 +90,7 @@ public class CategoryController extends HttpServlet {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in CategoryController POST", e);
             request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
             dispatcher.forward(request, response);
         }
     }
@@ -139,7 +139,7 @@ public class CategoryController extends HttpServlet {
             // Authorization flag for JSP
             request.setAttribute("canManageCatalog", AuthUtil.canManageCatalog(request));
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/list.jsp");
             dispatcher.forward(request, response);
 
         } finally {
@@ -168,7 +168,7 @@ public class CategoryController extends HttpServlet {
                     request.setAttribute("totalBooks", categoryBooks.size());
                     request.setAttribute("pageTitle", category.getCategoryName() + " - Thư viện Số FPT");
 
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/detail.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/detail.jsp");
                     dispatcher.forward(request, response);
                 } else {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -223,7 +223,7 @@ public class CategoryController extends HttpServlet {
         request.setAttribute("isEdit", isEdit);
         request.setAttribute("pageTitle", (isEdit ? "Chỉnh sửa" : "Thêm mới") + " thể loại - Thư viện Số FPT");
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -244,7 +244,7 @@ public class CategoryController extends HttpServlet {
             category.setDescription(description);
             request.setAttribute("category", category);
             request.setAttribute("isEdit", false);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
             dispatcher.forward(request, response);
             return;
         }
@@ -259,7 +259,7 @@ public class CategoryController extends HttpServlet {
                 category.setDescription(description);
                 request.setAttribute("category", category);
                 request.setAttribute("isEdit", false);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
@@ -275,7 +275,7 @@ public class CategoryController extends HttpServlet {
                 request.setAttribute("error", "Không thể tạo thể loại mới. Vui lòng thử lại.");
                 request.setAttribute("category", category);
                 request.setAttribute("isEdit", false);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
                 dispatcher.forward(request, response);
             }
         } finally {
@@ -321,7 +321,7 @@ public class CategoryController extends HttpServlet {
                 } finally {
                     categoryDAO.close();
                 }
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
@@ -343,7 +343,7 @@ public class CategoryController extends HttpServlet {
                     category.setDescription(description);
                     request.setAttribute("category", category);
                     request.setAttribute("isEdit", true);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
                     dispatcher.forward(request, response);
                     return;
                 }
@@ -360,7 +360,7 @@ public class CategoryController extends HttpServlet {
                     request.setAttribute("error", "Không thể cập nhật thể loại. Vui lòng thử lại.");
                     request.setAttribute("category", category);
                     request.setAttribute("isEdit", true);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/categories/form.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/form.jsp");
                     dispatcher.forward(request, response);
                 }
             } finally {
@@ -390,7 +390,7 @@ public class CategoryController extends HttpServlet {
             request.getSession().setAttribute("redirectAfterLogin", requestedURL);
             response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
         } else {
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/error/unauthorized.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/error/unauthorized.jsp");
             dispatcher.forward(request, response);
         }
     }

@@ -42,7 +42,7 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             
             System.out.println("Co " + pendingRequests.size() + " yeu cau muon cho duyet");
             
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-approve.jsp")
+            request.getRequestDispatcher("/jsp/admin/borrow-approve.jsp")
                    .forward(request, response);
                    
         } catch (Exception e) {

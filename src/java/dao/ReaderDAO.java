@@ -32,9 +32,9 @@ public class ReaderDAO {
      * Tạo tài khoản Reader mới
      */
     public boolean createReader(Reader reader) {
-        // role_id = 4 là 'USER' theo bảng Role trong DB (1=ADMIN, 2=LIBRARIAN,
-        // 3=SELLER, 4=USER)
-        String sql = "INSERT INTO Reader (full_name, email, phone, password_hash, avatar_url, status, role_id) "
+        // role_id = 4 là 'USER' theo bảng Role trong DB (1=ADMIN, 2=LIBRARIAN, 3=SELLER, 4=USER)
+        // Nhiều schema đang dùng cột avatar (không phải avatar_url) nên ưu tiên insert vào avatar.
+        String sql = "INSERT INTO Reader (full_name, email, phone, password_hash, avatar, status, role_id) "
                 + "VALUES (?, ?, ?, ?, ?, ?, 4)";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setNString(1, reader.getFullName());

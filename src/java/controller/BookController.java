@@ -51,6 +51,7 @@ public class BookController extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/books/dashboard");
                     return;
                 }
+                
                 handleBookListing(request, response);
 
             } else if (pathInfo.equals("/dashboard")) {
@@ -106,7 +107,7 @@ public class BookController extends HttpServlet {
             LOGGER.log(Level.SEVERE, "Error in BookController", e);
             request.setAttribute("error", "Có lỗi xảy ra khi xử lý yêu cầu. Vui lòng thử lại.");
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/list.jsp");
             dispatcher.forward(request, response);
         }
     }
@@ -128,7 +129,7 @@ public class BookController extends HttpServlet {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in BookController POST", e);
             request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/form.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/form.jsp");
             dispatcher.forward(request, response);
         }
     }
@@ -156,7 +157,7 @@ public class BookController extends HttpServlet {
                     // Authorization flag for book management (upload/update file, etc.)
                     request.setAttribute("canManageBooks", AuthUtil.canManageBooks(request));
 
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/detail.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/detail.jsp");
                     dispatcher.forward(request, response);
 
                 } else {
@@ -279,7 +280,7 @@ public class BookController extends HttpServlet {
 
             request.setAttribute("pageTitle", "Tìm kiếm sách - Trang " + page + " - Thư viện Số FPT");
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/list.jsp");
             dispatcher.forward(request, response);
 
         } finally {
@@ -330,7 +331,7 @@ public class BookController extends HttpServlet {
                 request.setAttribute("pageTitle",
                         (category != null ? category.getCategoryName() : "Thể loại") + " - Thư viện Số FPT");
 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/list.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/list.jsp");
                 dispatcher.forward(request, response);
 
             } finally {
@@ -371,7 +372,7 @@ public class BookController extends HttpServlet {
             request.setAttribute("currentUrl", request.getRequestURI() + "?");
             request.setAttribute("pageTitle", "Sách mới nhất - Thư viện Số FPT");
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/list.jsp");
             dispatcher.forward(request, response);
 
         } finally {
@@ -407,7 +408,7 @@ public class BookController extends HttpServlet {
             request.setAttribute("currentUrl", request.getRequestURI() + "?");
             request.setAttribute("pageTitle", "Sách miễn phí - Thư viện Số FPT");
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/list.jsp");
             dispatcher.forward(request, response);
 
         } finally {
@@ -550,7 +551,7 @@ public class BookController extends HttpServlet {
             request.setAttribute("authors", authorDAO.getAllAuthors());
             request.setAttribute("categories", categoryDAO.getAllCategories());
             request.setAttribute("pageTitle", (isEdit ? "Chỉnh sửa" : "Thêm mới") + " sách - Thư viện Số FPT");
-            request.getRequestDispatcher("/WEB-INF/jsp/books/form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/books/form.jsp").forward(request, response);
         } finally {
             authorDAO.close();
             categoryDAO.close();
@@ -666,7 +667,13 @@ public class BookController extends HttpServlet {
             request.setAttribute("recentBooks", recentBooks);
             request.setAttribute("canManageBooks", true);
 
-            RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/librarian/dashboard.jsp");
+            String role = (String) request.getSession().getAttribute(AuthUtil.SESSION_USER_ROLE);
+            String jspPath = "/jsp/librarian/dashboard.jsp";
+            if (AuthUtil.ROLE_SELLER.equals(role)) {
+                jspPath = "/jsp/seller/dashboard.jsp";
+            }
+
+            RequestDispatcher rd = request.getRequestDispatcher(jspPath);
             rd.forward(request, response);
         } finally {
             bookDAO.close();

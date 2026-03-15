@@ -62,6 +62,24 @@ public class PasswordUtil {
     }
 
     /**
+     * Verify mật khẩu theo format cũ: SHA-256(hex) không có salt/pepper.
+     * Dùng để đăng nhập các tài khoản seed trong script SQL cũ rồi tự động nâng cấp lên format mới.
+     */
+    public static boolean verifyLegacySha256(String rawPassword, String storedHash) {
+        if (rawPassword == null || storedHash == null) {
+            return false;
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(rawPassword.getBytes(StandardCharsets.UTF_8));
+            String expected = bytesToHex(hashBytes);
+            return constantTimeEquals(expected, storedHash);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * Kiểm tra độ mạnh mật khẩu
      * Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số
      */

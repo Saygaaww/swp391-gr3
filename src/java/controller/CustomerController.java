@@ -4,9 +4,18 @@ import dao.BookDAO;
 import dao.CartDAO;
 import dao.ReviewDAO;
 import dao.ReaderBookOwnershipDAO;
+import dal.BorrowDAO;
+import dal.FineDAO;
+import dal.ReservationDAO;
 import model.Book;
+import model.BorrowRequest;
+import model.BorrowRequestItem;
+import model.BorrowedItemView;
+import model.BorrowExtendView;
 import model.Cart;
 import model.CartItem;
+import model.FineView;
+import model.Reservation;
 import model.ReadingHistory;
 import dao.ReadingHistoryDAO;
 import dao.BookmarkDAO;
@@ -26,6 +35,8 @@ import util.VNPayUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(name = "CustomerController", urlPatterns = { "/customer", "/customer/*" })
 public class CustomerController extends HttpServlet {
@@ -40,7 +51,9 @@ public class CustomerController extends HttpServlet {
 
         String pathInfo = request.getPathInfo();
 
-        if (!AuthUtil.isLoggedIn(request) || !AuthUtil.isReader(request)) {
+        boolean loggedIn = AuthUtil.isLoggedIn(request);
+        boolean isReader = AuthUtil.isReader(request);
+        if (!loggedIn || !isReader) {
             response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
@@ -67,6 +80,9 @@ public class CustomerController extends HttpServlet {
                 case "/order-detail":
                     handleOrderDetail(request, response);
                     break;
+                case "/my-library":
+                    handleMyLibrary(request, response);
+                    break;
                 case "/vnpay-return":
                     handleVNPayReturn(request, response);
                     break;
@@ -81,6 +97,24 @@ public class CustomerController extends HttpServlet {
                     break;
                 case "/add-to-cart":
                     handleAddToCart(request, response);
+                    break;
+                case "/borrow-request":
+                    handleBorrowRequestPage(request, response);
+                    break;
+                case "/borrow-request-status":
+                    handleBorrowRequestsStatus(request, response);
+                    break;
+                case "/borrowed-items":
+                    handleBorrowedItems(request, response);
+                    break;
+                case "/extend-requests":
+                    handleExtendRequests(request, response);
+                    break;
+                case "/reservations":
+                    handleReservations(request, response);
+                    break;
+                case "/fines":
+                    handleFines(request, response);
                     break;
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -129,6 +163,21 @@ public class CustomerController extends HttpServlet {
                     case "/bookmarks":
                         handleSaveBookmarks(request, response);
                         break;
+                    case "/borrow-request":
+                        handleCreateBorrowRequest(request, response);
+                        break;
+                    case "/extend-borrow":
+                        handleCreateExtendRequest(request, response);
+                        break;
+                    case "/return-request":
+                        handleReturnRequest(request, response);
+                        break;
+                    case "/reservations":
+                        handleCreateOrCancelReservation(request, response);
+                        break;
+                    case "/fines/pay":
+                        handlePayFine(request, response);
+                        break;
                     default:
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
                         break;
@@ -149,7 +198,7 @@ public class CustomerController extends HttpServlet {
 
         request.setAttribute("cart", cart);
         request.setAttribute("cartTotal", cartTotal);
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/cart.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/cart.jsp").forward(request, response);
     }
 
     private void handleAddToCart(HttpServletRequest request, HttpServletResponse response)
@@ -234,7 +283,15 @@ public class CustomerController extends HttpServlet {
 
         request.setAttribute("reviews", dao.getByReader(readerId));
         request.setAttribute("ownedBooks", ownershipDAO.getByReader(readerId));
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/reviews.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/reviews.jsp").forward(request, response);
+    }
+
+    private void handleMyLibrary(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        ReaderBookOwnershipDAO ownershipDAO = new ReaderBookOwnershipDAO();
+        request.setAttribute("ownedBooks", ownershipDAO.getByReader(readerId));
+        request.getRequestDispatcher("/jsp/customer/my-library.jsp").forward(request, response);
     }
 
     private void handleSubmitReview(HttpServletRequest request, HttpServletResponse response)
@@ -284,7 +341,7 @@ public class CustomerController extends HttpServlet {
 
         request.setAttribute("cart", cart);
         request.setAttribute("cartTotal", cartTotal);
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/checkout.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/checkout.jsp").forward(request, response);
     }
 
     private void handleProcessCheckout(HttpServletRequest request, HttpServletResponse response)
@@ -368,7 +425,7 @@ public class CustomerController extends HttpServlet {
         OrderDAO orderDAO = new OrderDAO();
         java.util.List<Order> orders = orderDAO.getOrdersByReader(readerId);
         request.setAttribute("orders", orders);
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/orders.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/orders.jsp").forward(request, response);
     }
 
     private void handleOrderDetail(HttpServletRequest request, HttpServletResponse response)
@@ -392,7 +449,7 @@ public class CustomerController extends HttpServlet {
         PaymentDAO paymentDAO = new PaymentDAO();
         request.setAttribute("order", order);
         request.setAttribute("payment", paymentDAO.getByOrderId(orderId));
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/order-detail.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/order-detail.jsp").forward(request, response);
     }
 
     private void handleVNPayReturn(HttpServletRequest request, HttpServletResponse response)
@@ -400,7 +457,7 @@ public class CustomerController extends HttpServlet {
         if (!VNPayUtil.verifyReturn(request)) {
             request.setAttribute("message", "Chữ ký không hợp l?.");
             request.setAttribute("success", false);
-            request.getRequestDispatcher("/WEB-INF/jsp/vnpay-result.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/vnpay-result.jsp").forward(request, response);
             return;
         }
 
@@ -422,7 +479,7 @@ public class CustomerController extends HttpServlet {
             if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
                 request.setAttribute("message", "Gi?? hàng không còn hoặc ?ã hết. Vui lòng ki?m tra ?ơn hàng.");
                 request.setAttribute("success", false);
-                request.getRequestDispatcher("/WEB-INF/jsp/vnpay-result.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/vnpay-result.jsp").forward(request, response);
                 return;
             }
             BigDecimal cartTotal = cartDAO.getCartTotal(cart.getCartId());
@@ -437,7 +494,7 @@ public class CustomerController extends HttpServlet {
             if (stockError.length() > 0) {
                 request.setAttribute("message", "Không ?ủ hàng: " + stockError + " ??ơn chưa tạo. Gi?? hàng vẫn giữ.");
                 request.setAttribute("success", false);
-                request.getRequestDispatcher("/WEB-INF/jsp/vnpay-result.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/vnpay-result.jsp").forward(request, response);
                 return;
             }
 
@@ -446,7 +503,7 @@ public class CustomerController extends HttpServlet {
             if (orderId <= 0) {
                 request.setAttribute("message", "Tạo ?ơn hàng thất bại. Liên h? h? trợ. Gi?? hàng vẫn giữ.");
                 request.setAttribute("success", false);
-                request.getRequestDispatcher("/WEB-INF/jsp/vnpay-result.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/vnpay-result.jsp").forward(request, response);
                 return;
             }
 
@@ -466,10 +523,10 @@ public class CustomerController extends HttpServlet {
             paymentDAO.updatePaymentStatus(orderIdToUse, "success", vnp_TransactionNo);
             orderDAO.updateOrderStatus(orderIdToUse, "paid");
 
-            request.setAttribute("message",
-                    "Thanh toán thành công. Mã giao d?ch: " + vnp_TransactionNo + ". Mã ?ơn: " + orderIdToUse);
-            request.setAttribute("success", true);
-            request.setAttribute("orderId", orderIdToUse);
+        request.setAttribute("message",
+                "Thanh toán thành công. Mã giao d?ch: " + vnp_TransactionNo + ". Mã ?ơn: " + orderIdToUse);
+        request.setAttribute("success", true);
+        request.setAttribute("orderId", orderIdToUse);
         } else {
             request.setAttribute("message",
                     "Thanh toán thất bại hoặc ?ã hủy. Mã l?i: " + vnp_ResponseCode + ". Gi?? hàng vẫn giữ nguyên.");
@@ -477,7 +534,7 @@ public class CustomerController extends HttpServlet {
             request.setAttribute("orderId", vnp_TxnRef);
         }
 
-        request.getRequestDispatcher("/WEB-INF/jsp/vnpay-result.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/vnpay-result.jsp").forward(request, response);
     }
 
     private void handleReadBook(HttpServletRequest request, HttpServletResponse response)
@@ -491,9 +548,29 @@ public class CustomerController extends HttpServlet {
         int bookId = Integer.parseInt(bookIdStr);
         ReaderBookOwnershipDAO ownershipDAO = new ReaderBookOwnershipDAO();
         Object book = ownershipDAO.getByReaderAndBook(readerId, bookId);
+
+        // Nếu chưa sở hữu sách, tự cấp quyền sở hữu nếu sách miễn phí (price null hoặc = 0)
         if (book == null) {
-            response.sendRedirect(request.getContextPath() + "/customer");
-            return;
+            BookDAO bookDAO = new BookDAO();
+            Book rawBook = bookDAO.getBookById(bookId);
+            if (rawBook == null) {
+                response.sendRedirect(request.getContextPath() + "/customer");
+                return;
+            }
+            boolean isFree = rawBook.getPrice() == null
+                    || (rawBook.getPrice() != null && rawBook.getPrice().compareTo(BigDecimal.ZERO) <= 0);
+            if (isFree) {
+                // acquired_via = 'free' để phân biệt với mua qua đơn hàng
+                // Chỉ grant nếu chưa có bản ghi ownership để tránh trùng nhiều dòng
+                if (!ownershipDAO.hasOwnership(readerId, bookId)) {
+                    ownershipDAO.grant(readerId, bookId, "free");
+                }
+                book = ownershipDAO.getByReaderAndBook(readerId, bookId);
+            }
+            if (book == null) {
+                response.sendRedirect(request.getContextPath() + "/customer");
+                return;
+            }
         }
         ReadingHistoryDAO historyDAO = new ReadingHistoryDAO();
         java.util.List<ReadingHistory> list = historyDAO.getByReader(readerId);
@@ -507,7 +584,7 @@ public class CustomerController extends HttpServlet {
         request.setAttribute("book", book);
         request.setAttribute("lastPosition",
                 current != null && current.getLastReadPosition() != null ? current.getLastReadPosition() : 1);
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/read.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/read.jsp").forward(request, response);
     }
 
     private void handleReadingHistory(HttpServletRequest request, HttpServletResponse response)
@@ -516,7 +593,7 @@ public class CustomerController extends HttpServlet {
         ReadingHistoryDAO dao = new ReadingHistoryDAO();
         java.util.List<ReadingHistory> history = dao.getByReader(readerId);
         request.setAttribute("historyList", history);
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/reading-history.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/reading-history.jsp").forward(request, response);
     }
 
     private void handleSaveReadProgress(HttpServletRequest request, HttpServletResponse response)
@@ -558,7 +635,7 @@ public class CustomerController extends HttpServlet {
         ReaderBookOwnershipDAO ownershipDAO = new ReaderBookOwnershipDAO();
         request.setAttribute("bookmarks", dao.getByReader(readerId));
         request.setAttribute("ownedBooks", ownershipDAO.getByReader(readerId));
-        request.getRequestDispatcher("/WEB-INF/jsp/customer/bookmarks.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/customer/bookmarks.jsp").forward(request, response);
     }
 
     private void handleSaveBookmarks(HttpServletRequest request, HttpServletResponse response)
@@ -607,5 +684,214 @@ public class CustomerController extends HttpServlet {
             }
         }
         response.sendRedirect(request.getContextPath() + "/customer/bookmarks");
+    }
+
+    // =========================
+    // Borrowing / Reservations / Fines (Reader)
+    // =========================
+
+    private void handleBorrowRequestPage(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String bookIdStr = request.getParameter("bookId");
+        Book book = null;
+        if (bookIdStr != null && !bookIdStr.trim().isEmpty()) {
+            try {
+                int bookId = Integer.parseInt(bookIdStr);
+                BookDAO bookDAO = new BookDAO();
+                book = bookDAO.getBookById(bookId);
+            } catch (NumberFormatException ignore) {
+            }
+        }
+        request.setAttribute("book", book);
+        request.getRequestDispatcher("/jsp/customer/borrow-request.jsp").forward(request, response);
+    }
+
+    private void handleCreateBorrowRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String bookIdStr = request.getParameter("bookId");
+        String quantityStr = request.getParameter("quantity");
+        String note = request.getParameter("note");
+
+        if (bookIdStr == null || bookIdStr.isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/books");
+            return;
+        }
+
+        int bookId;
+        int quantity = 1;
+        try {
+            bookId = Integer.parseInt(bookIdStr);
+            if (quantityStr != null && !quantityStr.isBlank()) {
+                quantity = Integer.parseInt(quantityStr);
+            }
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/books");
+            return;
+        }
+        if (quantity < 1)
+            quantity = 1;
+        if (quantity > 5)
+            quantity = 5;
+
+        BorrowRequestItem item = new BorrowRequestItem();
+        item.setBookId(bookId);
+        item.setQuantity(quantity);
+        List<BorrowRequestItem> items = new ArrayList<>();
+        items.add(item);
+
+        BorrowDAO borrowDAO = new BorrowDAO();
+        int requestId = borrowDAO.createBorrowRequest(readerId, note, items);
+        if (requestId > 0) {
+            request.getSession().setAttribute("successMessage", "Đã gửi yêu cầu mượn. Mã yêu cầu: #" + requestId);
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-requests");
+        } else {
+            request.getSession().setAttribute("errorMessage", "Không thể tạo yêu cầu mượn. Vui lòng thử lại.");
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
+        }
+    }
+
+    private void handleBorrowRequestsStatus(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        BorrowDAO borrowDAO = new BorrowDAO();
+        List<BorrowRequest> requests = borrowDAO.getRequestsByReader(readerId);
+        for (BorrowRequest r : requests) {
+            r.setItems(borrowDAO.getRequestItems(r.getRequestId()));
+        }
+        request.setAttribute("requests", requests);
+        request.getRequestDispatcher("/jsp/customer/borrow-requests.jsp").forward(request, response);
+    }
+
+    private void handleBorrowedItems(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        BorrowDAO borrowDAO = new BorrowDAO();
+        List<BorrowedItemView> items = borrowDAO.getActiveBorrowedItemsByReader(readerId);
+        request.setAttribute("items", items);
+        request.getRequestDispatcher("/jsp/customer/borrowed-items.jsp").forward(request, response);
+    }
+
+    private void handleReturnRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String borrowItemIdStr = request.getParameter("borrowItemId");
+        if (borrowItemIdStr == null || borrowItemIdStr.isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
+            return;
+        }
+        try {
+            int borrowItemId = Integer.parseInt(borrowItemIdStr);
+            BorrowDAO borrowDAO = new BorrowDAO();
+            boolean ok = borrowDAO.requestReturn(readerId, borrowItemId);
+            request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
+                    ok ? "Đã gửi yêu cầu trả sách." : "Không thể gửi yêu cầu trả sách.");
+        } catch (NumberFormatException ignore) {
+        }
+        response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
+    }
+
+    private void handleCreateExtendRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String borrowItemIdStr = request.getParameter("borrowItemId");
+        String extendDaysStr = request.getParameter("extendDays");
+        String note = request.getParameter("note");
+
+        if (borrowItemIdStr == null || borrowItemIdStr.isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
+            return;
+        }
+
+        try {
+            int borrowItemId = Integer.parseInt(borrowItemIdStr);
+            int extendDays = 7;
+            if (extendDaysStr != null && !extendDaysStr.isBlank()) {
+                extendDays = Integer.parseInt(extendDaysStr);
+            }
+            BorrowDAO borrowDAO = new BorrowDAO();
+            boolean ok = borrowDAO.createExtendRequest(readerId, borrowItemId, extendDays, note);
+            request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
+                    ok ? "Đã gửi yêu cầu gia hạn." : "Không thể gửi yêu cầu gia hạn.");
+        } catch (NumberFormatException ignore) {
+        }
+        response.sendRedirect(request.getContextPath() + "/customer/extend-requests");
+    }
+
+    private void handleExtendRequests(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        BorrowDAO borrowDAO = new BorrowDAO();
+        List<BorrowExtendView> list = borrowDAO.getExtendRequestsByReader(readerId);
+        request.setAttribute("extendRequests", list);
+        request.getRequestDispatcher("/jsp/customer/extend-requests.jsp").forward(request, response);
+    }
+
+    private void handleReservations(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        ReservationDAO dao = new ReservationDAO();
+        List<Reservation> list = dao.getReservationsByReader(readerId);
+        request.setAttribute("reservations", list);
+        request.getRequestDispatcher("/jsp/customer/reservations.jsp").forward(request, response);
+    }
+
+    private void handleCreateOrCancelReservation(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String action = request.getParameter("action");
+        ReservationDAO dao = new ReservationDAO();
+        boolean ok = false;
+
+        if ("create".equals(action)) {
+            String bookIdStr = request.getParameter("bookId");
+            if (bookIdStr != null && !bookIdStr.isBlank()) {
+                try {
+                    ok = dao.createReservation(readerId, Integer.parseInt(bookIdStr));
+                } catch (NumberFormatException ignore) {
+                }
+            }
+        } else if ("cancel".equals(action)) {
+            String reservationIdStr = request.getParameter("reservationId");
+            if (reservationIdStr != null && !reservationIdStr.isBlank()) {
+                try {
+                    ok = dao.cancelReservation(readerId, Integer.parseInt(reservationIdStr));
+                } catch (NumberFormatException ignore) {
+                }
+            }
+        }
+
+        request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
+                ok ? "Thao tác đặt chỗ thành công." : "Không thể thực hiện đặt chỗ.");
+        response.sendRedirect(request.getContextPath() + "/customer/reservations");
+    }
+
+    private void handleFines(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        FineDAO dao = new FineDAO();
+        List<FineView> fines = dao.getFinesByReader(readerId);
+        request.setAttribute("fines", fines);
+        request.getRequestDispatcher("/jsp/customer/fines.jsp").forward(request, response);
+    }
+
+    private void handlePayFine(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String fineIdStr = request.getParameter("fineId");
+        if (fineIdStr == null || fineIdStr.isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/customer/fines");
+            return;
+        }
+        boolean ok = false;
+        try {
+            int fineId = Integer.parseInt(fineIdStr);
+            FineDAO dao = new FineDAO();
+            ok = dao.markFinePaid(readerId, fineId);
+        } catch (NumberFormatException ignore) {
+        }
+        request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
+                ok ? "Đã ghi nhận thanh toán tiền phạt." : "Không thể thanh toán tiền phạt.");
+        response.sendRedirect(request.getContextPath() + "/customer/fines");
     }
 }

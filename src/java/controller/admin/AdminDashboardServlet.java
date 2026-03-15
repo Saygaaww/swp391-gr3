@@ -57,7 +57,7 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("totalEmployees", totalEmployees);
             request.setAttribute("totalRoles", totalRoles);
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/dashboard.jsp").forward(request, response);
 
         } catch (Exception e) {
             System.err.println("AdminDashboardServlet Error: " + e.getMessage());
@@ -69,7 +69,7 @@ public class AdminDashboardServlet extends HttpServlet {
             request.setAttribute("totalEmployees", 0);
             request.setAttribute("totalRoles", 0);
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/dashboard.jsp").forward(request, response);
         }
     }
 }

@@ -92,7 +92,7 @@ public class AuthorController extends HttpServlet {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in AuthorController POST", e);
             request.setAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
             dispatcher.forward(request, response);
         }
     }
@@ -139,7 +139,7 @@ public class AuthorController extends HttpServlet {
             // Set authorization flag for JSP
             request.setAttribute("canManageCatalog", AuthUtil.canManageCatalog(request));
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/list.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/list.jsp");
             dispatcher.forward(request, response);
 
         } finally {
@@ -171,7 +171,7 @@ public class AuthorController extends HttpServlet {
                     request.setAttribute("bookCount", authorBooks.size());
                     request.setAttribute("pageTitle", author.getAuthorName() + " - Thư viện Số FPT");
 
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/detail.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/detail.jsp");
                     dispatcher.forward(request, response);
                 } else {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -226,7 +226,7 @@ public class AuthorController extends HttpServlet {
         request.setAttribute("isEdit", isEdit);
         request.setAttribute("pageTitle", (isEdit ? "Chỉnh sửa" : "Thêm mới") + " tác giả - Thư viện Số FPT");
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -244,7 +244,7 @@ public class AuthorController extends HttpServlet {
             request.setAttribute("error", "Tên tác giả không được để trống");
             request.setAttribute("author", new Author(authorName, bio));
             request.setAttribute("isEdit", false);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
             dispatcher.forward(request, response);
             return;
         }
@@ -256,7 +256,7 @@ public class AuthorController extends HttpServlet {
                 request.setAttribute("error", "Tên tác giả \"" + authorName + "\" đã tồn tại");
                 request.setAttribute("author", new Author(authorName, bio));
                 request.setAttribute("isEdit", false);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
@@ -269,7 +269,7 @@ public class AuthorController extends HttpServlet {
                 request.setAttribute("error", "Không thể tạo tác giả mới. Vui lòng thử lại.");
                 request.setAttribute("author", author);
                 request.setAttribute("isEdit", false);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
                 dispatcher.forward(request, response);
             }
         } finally {
@@ -315,7 +315,7 @@ public class AuthorController extends HttpServlet {
                 } finally {
                     authorDAO.close();
                 }
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
                 dispatcher.forward(request, response);
                 return;
             }
@@ -336,7 +336,7 @@ public class AuthorController extends HttpServlet {
                     author.setAuthorId(authorId);
                     request.setAttribute("author", author);
                     request.setAttribute("isEdit", true);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
                     dispatcher.forward(request, response);
                     return;
                 }
@@ -351,7 +351,7 @@ public class AuthorController extends HttpServlet {
                     request.setAttribute("error", "Không thể cập nhật tác giả. Vui lòng thử lại.");
                     request.setAttribute("author", author);
                     request.setAttribute("isEdit", true);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/authors/form.jsp");
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/authors/form.jsp");
                     dispatcher.forward(request, response);
                 }
             } finally {
@@ -384,7 +384,7 @@ public class AuthorController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
         } else {
             // User is logged in but doesn't have permission
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/error/unauthorized.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/error/unauthorized.jsp");
             dispatcher.forward(request, response);
         }
     }

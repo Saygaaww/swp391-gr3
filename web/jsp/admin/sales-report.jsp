@@ -1,0 +1,54 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>${pageTitle != null ? pageTitle : 'Sales Report'}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f7fe;
+            margin: 0;
+            padding: 24px;
+        }
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.25rem;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 12px rgba(15,23,42,.06);
+        }
+        .placeholder {
+            padding: 40px 0;
+            text-align: center;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1><i class="fas fa-file-invoice-dollar"></i> Sales Report</h1>
+    <p class="subtitle">Báo cáo đơn hàng, mục đơn hàng và trạng thái thanh toán.</p>
+
+    <div class="card">
+        <div class="placeholder">
+            Chức năng báo cáo chi tiết doanh thu sẽ được triển khai tại đây.<br>
+            (Hiện tại chỉ là trang placeholder để điều hướng hoạt động.)
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

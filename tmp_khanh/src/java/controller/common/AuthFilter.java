@@ -61,7 +61,7 @@ public class AuthFilter implements Filter {
         /* ===== EMPLOYEE ROUTES ===== */
         if (uri.contains("/admin") || uri.contains("/librarian") || uri.contains("/seller")) {
             if (employee == null) {
-                response.sendRedirect(contextPath + "/login");
+                response.sendRedirect(contextPath + "/auth/login");
                 return;
             }
 
@@ -70,12 +70,12 @@ public class AuthFilter implements Filter {
             if (uri.contains("/admin")) {
                 if (uri.contains("/admin/books")) {
                     if (!"ADMIN".equals(empRole) && !"LIBRARIAN".equals(empRole) && !"SELLER".equals(empRole)) {
-                        response.sendRedirect(contextPath + "/login");
+                        response.sendRedirect(contextPath + "/auth/login");
                         return;
                     }
                 } else {
                     if (!"ADMIN".equals(empRole)) {
-                        response.sendRedirect(contextPath + "/login");
+                        response.sendRedirect(contextPath + "/auth/login");
                         return;
                     }
                 }
@@ -83,13 +83,13 @@ public class AuthFilter implements Filter {
 
             // ✅ LIBRARIAN role check
             if (uri.contains("/librarian") && !"LIBRARIAN".equals(empRole)) {
-                response.sendRedirect(contextPath + "/login");
+                response.sendRedirect(contextPath + "/auth/login");
                 return;
             }
 
             // ✅ SELLER role check
             if (uri.contains("/seller") && !"SELLER".equals(empRole)) {
-                response.sendRedirect(contextPath + "/login");
+                response.sendRedirect(contextPath + "/auth/login");
                 return;
             }
 
@@ -101,14 +101,14 @@ public class AuthFilter implements Filter {
         /* ===== READER/USER ROUTES ===== */
         if (uri.contains("/customer") || uri.contains("/user")) {
             if (user == null) {
-                response.sendRedirect(contextPath + "/login");
+                response.sendRedirect(contextPath + "/auth/login");
                 return;
             }
 
             // ✅ USER role check (không phân biệt hoa thường)
             String userRole = user.getRoleName() != null ? user.getRoleName().toUpperCase() : "";
             if (!"USER".equals(userRole)) {
-                response.sendRedirect(contextPath + "/login");
+                response.sendRedirect(contextPath + "/auth/login");
                 return;
             }
 
@@ -119,7 +119,7 @@ public class AuthFilter implements Filter {
 
         /* ===== DEFAULT: NOT LOGIN ===== */
         if (user == null && employee == null) {
-            response.sendRedirect(contextPath + "/login");
+            response.sendRedirect(contextPath + "/auth/login");
             return;
         }
 

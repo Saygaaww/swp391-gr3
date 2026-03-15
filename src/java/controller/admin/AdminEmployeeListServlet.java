@@ -33,6 +33,9 @@ public class AdminEmployeeListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/auth/login");
@@ -116,8 +119,9 @@ public class AdminEmployeeListServlet extends HttpServlet {
             String keyword = request.getParameter("keyword");
             if (keyword != null) {
                 keyword = keyword.trim().replaceAll("\\s+", " ");
-                if (keyword.isEmpty())
+                if (keyword.isEmpty()) {
                     keyword = null;
+                }
             }
 
             // Role filter
@@ -140,8 +144,9 @@ public class AdminEmployeeListServlet extends HttpServlet {
             // Query voi filter
             int totalEmployees = employeeDAO.countEmployeesFiltered(keyword, filterRoleId, filterStatus);
             int totalPages = Math.max(1, (int) Math.ceil((double) totalEmployees / pageSize));
-            if (currentPage > totalPages)
+            if (currentPage > totalPages) {
                 currentPage = totalPages;
+            }
 
             List<Employee> employeeList = employeeDAO.getEmployeesFiltered(
                     keyword, filterRoleId, filterStatus, currentPage, pageSize);
@@ -179,19 +184,21 @@ public class AdminEmployeeListServlet extends HttpServlet {
                 session.removeAttribute("errorMessage");
             }
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/employees.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/employees.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/employees.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/employees.jsp").forward(request, response);
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect(request.getContextPath() + "/auth/login");

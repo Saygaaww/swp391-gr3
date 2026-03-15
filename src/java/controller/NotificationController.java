@@ -33,11 +33,11 @@ public class NotificationController extends HttpServlet {
             dao = new NotificationDAO();
             request.setAttribute("notifications", dao.getAllNotifications(reader.getReaderId()));
             request.setAttribute("unreadCount", dao.getUnreadCount(reader.getReaderId()));
-            request.getRequestDispatcher("/WEB-INF/jsp/notifications/inbox.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/notifications/inbox.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Get notifications error", e);
             request.setAttribute("error", "Có lỗi xảy ra khi tải thông báo.");
-            request.getRequestDispatcher("/WEB-INF/jsp/notifications/inbox.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/notifications/inbox.jsp").forward(request, response);
         } finally {
             if (dao != null)
                 dao.close();

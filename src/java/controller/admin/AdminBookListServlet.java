@@ -1,8 +1,8 @@
 package controller.admin;
 
-import dal.BookDAO;
-import dal.AuthorDAO;
-import dal.CategoryDAO;
+import dao.BookDAO;
+import dao.AuthorDAO;
+import dao.CategoryDAO;
 import model.Book;
 import model.Author;
 import model.Category;
@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet({ "/admin/book-list", "/books-list", "/books-ist" })
+@WebServlet({ "/admin/book-list", "/books-list", "/books-list/*" })
 public class AdminBookListServlet extends HttpServlet {
 
     private BookDAO bookDAO;
@@ -151,13 +151,24 @@ public class AdminBookListServlet extends HttpServlet {
             request.setAttribute("filterAuthorId", filterAuthorId);
             request.setAttribute("filterStatus", statusFilter);
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-list.jsp").forward(request, response);
+            if (session != null) {
+                if (session.getAttribute("successMessage") != null) {
+                    request.setAttribute("successMessage", session.getAttribute("successMessage"));
+                    session.removeAttribute("successMessage");
+                }
+                if (session.getAttribute("errorMessage") != null) {
+                    request.setAttribute("errorMessage", session.getAttribute("errorMessage"));
+                    session.removeAttribute("errorMessage");
+                }
+            }
+
+            request.getRequestDispatcher("/jsp/admin/book-list.jsp").forward(request, response);
 
         } catch (Exception e) {
             System.err.println("AdminBookListServlet Error: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi he thong: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/book-list.jsp").forward(request, response);
         }
     }
 

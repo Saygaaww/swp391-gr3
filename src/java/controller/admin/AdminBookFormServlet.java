@@ -1,8 +1,8 @@
 package controller.admin;
 
-import dal.BookDAO;
-import dal.AuthorDAO;
-import dal.CategoryDAO;
+import dao.BookDAO;
+import dao.AuthorDAO;
+import dao.CategoryDAO;
 import model.Book;
 import model.Author;
 import model.Category;
@@ -82,7 +82,7 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("authors", authorDAO.getAllAuthors());
             request.setAttribute("categories", categoryDAO.getAllCategories());
             request.setAttribute("currentEmployee", session.getAttribute("user"));
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/book-form.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/book-list");
@@ -232,7 +232,7 @@ public class AdminBookFormServlet extends HttpServlet {
             request.setAttribute("book", new Book());
             request.setAttribute("authors", authorDAO.getAllAuthors());
             request.setAttribute("categories", categoryDAO.getAllCategories());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/book-form.jsp").forward(request, response);
         }
     }
 
@@ -307,6 +307,6 @@ public class AdminBookFormServlet extends HttpServlet {
         }
         request.setAttribute("authors", authorDAO.getAllAuthors());
         request.setAttribute("categories", categoryDAO.getAllCategories());
-        request.getRequestDispatcher("/WEB-INF/jsp/admin/book-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/admin/book-form.jsp").forward(request, response);
     }
 }

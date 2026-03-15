@@ -48,17 +48,28 @@ public class AdminBorrowDetailServlet extends HttpServlet {
             }
             
             BorrowRequest borrowRequest = borrowDAO.getRequestById(requestId);
-            
+            if (borrowRequest != null) {
+                borrowRequest.setItems(borrowDAO.getRequestItems(requestId));
+            }
+
             if (borrowRequest == null) {
                 request.setAttribute("errorMessage", "Khong tim thay yeu cau ID: " + requestId);
                 request.setAttribute("currentEmployee", session.getAttribute("user"));
-                request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-detail.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/admin/borrow-detail.jsp").forward(request, response);
                 return;
             }
             
             request.setAttribute("borrowRequest", borrowRequest);
             request.setAttribute("currentEmployee", session.getAttribute("user"));
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-detail.jsp").forward(request, response);
+            if (session.getAttribute("successMessage") != null) {
+                request.setAttribute("successMessage", session.getAttribute("successMessage"));
+                session.removeAttribute("successMessage");
+            }
+            if (session.getAttribute("errorMessage") != null) {
+                request.setAttribute("errorMessage", session.getAttribute("errorMessage"));
+                session.removeAttribute("errorMessage");
+            }
+            request.getRequestDispatcher("/jsp/admin/borrow-detail.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/borrow-list");

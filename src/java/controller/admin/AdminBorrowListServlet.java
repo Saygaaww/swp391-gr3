@@ -108,7 +108,7 @@ public class AdminBorrowListServlet extends HttpServlet {
             request.setAttribute("currentEmployee", session.getAttribute("user"));
             request.setAttribute("pageSize", showAll ? "all" : String.valueOf(pageSize));
             
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/borrow-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/borrow-list.jsp").forward(request, response);
             
         } catch (Exception e) {
             System.err.println("AdminBorrowListServlet Error: " + e.getMessage());

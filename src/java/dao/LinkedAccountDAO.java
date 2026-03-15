@@ -110,7 +110,8 @@ public class LinkedAccountDAO {
      * Kiểm tra Reader đã liên kết provider này chưa
      */
     public boolean isLinked(int readerId, String provider) {
-        String sql = "SELECT COUNT(*) FROM Reader_Account WHERE reader_id = ? AND provider = ?";
+        // So sánh provider không phân biệt hoa thường để hỗ trợ cả dữ liệu cũ ("Google") và mới ("google")
+        String sql = "SELECT COUNT(*) FROM Reader_Account WHERE reader_id = ? AND UPPER(provider) = UPPER(?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, readerId);
             ps.setString(2, provider);

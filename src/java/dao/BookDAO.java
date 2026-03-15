@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 /**
  * BookDAO - Enhanced Data Access Object with Advanced Filtering & Pagination
- * 
+ *
  * @author FPT Student Team
  */
 public class BookDAO {
@@ -33,15 +33,14 @@ public class BookDAO {
      */
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.Status = 'active' " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.Status = 'active' "
+                + "ORDER BY b.CreatedAt DESC";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 books.add(mapResultSetToBook(rs));
@@ -58,11 +57,11 @@ public class BookDAO {
      * Get book by ID
      */
     public Book getBookById(int bookId) {
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.BookID = ? AND b.Status = 'active'";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.BookID = ? AND b.Status = 'active'";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, bookId);
@@ -90,8 +89,8 @@ public class BookDAO {
     }
 
     /**
-     * Enhanced search with all filter criteria including language and publication
-     * year
+     * Enhanced search with all filter criteria including language and
+     * publication year
      */
     public List<Book> searchBooksAdvanced(String title, Integer authorId, Integer categoryId,
             BigDecimal minPrice, BigDecimal maxPrice,
@@ -192,17 +191,17 @@ public class BookDAO {
     public PaginatedResult<Book> searchByKeywordWithPagination(String keyword, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
 
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.Status = 'active' " +
-                "AND (LOWER(b.Title) LIKE ? " +
-                "OR LOWER(b.Summary) LIKE ? " +
-                "OR LOWER(b.Description) LIKE ? " +
-                "OR LOWER(a.AuthorName) LIKE ?) " +
-                "ORDER BY b.CreatedAt DESC " +
-                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.Status = 'active' "
+                + "AND (LOWER(b.Title) LIKE ? "
+                + "OR LOWER(b.Summary) LIKE ? "
+                + "OR LOWER(b.Description) LIKE ? "
+                + "OR LOWER(a.AuthorName) LIKE ?) "
+                + "ORDER BY b.CreatedAt DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         String searchPattern = "%" + keyword.toLowerCase() + "%";
         List<Book> books = new ArrayList<>();
@@ -236,16 +235,16 @@ public class BookDAO {
      */
     public List<Book> searchByKeyword(String keyword) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.Status = 'active' " +
-                "AND (LOWER(b.Title) LIKE ? " +
-                "OR LOWER(b.Summary) LIKE ? " +
-                "OR LOWER(b.Description) LIKE ? " +
-                "OR LOWER(a.AuthorName) LIKE ?) " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.Status = 'active' "
+                + "AND (LOWER(b.Title) LIKE ? "
+                + "OR LOWER(b.Summary) LIKE ? "
+                + "OR LOWER(b.Description) LIKE ? "
+                + "OR LOWER(a.AuthorName) LIKE ?) "
+                + "ORDER BY b.CreatedAt DESC";
 
         String searchPattern = "%" + keyword.toLowerCase() + "%";
 
@@ -273,12 +272,12 @@ public class BookDAO {
      */
     public List<Book> getBooksByCategory(int categoryId) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.CategoryID = ? AND b.Status = 'active' " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.CategoryID = ? AND b.Status = 'active' "
+                + "ORDER BY b.CreatedAt DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
@@ -301,12 +300,12 @@ public class BookDAO {
      */
     public List<Book> getBooksByAuthor(int authorId) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.AuthorID = ? AND b.Status = 'active' " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.AuthorID = ? AND b.Status = 'active' "
+                + "ORDER BY b.CreatedAt DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, authorId);
@@ -329,12 +328,12 @@ public class BookDAO {
      */
     public List<Book> getLatestBooks(int limit) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT TOP (?) b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.Status = 'active' " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT TOP (?) b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.Status = 'active' "
+                + "ORDER BY b.CreatedAt DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, limit);
@@ -357,16 +356,15 @@ public class BookDAO {
      */
     public List<Book> getFreeBooks() {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT b.*, a.AuthorName, c.CategoryName " +
-                "FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "LEFT JOIN Category c ON b.CategoryID = c.CategoryID " +
-                "WHERE b.Status = 'active' " +
-                "AND (b.Price IS NULL OR b.Price = 0) " +
-                "ORDER BY b.CreatedAt DESC";
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.Status = 'active' "
+                + "AND (b.Price IS NULL OR b.Price = 0) "
+                + "ORDER BY b.CreatedAt DESC";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 books.add(mapResultSetToBook(rs));
@@ -386,8 +384,7 @@ public class BookDAO {
         List<String> languages = new ArrayList<>();
         String sql = "SELECT DISTINCT Language FROM Book WHERE Status = 'active' AND Language IS NOT NULL ORDER BY Language";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 String language = rs.getString("Language");
@@ -408,11 +405,10 @@ public class BookDAO {
      */
     public List<Integer> getPublicationYearRange() {
         List<Integer> years = new ArrayList<>();
-        String sql = "SELECT MIN(PublicationYear) as MinYear, MAX(PublicationYear) as MaxYear FROM Book " +
-                "WHERE Status = 'active' AND PublicationYear IS NOT NULL";
+        String sql = "SELECT MIN(PublicationYear) as MinYear, MAX(PublicationYear) as MaxYear FROM Book "
+                + "WHERE Status = 'active' AND PublicationYear IS NOT NULL";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 years.add(rs.getInt("MinYear"));
@@ -432,8 +428,7 @@ public class BookDAO {
     public int getTotalBookCount() {
         String sql = "SELECT COUNT(*) FROM Book WHERE Status = 'active'";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -469,45 +464,50 @@ public class BookDAO {
     }
 
     // ========== PAGINATION HELPER METHODS ==========
-
     /**
      * Tạo sách mới — trả về BookID vừa tạo, hoặc -1 nếu thất bại
      */
     public int createBook(Book book) {
-        String sql = "INSERT INTO Book (Title, Summary, Description, AuthorID, CategoryID, " +
-                "Price, Currency, TotalPages, PreviewPages, Language, PublicationYear, " +
-                "CoverURL, Status, CreatedAt, UpdatedAt) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', GETDATE(), GETDATE())";
+        String sql = "INSERT INTO Book (Title, Summary, Description, AuthorID, CategoryID, "
+                + "Price, Currency, TotalPages, PreviewPages, Language, PublicationYear, "
+                + "CoverURL, Status, CreatedAt, UpdatedAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', GETDATE(), GETDATE())";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setNString(1, book.getTitle());
             ps.setNString(2, book.getSummary());
             ps.setNString(3, book.getDescription());
-            if (book.getAuthorId() != null)
+            if (book.getAuthorId() != null) {
                 ps.setInt(4, book.getAuthorId());
-            else
+            } else {
                 ps.setNull(4, Types.INTEGER);
-            if (book.getCategoryId() != null)
+            }
+            if (book.getCategoryId() != null) {
                 ps.setInt(5, book.getCategoryId());
-            else
+            } else {
                 ps.setNull(5, Types.INTEGER);
-            if (book.getPrice() != null)
+            }
+            if (book.getPrice() != null) {
                 ps.setBigDecimal(6, book.getPrice());
-            else
+            } else {
                 ps.setNull(6, Types.DECIMAL);
+            }
             ps.setString(7, book.getCurrency() != null ? book.getCurrency() : "VND");
-            if (book.getTotalPages() != null)
+            if (book.getTotalPages() != null) {
                 ps.setInt(8, book.getTotalPages());
-            else
+            } else {
                 ps.setNull(8, Types.INTEGER);
-            if (book.getPreviewPages() != null)
+            }
+            if (book.getPreviewPages() != null) {
                 ps.setInt(9, book.getPreviewPages());
-            else
+            } else {
                 ps.setNull(9, Types.INTEGER);
+            }
             ps.setString(10, book.getLanguage());
-            if (book.getPublicationYear() != null)
+            if (book.getPublicationYear() != null) {
                 ps.setInt(11, book.getPublicationYear());
-            else
+            } else {
                 ps.setNull(11, Types.INTEGER);
+            }
             ps.setString(12, book.getCoverUrl());
             int rows = ps.executeUpdate();
             if (rows > 0) {
@@ -529,39 +529,45 @@ public class BookDAO {
      * Cập nhật thông tin sách
      */
     public boolean updateBook(Book book) {
-        String sql = "UPDATE Book SET Title=?, Summary=?, Description=?, AuthorID=?, CategoryID=?, " +
-                "Price=?, Currency=?, TotalPages=?, PreviewPages=?, Language=?, PublicationYear=?, " +
-                "CoverURL=?, UpdatedAt=GETDATE() WHERE BookID=?";
+        String sql = "UPDATE Book SET Title=?, Summary=?, Description=?, AuthorID=?, CategoryID=?, "
+                + "Price=?, Currency=?, TotalPages=?, PreviewPages=?, Language=?, PublicationYear=?, "
+                + "CoverURL=?, UpdatedAt=GETDATE() WHERE BookID=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setNString(1, book.getTitle());
             ps.setNString(2, book.getSummary());
             ps.setNString(3, book.getDescription());
-            if (book.getAuthorId() != null)
+            if (book.getAuthorId() != null) {
                 ps.setInt(4, book.getAuthorId());
-            else
+            } else {
                 ps.setNull(4, Types.INTEGER);
-            if (book.getCategoryId() != null)
+            }
+            if (book.getCategoryId() != null) {
                 ps.setInt(5, book.getCategoryId());
-            else
+            } else {
                 ps.setNull(5, Types.INTEGER);
-            if (book.getPrice() != null)
+            }
+            if (book.getPrice() != null) {
                 ps.setBigDecimal(6, book.getPrice());
-            else
+            } else {
                 ps.setNull(6, Types.DECIMAL);
+            }
             ps.setString(7, book.getCurrency() != null ? book.getCurrency() : "VND");
-            if (book.getTotalPages() != null)
+            if (book.getTotalPages() != null) {
                 ps.setInt(8, book.getTotalPages());
-            else
+            } else {
                 ps.setNull(8, Types.INTEGER);
-            if (book.getPreviewPages() != null)
+            }
+            if (book.getPreviewPages() != null) {
                 ps.setInt(9, book.getPreviewPages());
-            else
+            } else {
                 ps.setNull(9, Types.INTEGER);
+            }
             ps.setString(10, book.getLanguage());
-            if (book.getPublicationYear() != null)
+            if (book.getPublicationYear() != null) {
                 ps.setInt(11, book.getPublicationYear());
-            else
+            } else {
                 ps.setNull(11, Types.INTEGER);
+            }
             ps.setString(12, book.getCoverUrl());
             ps.setInt(13, book.getBookId());
             return ps.executeUpdate() > 0;
@@ -572,7 +578,6 @@ public class BookDAO {
     }
 
     // ========== PAGINATION HELPER METHODS ==========
-
     /**
      * Get total count for pagination
      */
@@ -613,13 +618,13 @@ public class BookDAO {
      * Get keyword search count
      */
     private int getKeywordSearchCount(String keyword) {
-        String sql = "SELECT COUNT(*) FROM Book b " +
-                "LEFT JOIN Author a ON b.AuthorID = a.AuthorID " +
-                "WHERE b.Status = 'active' " +
-                "AND (LOWER(b.Title) LIKE ? " +
-                "OR LOWER(b.Summary) LIKE ? " +
-                "OR LOWER(b.Description) LIKE ? " +
-                "OR LOWER(a.AuthorName) LIKE ?)";
+        String sql = "SELECT COUNT(*) FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "WHERE b.Status = 'active' "
+                + "AND (LOWER(b.Title) LIKE ? "
+                + "OR LOWER(b.Summary) LIKE ? "
+                + "OR LOWER(b.Description) LIKE ? "
+                + "OR LOWER(a.AuthorName) LIKE ?)";
 
         String searchPattern = "%" + keyword.toLowerCase() + "%";
 
@@ -858,8 +863,7 @@ public class BookDAO {
      */
     public int getAvailableStock(int bookId) {
         String sql = "SELECT ISNULL(stock_quantity, 0) FROM Book WHERE BookID = ?";
-        try (Connection con = util.DBUtil.getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, bookId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -877,14 +881,285 @@ public class BookDAO {
      */
     public boolean reduceStock(int bookId, int quantity) {
         String sql = "UPDATE Book SET stock_quantity = stock_quantity - ? WHERE BookID = ? AND stock_quantity >= ?";
-        try (Connection con = util.DBUtil.getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, quantity);
             ps.setInt(2, bookId);
             ps.setInt(3, quantity);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error reducing stock for bookId: " + bookId, e);
+        }
+        return false;
+    }
+
+    public List<Book> getBooksFiltered(String keyword, int categoryId, int authorId,
+            String status, int page, int pageSize) {
+
+        List<Book> books = new ArrayList<>();
+
+        String sql = """
+            SELECT b.*, 
+                   a.AuthorName AS author_name,
+                   c.CategoryName AS category_name
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorID = a.AuthorID
+            LEFT JOIN Category c ON b.CategoryID = c.CategoryID
+            WHERE 1=1
+                """;
+        System.out.println("SQL: " + sql);
+        System.out.println("Books size: " + books.size());
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
+        }
+        if (categoryId > 0) {
+            sql += "AND b.CategoryID = ? ";
+        }
+        if (authorId > 0) {
+            sql += "AND b.AuthorID = ? ";
+        }
+        if (status != null && !status.isEmpty()) {
+            sql += "AND b.Status = ? ";
+        }
+
+        sql += "ORDER BY b.CreatedAt DESC "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int idx = 1;
+
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+
+            if (categoryId > 0) {
+                ps.setInt(idx++, categoryId);
+            }
+
+            if (authorId > 0) {
+                ps.setInt(idx++, authorId);
+            }
+
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx++, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    books.add(extractBookFromResultSet(rs));
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("getBooksFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return books;
+    }
+
+    public int countBooksFiltered(String keyword, int categoryId, int authorId, String status) {
+
+        String sql = """
+                     SELECT COUNT(*) 
+                                     FROM Book b 
+                                     LEFT JOIN Author a ON b.AuthorID = a.AuthorID 
+                                     WHERE 1=1""";
+
+        if (keyword != null && !keyword.isEmpty()) {
+            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
+        }
+
+        if (categoryId > 0) {
+            sql += "AND b.CategoryID = ? ";
+        }
+
+        if (authorId > 0) {
+            sql += "AND b.AuthorID = ? ";
+        }
+
+        if (status != null && !status.isEmpty()) {
+            sql += "AND b.Status = ? ";
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            int idx = 1;
+
+            if (keyword != null && !keyword.isEmpty()) {
+                String kw = "%" + keyword + "%";
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+                ps.setString(idx++, kw);
+            }
+
+            if (categoryId > 0) {
+                ps.setInt(idx++, categoryId);
+            }
+
+            if (authorId > 0) {
+                ps.setInt(idx++, authorId);
+            }
+
+            if (status != null && !status.isEmpty()) {
+                ps.setString(idx++, status);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("countBooksFiltered Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    private Book extractBookFromResultSet(ResultSet rs) throws SQLException {
+
+        Book book = new Book();
+
+        book.setBookId(rs.getInt("BookID"));
+        book.setTitle(rs.getString("Title"));
+        book.setSummary(rs.getString("Summary"));
+        book.setDescription(rs.getString("Description"));
+        book.setCoverUrl(rs.getString("CoverURL"));
+        book.setContentPath(rs.getString("ContentPath"));
+
+        book.setPrice(rs.getBigDecimal("Price"));
+        book.setCurrency(rs.getString("Currency"));
+
+        book.setTotalPages(rs.getInt("TotalPages"));
+        book.setPreviewPages(rs.getInt("PreviewPages"));
+
+        book.setStatus(rs.getString("Status"));
+
+        if (rs.getTimestamp("CreatedAt") != null) {
+            book.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
+        }
+
+        if (rs.getTimestamp("UpdatedAt") != null) {
+            book.setUpdatedAt(rs.getTimestamp("UpdatedAt").toLocalDateTime());
+        }
+
+        book.setAuthorId(rs.getInt("AuthorID"));
+        book.setCategoryId(rs.getInt("CategoryID"));
+
+        int createdBy = rs.getInt("CreatedByEmployeeID");
+        if (!rs.wasNull()) {
+            book.setCreatedByEmployeeId(createdBy);
+        }
+
+        int updatedBy = rs.getInt("UpdatedByEmployeeID");
+        if (!rs.wasNull()) {
+            book.setUpdatedByEmployeeId(updatedBy);
+        }
+
+        book.setCategoryName(rs.getString("category_name"));
+        book.setAuthorName(rs.getString("author_name"));
+
+        return book;
+    }
+
+    public BigDecimal getMaxPrice() {
+        String sql = "SELECT MAX(price) AS max_price FROM Book";
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                BigDecimal val = rs.getBigDecimal("max_price");
+                if (val != null) {
+                    return val;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getMaxPrice Error: " + e.getMessage());
+        }
+        return new BigDecimal("100000000");
+    }
+
+    public BigDecimal getMinPrice() {
+        String sql = "SELECT MIN(price) AS min_price FROM Book WHERE price > 0";
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                BigDecimal val = rs.getBigDecimal("min_price");
+                if (val != null) {
+                    return val;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getMinPrice Error: " + e.getMessage());
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public int getMaxTotalPages() {
+        String sql = "SELECT MAX(total_pages) AS max_pages FROM Book";
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int val = rs.getInt("max_pages");
+                if (val > 0) {
+                    return val;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getMaxTotalPages Error: " + e.getMessage());
+        }
+        return 10000;
+    }
+
+    public boolean addBook(Book book) {
+        String sql = """
+                     INSERT INTO Book (Title, Summary, Description, CoverURL, "
+                                     + "ContentPath, Price, Currency, TotalPages, PreviewPages, "
+                                     + "Status, AuthorID, CategoryID, CreatedByEmployeeID) "
+                                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""";
+
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getSummary());
+            ps.setString(3, book.getDescription());
+            ps.setString(4, book.getCoverUrl());
+            ps.setString(5, book.getContentPath());
+            ps.setBigDecimal(6, book.getPrice());
+            ps.setString(7, book.getCurrency());
+            ps.setInt(8, book.getTotalPages());
+            ps.setInt(9, book.getPreviewPages());
+            ps.setString(10, book.getStatus());
+
+            if (book.getAuthorId() > 0) {
+                ps.setInt(11, book.getAuthorId());
+            } else {
+                ps.setNull(11, Types.INTEGER);
+            }
+            if (book.getCategoryId() > 0) {
+                ps.setInt(12, book.getCategoryId());
+            } else {
+                ps.setNull(12, Types.INTEGER);
+            }
+            if (book.getCreatedByEmployeeId() != null && book.getCreatedByEmployeeId() > 0) {
+                ps.setInt(13, book.getCreatedByEmployeeId());
+            } else {
+                ps.setNull(13, Types.INTEGER);
+            }
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            System.err.println("addBook Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }

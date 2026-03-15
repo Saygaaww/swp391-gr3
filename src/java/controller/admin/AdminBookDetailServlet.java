@@ -1,8 +1,8 @@
 package controller.admin;
 
-import dal.BookDAO;
-import dal.AuthorDAO;
-import dal.CategoryDAO;
+import dao.BookDAO;
+import dao.AuthorDAO;
+import dao.CategoryDAO;
 import dal.BorrowDAO;
 import model.Book;
 import model.Author;
@@ -68,7 +68,7 @@ public class AdminBookDetailServlet extends HttpServlet {
             if (book == null) {
                 request.setAttribute("errorMessage", "Khong tim thay sach ID: " + bookId);
                 request.setAttribute("currentEmployee", currentEmployee);
-                request.getRequestDispatcher("/WEB-INF/jsp/admin/book-detail.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/admin/book-detail.jsp").forward(request, response);
                 return;
             }
 
@@ -105,7 +105,7 @@ public class AdminBookDetailServlet extends HttpServlet {
             request.setAttribute("statusColor", statusColor);
             request.setAttribute("currentEmployee", currentEmployee);
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/book-detail.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/book-detail.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             System.err.println("Invalid book ID format: " + idStr);

@@ -129,13 +129,22 @@ public class AdminReaderListServlet extends HttpServlet {
             request.setAttribute("filterStatus", filterStatus);
             request.setAttribute("filterRoleId", filterRoleId);
 
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/users.jsp").forward(request, response);
+            if (session.getAttribute("successMessage") != null) {
+                request.setAttribute("successMessage", session.getAttribute("successMessage"));
+                session.removeAttribute("successMessage");
+            }
+            if (session.getAttribute("errorMessage") != null) {
+                request.setAttribute("errorMessage", session.getAttribute("errorMessage"));
+                session.removeAttribute("errorMessage");
+            }
+
+            request.getRequestDispatcher("/jsp/admin/users.jsp").forward(request, response);
 
         } catch (Exception e) {
             System.err.println("Error in doGet: " + e.getMessage());
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi he thong: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/users.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/users.jsp").forward(request, response);
         }
     }
 

@@ -48,20 +48,20 @@ public class AuthController extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/books");
                     return;
                 }
-                forward(request, response, "/WEB-INF/jsp/auth/register.jsp");
+                forward(request, response, "/jsp/auth/register.jsp");
                 break;
             case "/login":
                 if (isLoggedInAsReader(request)) {
                     response.sendRedirect(request.getContextPath() + "/books");
                     return;
                 }
-                forward(request, response, "/WEB-INF/jsp/auth/login.jsp");
+                forward(request, response, "/jsp/auth/login.jsp");
                 break;
             case "/logout":
                 handleLogout(request, response);
                 break;
             case "/forgot-password":
-                forward(request, response, "/WEB-INF/jsp/auth/forgot-password.jsp");
+                forward(request, response, "/jsp/auth/forgot-password.jsp");
                 break;
             case "/reset-password":
                 handleShowResetPassword(request, response);
@@ -76,7 +76,7 @@ public class AuthController extends HttpServlet {
                 if (request.getSession().getAttribute("pendingGoogleEmail") == null) {
                     response.sendRedirect(request.getContextPath() + "/auth/login");
                 } else {
-                    forward(request, response, "/WEB-INF/jsp/auth/verify-google-otp.jsp");
+                    forward(request, response, "/jsp/auth/verify-google-otp.jsp");
                 }
                 break;
             default:
@@ -127,25 +127,25 @@ public class AuthController extends HttpServlet {
 
         // Validation
         if (StringUtil.isBlank(fullName)) {
-            setErrorAndForward(request, response, "Vui lòng nhập họ tên.", "/WEB-INF/jsp/auth/register.jsp");
+            setErrorAndForward(request, response, "Vui lòng nhập họ tên.", "/jsp/auth/register.jsp");
             return;
         }
         if (StringUtil.isBlank(email) || !email.matches("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$")) {
-            setErrorAndForward(request, response, "Email không hợp lệ.", "/WEB-INF/jsp/auth/register.jsp");
+            setErrorAndForward(request, response, "Email không hợp lệ.", "/jsp/auth/register.jsp");
             return;
         }
         if (StringUtil.isBlank(password) || password.length() < 8) {
             setErrorAndForward(request, response, "Mật khẩu phải có ít nhất 8 ký tự.",
-                    "/WEB-INF/jsp/auth/register.jsp");
+                    "/jsp/auth/register.jsp");
             return;
         }
         if (!PasswordUtil.isStrongPassword(password)) {
             setErrorAndForward(request, response, "Mật khẩu phải có chữ hoa, chữ thường và số.",
-                    "/WEB-INF/jsp/auth/register.jsp");
+                    "/jsp/auth/register.jsp");
             return;
         }
         if (!password.equals(confirm)) {
-            setErrorAndForward(request, response, "Xác nhận mật khẩu không khớp.", "/WEB-INF/jsp/auth/register.jsp");
+            setErrorAndForward(request, response, "Xác nhận mật khẩu không khớp.", "/jsp/auth/register.jsp");
             return;
         }
 
@@ -153,7 +153,7 @@ public class AuthController extends HttpServlet {
         try {
             readerDAO = new ReaderDAO();
             if (readerDAO.emailExists(email)) {
-                setErrorAndForward(request, response, "Email này đã được đăng ký.", "/WEB-INF/jsp/auth/register.jsp");
+                setErrorAndForward(request, response, "Email này đã được đăng ký.", "/jsp/auth/register.jsp");
                 return;
             }
 
@@ -186,12 +186,12 @@ public class AuthController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/books?registered=1");
             } else {
                 setErrorAndForward(request, response, "Đăng ký thất bại. Vui lòng thử lại.",
-                        "/WEB-INF/jsp/auth/register.jsp");
+                        "/jsp/auth/register.jsp");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Register error", e);
             setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại sau.",
-                    "/WEB-INF/jsp/auth/register.jsp");
+                    "/jsp/auth/register.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -208,7 +208,7 @@ public class AuthController extends HttpServlet {
         String redirect = request.getParameter("redirect");
 
         if (StringUtil.isBlank(email) || StringUtil.isBlank(password)) {
-            setErrorAndForward(request, response, "Vui lòng nhập email và mật khẩu.", "/WEB-INF/jsp/auth/login.jsp");
+            setErrorAndForward(request, response, "Vui lòng nhập email và mật khẩu.", "/jsp/auth/login.jsp");
             return;
         }
 
@@ -222,14 +222,14 @@ public class AuthController extends HttpServlet {
                     && verifyEmployeePassword(password, employee.getPasswordHash(), employee, employeeDAO)) {
                 if (!employee.isActive()) {
                     setErrorAndForward(request, response, "Tài khoản nhân viên đã bị vô hiệu hóa.",
-                            "/WEB-INF/jsp/auth/login.jsp");
+                            "/jsp/auth/login.jsp");
                     return;
                 }
                 // Đăng nhập thành công với role từ DB
                 loginEmployeeSession(request, employee);
 
                 // Redirect dựa trên role
-                if (AuthUtil.ROLE_ADMIN.equals(employee.getRoleName())) {
+                if (AuthUtil.ROLE_ADMIN.equals(employee.getAuthRole())) {
                     response.sendRedirect(request.getContextPath() + "/admin/dashboard");
                 } else {
                     response.sendRedirect(request.getContextPath() + "/books");
@@ -250,14 +250,15 @@ public class AuthController extends HttpServlet {
             readerDAO = new ReaderDAO();
             Reader reader = readerDAO.findByEmail(email);
 
+            // Hỗ trợ cả mật khẩu hash (salt:hash) và plain text cũ, tương tự Employee
             if (reader == null || !reader.hasPassword()
-                    || !PasswordUtil.verifyPassword(password, reader.getPasswordHash())) {
-                setErrorAndForward(request, response, "Email hoặc mật khẩu không đúng.", "/WEB-INF/jsp/auth/login.jsp");
+                    || !verifyReaderPassword(password, reader.getPasswordHash(), reader, readerDAO)) {
+                setErrorAndForward(request, response, "Email hoặc mật khẩu không đúng.", "/jsp/auth/login.jsp");
                 return;
             }
             if (reader.isBanned()) {
                 setErrorAndForward(request, response, "Tài khoản của bạn đã bị vô hiệu hóa.",
-                        "/WEB-INF/jsp/auth/login.jsp");
+                        "/jsp/auth/login.jsp");
                 return;
             }
 
@@ -271,7 +272,7 @@ public class AuthController extends HttpServlet {
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Login error", e);
-            setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.", "/WEB-INF/jsp/auth/login.jsp");
+            setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.", "/jsp/auth/login.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -304,7 +305,7 @@ public class AuthController extends HttpServlet {
 
         if (error != null || code == null || code.isBlank()) {
             setErrorAndForward(request, response, "Đăng nhập Google bị hủy hoặc thất bại.",
-                    "/WEB-INF/jsp/auth/login.jsp");
+                    "/jsp/auth/login.jsp");
             return;
         }
 
@@ -321,7 +322,7 @@ public class AuthController extends HttpServlet {
 
             if (googleAccount == null || googleAccount.getEmail() == null) {
                 setErrorAndForward(request, response, "Không lấy được thông tin tài khoản Google.",
-                        "/WEB-INF/jsp/auth/login.jsp");
+                        "/jsp/auth/login.jsp");
                 return;
             }
 
@@ -335,32 +336,38 @@ public class AuthController extends HttpServlet {
                 Reader reader = readerDAO.findByEmail(googleEmail);
 
                 if (reader == null) {
-                    // Tạo tài khoản mới
-                    reader = new Reader(googleName, googleEmail, null);
+                    // Tạo tài khoản mới cho Google user
+                    // Cột password_hash trong DB là NOT NULL nên phải set một mật khẩu ngẫu nhiên
+                    String randomPassword = TokenUtil.generateToken();
+                    String randomHash = PasswordUtil.hashPassword(randomPassword);
+
+                    reader = new Reader(googleName, googleEmail, randomHash);
                     reader.setStatus("active");
+                    // role_id được mặc định = 4 (USER) trong ReaderDAO.createReader
                     readerDAO.createReader(reader);
                     reader = readerDAO.findByEmail(googleEmail);
                 }
 
                 if (reader == null) {
                     setErrorAndForward(request, response, "Không thể tạo tài khoản. Vui lòng thử lại.",
-                            "/WEB-INF/jsp/auth/login.jsp");
+                            "/jsp/auth/login.jsp");
                     return;
                 }
 
                 if (reader.isBanned()
                         || (reader.getStatus() != null && !reader.getStatus().equalsIgnoreCase("active"))) {
                     setErrorAndForward(request, response, "Tài khoản của bạn đã bị vô hiệu hóa hoặc đang bị khóa.",
-                            "/WEB-INF/jsp/auth/login.jsp");
+                            "/jsp/auth/login.jsp");
                     return;
                 }
 
                 LinkedAccountDAO linkedAccountDAO = new LinkedAccountDAO();
                 try {
-                    if (!linkedAccountDAO.isLinked(reader.getReaderId(), "Google")) {
+                    // Chuẩn hóa provider = "google" (lowercase) để đồng nhất với ProfileController/LinkedAccountDAO
+                    if (!linkedAccountDAO.isLinked(reader.getReaderId(), "google")) {
                         LinkedAccount la = new LinkedAccount();
                         la.setReaderId(reader.getReaderId());
-                        la.setProvider("Google");
+                        la.setProvider("google");
                         la.setProviderUserId(googleAccount.getId());
                         la.setProviderEmail(googleAccount.getEmail());
                         linkedAccountDAO.linkAccount(la);
@@ -391,7 +398,7 @@ public class AuthController extends HttpServlet {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Google OAuth callback error", e);
             setErrorAndForward(request, response, "Lỗi đăng nhập Google: " + e.getMessage(),
-                    "/WEB-INF/jsp/auth/login.jsp");
+                    "/jsp/auth/login.jsp");
         }
     }
 
@@ -413,7 +420,7 @@ public class AuthController extends HttpServlet {
 
         String email = StringUtil.cleanInput(request.getParameter("email"));
         if (StringUtil.isBlank(email)) {
-            setErrorAndForward(request, response, "Vui lòng nhập email.", "/WEB-INF/jsp/auth/forgot-password.jsp");
+            setErrorAndForward(request, response, "Vui lòng nhập email.", "/jsp/auth/forgot-password.jsp");
             return;
         }
 
@@ -435,11 +442,11 @@ public class AuthController extends HttpServlet {
             }
             request.setAttribute("success",
                     "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi link đặt lại mật khẩu.");
-            forward(request, response, "/WEB-INF/jsp/auth/forgot-password.jsp");
+            forward(request, response, "/jsp/auth/forgot-password.jsp");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Forgot password error", e);
             setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.",
-                    "/WEB-INF/jsp/auth/forgot-password.jsp");
+                    "/jsp/auth/forgot-password.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -453,7 +460,7 @@ public class AuthController extends HttpServlet {
         String token = request.getParameter("token");
         if (!TokenUtil.isValidTokenFormat(token)) {
             request.setAttribute("error", "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
             return;
         }
         ReaderDAO readerDAO = null;
@@ -465,11 +472,11 @@ public class AuthController extends HttpServlet {
             } else {
                 request.setAttribute("token", token);
             }
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Show reset password error", e);
             request.setAttribute("error", "Có lỗi xảy ra.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -485,19 +492,19 @@ public class AuthController extends HttpServlet {
 
         if (!TokenUtil.isValidTokenFormat(token)) {
             request.setAttribute("error", "Token không hợp lệ.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
             return;
         }
         if (!PasswordUtil.isStrongPassword(password)) {
             request.setAttribute("token", token);
             request.setAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự, chữ hoa, chữ thường và số.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
             return;
         }
         if (!password.equals(confirm)) {
             request.setAttribute("token", token);
             request.setAttribute("error", "Xác nhận mật khẩu không khớp.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
             return;
         }
 
@@ -507,7 +514,7 @@ public class AuthController extends HttpServlet {
             int readerId = readerDAO.validateResetToken(token);
             if (readerId < 0) {
                 request.setAttribute("error", "Link đặt lại mật khẩu đã hết hạn.");
-                forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+                forward(request, response, "/jsp/auth/reset-password.jsp");
                 return;
             }
             readerDAO.updatePasswordHash(readerId, PasswordUtil.hashPassword(password));
@@ -517,7 +524,7 @@ public class AuthController extends HttpServlet {
             LOGGER.log(Level.SEVERE, "Reset password error", e);
             request.setAttribute("token", token);
             request.setAttribute("error", "Có lỗi xảy ra. Vui lòng thử lại.");
-            forward(request, response, "/WEB-INF/jsp/auth/reset-password.jsp");
+            forward(request, response, "/jsp/auth/reset-password.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -540,30 +547,86 @@ public class AuthController extends HttpServlet {
         session.setAttribute(AuthUtil.SESSION_USER, employee);
         session.setAttribute(AuthUtil.SESSION_USER_ID, employee.getEmployeeId());
         session.setAttribute(AuthUtil.SESSION_EMPLOYEE_ID, employee.getEmployeeId());
-        // Role từ DB: ADMIN → "Admin", LIBRARIAN → "Librarian", SELLER → "Seller"
+        // Lưu thêm attribute "employee" để AuthFilter có thể lấy ra
+        session.setAttribute("employee", employee);
+        // Role từ DB được map sang hằng trong AuthUtil: ADMIN → "Admin", LIBRARIAN → "Librarian", SELLER → "Seller"
         session.setAttribute(AuthUtil.SESSION_USER_ROLE, employee.getAuthRole());
     }
 
     /**
-     * Verify mật khẩu Employee — hỗ trợ cả:
+     * Verify mật khẩu Employee — hỗ trợ:
      * 1. salt:hash (format mới đúng chuẩn)
-     * 2. Plain text (dữ liệu cũ/dev — tự động upgrade lên hash)
+     * 2. Legacy SHA-256 hex (script SQL cũ)
+     * 3. Plain text (dữ liệu dev) — và tự động upgrade lên hash mới
      */
     private boolean verifyEmployeePassword(String rawPassword, String storedHash,
             Employee employee, EmployeeDAO employeeDAO) {
-        // Kiểm tra hash format trước
+        if (storedHash == null) {
+            return false;
+        }
+        // 1) Đúng chuẩn salt:hash mới
         if (storedHash.contains(":")) {
             return PasswordUtil.verifyPassword(rawPassword, storedHash);
         }
-        // Plain text fallback (legacy / dev data)
+        // 2) Legacy SHA-256 hex không có salt/pepper (dùng trong script seed DB)
+        if (storedHash.length() == 64 && PasswordUtil.verifyLegacySha256(rawPassword, storedHash)) {
+            try {
+                String newHash = PasswordUtil.hashPassword(rawPassword);
+                employeeDAO.updatePasswordHash(employee.getEmployeeId(), newHash);
+                LOGGER.info("Auto-upgraded legacy SHA-256 Employee password to salted hash for: " + employee.getEmail());
+            } catch (Exception ex) {
+                LOGGER.warning("Could not upgrade legacy employee password hash: " + ex.getMessage());
+            }
+            return true;
+        }
+        // 3) Plain text fallback (legacy / dev data)
         if (rawPassword.equals(storedHash)) {
-            // Tự động upgrade sang hash
             try {
                 String newHash = PasswordUtil.hashPassword(rawPassword);
                 employeeDAO.updatePasswordHash(employee.getEmployeeId(), newHash);
                 LOGGER.info("Auto-upgraded Employee password to hash for: " + employee.getEmail());
             } catch (Exception ex) {
                 LOGGER.warning("Could not upgrade employee password hash: " + ex.getMessage());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Verify mật khẩu Reader — hỗ trợ:
+     * 1. salt:hash (format mới đúng chuẩn)
+     * 2. Legacy SHA-256 hex (script SQL cũ)
+     * 3. Plain text (dữ liệu cũ/dev) — tự động upgrade
+     */
+    private boolean verifyReaderPassword(String rawPassword, String storedHash,
+            Reader reader, ReaderDAO readerDAO) {
+        if (storedHash == null) {
+            return false;
+        }
+        // 1) Nếu đã ở format salt:hash chuẩn
+        if (storedHash.contains(":")) {
+            return PasswordUtil.verifyPassword(rawPassword, storedHash);
+        }
+        // 2) Legacy SHA-256 hex (script SQL)
+        if (storedHash.length() == 64 && PasswordUtil.verifyLegacySha256(rawPassword, storedHash)) {
+            try {
+                String newHash = PasswordUtil.hashPassword(rawPassword);
+                readerDAO.updatePasswordHash(reader.getReaderId(), newHash);
+                LOGGER.info("Auto-upgraded legacy SHA-256 Reader password to salted hash for: " + reader.getEmail());
+            } catch (Exception ex) {
+                LOGGER.warning("Could not upgrade legacy reader password hash: " + ex.getMessage());
+            }
+            return true;
+        }
+        // 3) Plain text fallback (legacy / dev data)
+        if (rawPassword.equals(storedHash)) {
+            try {
+                String newHash = PasswordUtil.hashPassword(rawPassword);
+                readerDAO.updatePasswordHash(reader.getReaderId(), newHash);
+                LOGGER.info("Auto-upgraded Reader password to hash for: " + reader.getEmail());
+            } catch (Exception ex) {
+                LOGGER.warning("Could not upgrade reader password hash: " + ex.getMessage());
             }
             return true;
         }
@@ -610,14 +673,14 @@ public class AuthController extends HttpServlet {
         if (expiry == null || System.currentTimeMillis() > expiry) {
             session.removeAttribute("googleOtp");
             request.setAttribute("error", "Mã OTP đã hết hạn. Vui lòng đăng nhập lại.");
-            forward(request, response, "/WEB-INF/jsp/auth/verify-google-otp.jsp");
+            forward(request, response, "/jsp/auth/verify-google-otp.jsp");
             return;
         }
 
         // Kiểm tra OTP
         if (!sessionOtp.equals(inputOtp != null ? inputOtp.trim() : "")) {
             request.setAttribute("error", "Mã OTP không đúng. Vui lòng thử lại.");
-            forward(request, response, "/WEB-INF/jsp/auth/verify-google-otp.jsp");
+            forward(request, response, "/jsp/auth/verify-google-otp.jsp");
             return;
         }
 
@@ -633,14 +696,14 @@ public class AuthController extends HttpServlet {
             readerDAO = new ReaderDAO();
             Reader reader = readerDAO.findById(readerId);
             if (reader == null) {
-                setErrorAndForward(request, response, "Tài khoản không tồn tại.", "/WEB-INF/jsp/auth/login.jsp");
+                setErrorAndForward(request, response, "Tài khoản không tồn tại.", "/jsp/auth/login.jsp");
                 return;
             }
             loginSession(request, reader);
             response.sendRedirect(request.getContextPath() + "/books");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Verify Google OTP error", e);
-            setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.", "/WEB-INF/jsp/auth/login.jsp");
+            setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.", "/jsp/auth/login.jsp");
         } finally {
             if (readerDAO != null)
                 readerDAO.close();

@@ -62,7 +62,7 @@ public class BookFileController extends HttpServlet {
                 request.setAttribute("book", book);
                 request.setAttribute("pageTitle", "Cập nhật file nội dung - " + book.getTitle());
 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/upload.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/upload.jsp");
                 dispatcher.forward(request, response);
             } finally {
                 bookDAO.close();
@@ -176,7 +176,7 @@ public class BookFileController extends HttpServlet {
             request.setAttribute("error", errorMessage);
             request.setAttribute("pageTitle", "Cập nhật file nội dung - " + book.getTitle());
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/books/upload.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/upload.jsp");
             dispatcher.forward(request, response);
         } finally {
             bookDAO.close();
@@ -198,7 +198,7 @@ public class BookFileController extends HttpServlet {
             request.getSession().setAttribute("redirectAfterLogin", requestedURL);
             response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
         } else {
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/error/unauthorized.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/error/unauthorized.jsp");
             dispatcher.forward(request, response);
         }
     }

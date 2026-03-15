@@ -11,14 +11,17 @@ public class ReaderBookOwnershipDAO {
 
     public List<ReaderBookOwnership> getByReader(int readerId) {
         List<ReaderBookOwnership> list = new ArrayList<>();
-        String sql = """
-            SELECT o.*, b.title AS book_title, b.cover_url AS book_cover_url, b.content_path, b.total_pages AS book_total_pages, a.author_name
-            FROM Reader_Book_Ownership o
-            JOIN Book b ON o.book_id = b.book_id
-            LEFT JOIN Author a ON b.author_id = a.author_id
-            WHERE o.reader_id = ? AND (o.status IS NULL OR o.status = 'active')
-            ORDER BY o.acquired_at DESC
-        """;
+        String sql = "SELECT o.*, "
+                + "b.Title AS book_title, "
+                + "b.CoverURL AS book_cover_url, "
+                + "b.ContentPath AS content_path, "
+                + "b.TotalPages AS book_total_pages, "
+                + "a.AuthorName AS author_name "
+                + "FROM Reader_Book_Ownership o "
+                + "JOIN Book b ON o.book_id = b.BookID "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "WHERE o.reader_id = ? AND (o.status IS NULL OR o.status = 'active') "
+                + "ORDER BY o.acquired_at DESC";
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, readerId);
@@ -42,13 +45,16 @@ public class ReaderBookOwnershipDAO {
     }
 
     public ReaderBookOwnership getByReaderAndBook(int readerId, int bookId) {
-        String sql = """
-            SELECT o.*, b.title AS book_title, b.cover_url AS book_cover_url, b.content_path, b.total_pages AS book_total_pages, a.author_name
-            FROM Reader_Book_Ownership o
-            JOIN Book b ON o.book_id = b.book_id
-            LEFT JOIN Author a ON b.author_id = a.author_id
-            WHERE o.reader_id = ? AND o.book_id = ? AND (o.status IS NULL OR o.status = 'active')
-        """;
+        String sql = "SELECT o.*, "
+                + "b.Title AS book_title, "
+                + "b.CoverURL AS book_cover_url, "
+                + "b.ContentPath AS content_path, "
+                + "b.TotalPages AS book_total_pages, "
+                + "a.AuthorName AS author_name "
+                + "FROM Reader_Book_Ownership o "
+                + "JOIN Book b ON o.book_id = b.BookID "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "WHERE o.reader_id = ? AND o.book_id = ? AND (o.status IS NULL OR o.status = 'active')";
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, readerId);

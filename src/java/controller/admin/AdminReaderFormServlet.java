@@ -61,7 +61,7 @@ public class AdminReaderFormServlet extends HttpServlet {
             }
 
             request.setAttribute("currentEmployee", session.getAttribute("user"));
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/reader-form.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             response.sendRedirect(request.getContextPath() + "/admin/readers");
@@ -214,7 +214,7 @@ public class AdminReaderFormServlet extends HttpServlet {
             request.setAttribute("mode", "add");
             request.setAttribute("reader", new Reader());
             request.setAttribute("currentEmployee", request.getSession().getAttribute("employee"));
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/reader-form.jsp").forward(request, response);
         }
     }
 
@@ -243,6 +243,6 @@ public class AdminReaderFormServlet extends HttpServlet {
 
         request.setAttribute("reader", reader);
         request.setAttribute("currentEmployee", request.getSession().getAttribute("employee"));
-        request.getRequestDispatcher("/WEB-INF/jsp/admin/reader-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/admin/reader-form.jsp").forward(request, response);
     }
 }

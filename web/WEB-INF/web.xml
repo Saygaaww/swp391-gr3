@@ -118,6 +118,21 @@
         <url-pattern>/categories/*</url-pattern>
     </servlet-mapping>
 
+    <!-- Customer Controller (Cart / Orders / My Library, etc.) -->
+    <servlet>
+        <servlet-name>CustomerController</servlet-name>
+        <servlet-class>controller.CustomerController</servlet-class>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CustomerController</servlet-name>
+        <url-pattern>/customer</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerController</servlet-name>
+        <url-pattern>/customer/*</url-pattern>
+    </servlet-mapping>
+
     <!-- Error Pages -->
     <error-page>
         <error-code>404</error-code>

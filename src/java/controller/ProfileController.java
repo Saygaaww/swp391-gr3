@@ -38,13 +38,13 @@ public class ProfileController extends HttpServlet {
 
         switch (pathInfo) {
             case "/view":
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/view-profile.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/view-profile.jsp").forward(request, response);
                 break;
             case "/edit":
                 handleShowEditProfile(request, response);
                 break;
             case "/change-password":
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 break;
             case "/linked-accounts":
                 handleShowLinkedAccounts(request, response);
@@ -86,7 +86,7 @@ public class ProfileController extends HttpServlet {
     private void handleShowEditProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Reader đã có trong session
-        request.getRequestDispatcher("/WEB-INF/jsp/profile/edit-profile.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/profile/edit-profile.jsp").forward(request, response);
     }
 
     private void handleUpdateProfile(HttpServletRequest request, HttpServletResponse response)
@@ -99,7 +99,7 @@ public class ProfileController extends HttpServlet {
 
         if (StringUtil.isBlank(fullName)) {
             request.setAttribute("error", "Họ tên không được để trống.");
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/view-profile.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/view-profile.jsp").forward(request, response);
             return;
         }
 
@@ -111,7 +111,7 @@ public class ProfileController extends HttpServlet {
                     !avatarUrl.startsWith("data:image/gif;base64,")) {
 
                 request.setAttribute("error", "Định dạng ảnh không hợp lệ! Vui lòng chọn JPG hoặc GIF.");
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/view-profile.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/view-profile.jsp").forward(request, response);
                 return;
             }
         }
@@ -134,11 +134,11 @@ public class ProfileController extends HttpServlet {
             } else {
                 request.setAttribute("error", "Không thể cập nhật hồ sơ. Vui lòng thử lại.");
             }
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/view-profile.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/view-profile.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Update profile error", e);
             request.setAttribute("error", "Có lỗi xảy ra.");
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/edit-profile.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/edit-profile.jsp").forward(request, response);
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -155,7 +155,7 @@ public class ProfileController extends HttpServlet {
         // Kiểm tra Reader có password không (phòng trường hợp chỉ dùng Social Login)
         if (!sessionReader.hasPassword()) {
             request.setAttribute("error", "Tài khoản của bạn không sử dụng mật khẩu (đăng nhập qua mạng xã hội).");
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
             return;
         }
 
@@ -170,17 +170,17 @@ public class ProfileController extends HttpServlet {
 
             if (!PasswordUtil.verifyPassword(currentPassword, reader.getPasswordHash())) {
                 request.setAttribute("error", "Mật khẩu hiện tại không đúng.");
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
             if (!PasswordUtil.isStrongPassword(newPassword)) {
                 request.setAttribute("error", "Mật khẩu mới phải có ít nhất 8 ký tự, chữ hoa, chữ thường và số.");
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
             if (!newPassword.equals(confirmPassword)) {
                 request.setAttribute("error", "Xác nhận mật khẩu mới không khớp.");
-                request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+                request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
 
@@ -189,11 +189,11 @@ public class ProfileController extends HttpServlet {
             } else {
                 request.setAttribute("error", "Không thể đổi mật khẩu. Vui lòng thử lại.");
             }
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Change password error", e);
             request.setAttribute("error", "Có lỗi xảy ra.");
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/change-password.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
         } finally {
             if (readerDAO != null)
                 readerDAO.close();
@@ -212,11 +212,11 @@ public class ProfileController extends HttpServlet {
             request.setAttribute("linkedAccounts", dao.getLinkedAccounts(reader.getReaderId()));
             request.setAttribute("isGoogleLinked", dao.isLinked(reader.getReaderId(), "google"));
             request.setAttribute("isFacebookLinked", dao.isLinked(reader.getReaderId(), "facebook"));
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/linked-accounts.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/linked-accounts.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Show linked accounts error", e);
             request.setAttribute("error", "Có lỗi xảy ra.");
-            request.getRequestDispatcher("/WEB-INF/jsp/profile/linked-accounts.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/profile/linked-accounts.jsp").forward(request, response);
         } finally {
             if (dao != null)
                 dao.close();

@@ -71,7 +71,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
             }
             
             request.setAttribute("currentEmployee", currentEmployee);
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/employee-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/employee-form.jsp").forward(request, response);
             
         } catch (NumberFormatException e) {
             System.err.println("Invalid employee ID");
@@ -79,7 +79,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/employee-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/employee-form.jsp").forward(request, response);
         }
     }
     
@@ -170,7 +170,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/employee-form.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/employee-form.jsp").forward(request, response);
         }
     }
     
@@ -199,6 +199,6 @@ public class AdminEmployeeFormServlet extends HttpServlet {
             request.setAttribute("employee", emp);
         }
         
-        request.getRequestDispatcher("/WEB-INF/jsp/admin/employee-form.jsp").forward(request, response);
+        request.getRequestDispatcher("/jsp/admin/employee-form.jsp").forward(request, response);
     }
 }

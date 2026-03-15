@@ -11,13 +11,14 @@ public class ReadingHistoryDAO {
 
     public List<ReadingHistory> getByReader(int readerId) {
         List<ReadingHistory> list = new ArrayList<>();
-        String sql = """
-            SELECT rh.*, b.title AS book_title, b.cover_url AS book_cover_url, b.total_pages AS book_total_pages
-            FROM Reading_History rh
-            JOIN Book b ON rh.book_id = b.book_id
-            WHERE rh.reader_id = ?
-            ORDER BY rh.last_read_at DESC
-        """;
+        String sql = "SELECT rh.*, "
+                + "b.Title AS book_title, "
+                + "b.CoverURL AS book_cover_url, "
+                + "b.TotalPages AS book_total_pages "
+                + "FROM Reading_History rh "
+                + "JOIN Book b ON rh.book_id = b.BookID "
+                + "WHERE rh.reader_id = ? "
+                + "ORDER BY rh.last_read_at DESC";
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, readerId);

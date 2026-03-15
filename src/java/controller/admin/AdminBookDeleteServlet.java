@@ -23,6 +23,12 @@ public class AdminBookDeleteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.sendRedirect(request.getContextPath() + "/admin/book-list");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
@@ -43,10 +49,10 @@ public class AdminBookDeleteServlet extends HttpServlet {
                 return;
             }
 
-            // Kiem tra sach ton tai truoc khi xoa
             Book book = bookDAO.getBookById(bookId);
             if (book != null) {
-                bookDAO.deleteBook(bookId);
+                bookDAO.softDeleteBook(bookId);
+                session.setAttribute("successMessage", "Da vo hieu hoa sach: " + book.getTitle());
             }
 
             response.sendRedirect(request.getContextPath() + "/admin/book-list");
@@ -55,11 +61,5 @@ public class AdminBookDeleteServlet extends HttpServlet {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/admin/book-list");
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
     }
 }

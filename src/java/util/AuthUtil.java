@@ -135,7 +135,8 @@ public class AuthUtil {
      * Check if user is a Reader (end user / customer)
      */
     public static boolean isReader(HttpServletRequest request) {
-        return hasRole(request, ROLE_READER);
+        String role = getUserRole(request);
+        return ROLE_READER.equalsIgnoreCase(String.valueOf(role));
     }
 
     /**

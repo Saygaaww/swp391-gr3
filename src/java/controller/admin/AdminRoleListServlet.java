@@ -49,12 +49,12 @@ public class AdminRoleListServlet extends HttpServlet {
 
             request.setAttribute("roleList", roleList);
             request.setAttribute("currentEmployee", currentEmployee);
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/role-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/role-list.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Loi: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/jsp/admin/role-list.jsp").forward(request, response);
+            request.getRequestDispatcher("/jsp/admin/role-list.jsp").forward(request, response);
         }
     }
 

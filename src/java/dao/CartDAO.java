@@ -95,6 +95,10 @@ public class CartDAO {
 
     /* ================= ADD ITEM TO CART ================= */
     public boolean addItemToCart(int cartId, int bookId, int quantity, BigDecimal unitPrice) {
+        // Some books may have null price in DB → fallback to 0 to avoid INSERT failure
+        if (unitPrice == null) {
+            unitPrice = BigDecimal.ZERO;
+        }
         // Check if item already exists
         String checkSql = "SELECT cart_item_id, quantity FROM Cart_Item WHERE cart_id = ? AND book_id = ?";
 
