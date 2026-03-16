@@ -327,7 +327,7 @@
         <a href="${pageContext.request.contextPath}/books" class="menu-item">
             <i class="fas fa-home"></i> Trang chủ
         </a>
-        <a href="${pageContext.request.contextPath}/books?sort=newest" class="menu-item">
+        <a href="${pageContext.request.contextPath}/books/latest" class="menu-item">
             <i class="fas fa-fire"></i> Mới nhất
         </a>
         <a href="${pageContext.request.contextPath}/categories" class="menu-item">

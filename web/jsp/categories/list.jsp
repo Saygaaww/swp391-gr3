@@ -175,9 +175,11 @@
                                 <c:forEach var="category" items="${categories}">
                                     <div class="col-lg-4 col-md-6 mb-4">
                                         <div class="card category-card">
+<!--                                            <div class="category-card-cover">
+                                                <i class="fas fa-book-open"></i>
+                                            </div>-->
                                             <div class="card-body">
                                                 <h3 class="category-name">
-                                                    <i class="fas fa-bookmark"></i>
                                                     ${category.categoryName}
                                                 </h3>
 

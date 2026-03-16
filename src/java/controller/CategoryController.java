@@ -167,6 +167,7 @@ public class CategoryController extends HttpServlet {
                     request.setAttribute("categoryBooks", categoryBooks);
                     request.setAttribute("totalBooks", categoryBooks.size());
                     request.setAttribute("pageTitle", category.getCategoryName() + " - Thư viện Số FPT");
+                    request.setAttribute("canManageCatalog", AuthUtil.canManageCatalog(request));
 
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/categories/detail.jsp");
                     dispatcher.forward(request, response);
