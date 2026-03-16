@@ -18,7 +18,7 @@ public class DBUtil {
     private static final String DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     private static final String DATABASE_URL = "jdbc:sqlserver://localhost:1433;databaseName=DigitalLibraryDB;trustServerCertificate=true";
     private static final String USERNAME = "sa";
-    private static final String PASSWORD = "123"; // Change this to your actual password
+    private static final String PASSWORD = "sa"; // Change this to your actual password
     
     // Connection pool settings (simple implementation)
     private static final int MAX_CONNECTIONS = 10;

@@ -33,8 +33,102 @@ public class BorrowDAO extends DBContext {
     }
 
     // Duyet yeu cau
-    public boolean approveRequest(int requestId, int employeeId, String note) {
-        return processRequest(requestId, "approved", employeeId, note);
+    public boolean approveRequest(int requestId, int employeeId, String note, java.time.LocalDate startDate, java.time.LocalDate dueDate) {
+        // 1. Get request and items
+        BorrowRequest req = getRequestById(requestId);
+        if (req == null) return false;
+        
+        List<BorrowRequestItem> reqItems = getRequestItems(requestId);
+        if (reqItems == null || reqItems.isEmpty()) return false;
+        
+        String updateReqSql = "UPDATE Borrow_Request SET status = 'approved', processed_by_employee_id = ?, processed_at = SYSUTCDATETIME(), decision_note = ? WHERE request_id = ?";
+        String insertBorrowSql = "INSERT INTO Borrow(reader_id, request_id, borrow_date, status, created_at, approved_by_employee_id) " +
+                                 "OUTPUT INSERTED.borrow_id VALUES (?, ?, ?, 'borrowed', SYSUTCDATETIME(), ?)";
+        String getCopiesSql = "SELECT TOP (?) copy_id FROM BookCopy WHERE book_id = ? AND status = 'available'";
+        String insertCopySql = "INSERT INTO BookCopy(book_id, copy_code, status, created_at) OUTPUT INSERTED.copy_id VALUES (?, ?, 'available', SYSUTCDATETIME())";
+        String updateCopySql = "UPDATE BookCopy SET status = 'borrowed' WHERE copy_id = ?";
+        String insertBorrowItemSql = "INSERT INTO Borrow_Item(borrow_id, copy_id, due_date, status) VALUES (?, ?, ?, 'borrowed')";
+        String reduceStockSql = "UPDATE Book SET stock_quantity = stock_quantity - ? WHERE BookID = ? AND stock_quantity >= ?";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // a. Update Borrow_Request
+            try (PreparedStatement psUpdateReq = conn.prepareStatement(updateReqSql)) {
+                psUpdateReq.setInt(1, employeeId);
+                psUpdateReq.setString(2, note);
+                psUpdateReq.setInt(3, requestId);
+                psUpdateReq.executeUpdate();
+            }
+            
+            // b. Insert Borrow
+            int borrowId = 0;
+            try (PreparedStatement psBorrow = conn.prepareStatement(insertBorrowSql)) {
+                psBorrow.setInt(1, req.getReaderId());
+                psBorrow.setInt(2, requestId);
+                psBorrow.setDate(3, java.sql.Date.valueOf(startDate));
+                psBorrow.setInt(4, employeeId);
+                try (ResultSet rs = psBorrow.executeQuery()) {
+                    if (rs.next()) borrowId = rs.getInt("borrow_id");
+                }
+            }
+            
+            // c. Assign copies
+            for (BorrowRequestItem item : reqItems) {
+                int neededQuantity = item.getQuantity();
+                List<Integer> assignedCopyIds = new ArrayList<>();
+                try (PreparedStatement psGetCopies = conn.prepareStatement(getCopiesSql)) {
+                    psGetCopies.setInt(1, neededQuantity);
+                    psGetCopies.setInt(2, item.getBookId());
+                    try (ResultSet rs = psGetCopies.executeQuery()) {
+                        while (rs.next()) assignedCopyIds.add(rs.getInt("copy_id"));
+                    }
+                }
+                
+                // Create missing dummy copies if needed
+                for (int i = 0; i < neededQuantity - assignedCopyIds.size(); i++) {
+                    try (PreparedStatement psCopy = conn.prepareStatement(insertCopySql)) {
+                        psCopy.setInt(1, item.getBookId());
+                        psCopy.setString(2, "COPY-" + item.getBookId() + "-" + System.currentTimeMillis() + "-" + i);
+                        try (ResultSet rsCopy = psCopy.executeQuery()) {
+                            if (rsCopy.next()) assignedCopyIds.add(rsCopy.getInt("copy_id"));
+                        }
+                    }
+                }
+                
+                // Link copies to item and update statuses
+                for (int copyId : assignedCopyIds) {
+                    try (PreparedStatement psUpdateCopy = conn.prepareStatement(updateCopySql)) {
+                        psUpdateCopy.setInt(1, copyId);
+                        psUpdateCopy.executeUpdate();
+                    }
+                    try (PreparedStatement psInsertBItem = conn.prepareStatement(insertBorrowItemSql)) {
+                        psInsertBItem.setInt(1, borrowId);
+                        psInsertBItem.setInt(2, copyId);
+                        psInsertBItem.setDate(3, java.sql.Date.valueOf(dueDate));
+                        psInsertBItem.executeUpdate();
+                    }
+                }
+                
+                // Reduce stock
+                try (PreparedStatement psReduceStock = conn.prepareStatement(reduceStockSql)) {
+                    psReduceStock.setInt(1, neededQuantity);
+                    psReduceStock.setInt(2, item.getBookId());
+                    psReduceStock.setInt(3, neededQuantity);
+                    int updatedRaw = psReduceStock.executeUpdate();
+                    if (updatedRaw == 0) {
+                        conn.rollback();
+                        return false; // Not enough stock!
+                    }
+                }
+            }
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            System.err.println("approveRequest Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 
     // Tu choi yeu cau
@@ -219,6 +313,13 @@ public class BorrowDAO extends DBContext {
         } catch (SQLException e) {
         }
 
+        if (rs.getDate("expected_start_date") != null) {
+            req.setExpectedStartDate(rs.getDate("expected_start_date").toLocalDate());
+        }
+        if (rs.getDate("expected_return_date") != null) {
+            req.setExpectedReturnDate(rs.getDate("expected_return_date").toLocalDate());
+        }
+
         return req;
     }
 
@@ -226,13 +327,13 @@ public class BorrowDAO extends DBContext {
     // Reader-side methods
     // =========================
 
-    public int createBorrowRequest(int readerId, String note, List<BorrowRequestItem> items) {
+    public int createBorrowRequest(int readerId, String note, java.time.LocalDate expectedStartDate, java.time.LocalDate expectedReturnDate, List<BorrowRequestItem> items) {
         if (items == null || items.isEmpty()) {
             return 0;
         }
-        String insertReqSql = "INSERT INTO Borrow_Request(reader_id, status, requested_at, note) " +
+        String insertReqSql = "INSERT INTO Borrow_Request(reader_id, status, requested_at, note, expected_start_date, expected_return_date) " +
                 "OUTPUT INSERTED.request_id " +
-                "VALUES (?, 'pending', SYSUTCDATETIME(), ?)";
+                "VALUES (?, 'pending', SYSUTCDATETIME(), ?, ?, ?)";
         String insertItemSql = "INSERT INTO Borrow_Request_Item(request_id, book_id, quantity) VALUES(?,?,?)";
 
         try (Connection conn = getConnection()) {
@@ -241,6 +342,16 @@ public class BorrowDAO extends DBContext {
             try (PreparedStatement ps = conn.prepareStatement(insertReqSql)) {
                 ps.setInt(1, readerId);
                 ps.setString(2, note);
+                if (expectedStartDate != null) {
+                    ps.setDate(3, java.sql.Date.valueOf(expectedStartDate));
+                } else {
+                    ps.setNull(3, java.sql.Types.DATE);
+                }
+                if (expectedReturnDate != null) {
+                    ps.setDate(4, java.sql.Date.valueOf(expectedReturnDate));
+                } else {
+                    ps.setNull(4, java.sql.Types.DATE);
+                }
                 try (ResultSet rs = ps.executeQuery()) {
                     if (!rs.next()) {
                         conn.rollback();
@@ -303,9 +414,9 @@ public class BorrowDAO extends DBContext {
 
     public List<BorrowRequestItem> getRequestItems(int requestId) {
         List<BorrowRequestItem> items = new ArrayList<>();
-        String sql = "SELECT bri.*, b.title AS book_title, b.cover_url AS book_cover_url " +
+        String sql = "SELECT bri.*, b.Title AS book_title, b.CoverURL AS book_cover_url " +
                 "FROM Borrow_Request_Item bri " +
-                "JOIN Book b ON bri.book_id = b.book_id " +
+                "JOIN Book b ON bri.book_id = b.BookID " +
                 "WHERE bri.request_id = ?";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -338,8 +449,8 @@ public class BorrowDAO extends DBContext {
                 "bi.due_date, bi.returned_at, bi.status " +
                 "FROM Borrow br " +
                 "JOIN Borrow_Item bi ON br.borrow_id = bi.borrow_id " +
-                "JOIN Book_Copy bc ON bi.copy_id = bc.copy_id " +
-                "JOIN Book b ON bc.book_id = b.book_id " +
+                "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
+                "JOIN Book b ON bc.book_id = b.BookID " +
                 "WHERE br.reader_id = ? AND br.status = 'active' " +
                 "ORDER BY bi.due_date ASC";
         try (Connection conn = getConnection();
@@ -421,8 +532,8 @@ public class BorrowDAO extends DBContext {
                 "FROM Borrow_Extend be " +
                 "JOIN Borrow_Item bi ON be.borrow_item_id = bi.borrow_item_id " +
                 "JOIN Borrow br ON bi.borrow_id = br.borrow_id " +
-                "JOIN Book_Copy bc ON bi.copy_id = bc.copy_id " +
-                "JOIN Book b ON bc.book_id = b.book_id " +
+                "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
+                "JOIN Book b ON bc.book_id = b.BookID " +
                 "WHERE br.reader_id = ? " +
                 "ORDER BY be.requested_at DESC";
         try (Connection conn = getConnection();
@@ -454,5 +565,124 @@ public class BorrowDAO extends DBContext {
             System.err.println("getExtendRequestsByReader Error: " + e.getMessage());
         }
         return list;
+    }
+    public List<BorrowedItemView> getReturnRequests() {
+        List<BorrowedItemView> list = new ArrayList<>();
+        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.first_name + ' ' + r.last_name AS reader_name, r.email AS reader_email, " +
+                "bi.copy_id, bc.copy_code, b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
+                "bi.due_date, bi.returned_at, bi.status " +
+                "FROM Borrow_Item bi " +
+                "JOIN Borrow br ON bi.borrow_id = br.borrow_id " +
+                "JOIN Reader r ON br.reader_id = r.reader_id " +
+                "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
+                "JOIN Book b ON bc.book_id = b.BookID " +
+                "WHERE bi.status = 'return_requested' " +
+                "ORDER BY bi.due_date ASC";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BorrowedItemView v = new BorrowedItemView();
+                    v.setBorrowItemId(rs.getInt("borrow_item_id"));
+                    v.setBorrowId(rs.getInt("borrow_id"));
+                    v.setReaderId(rs.getInt("reader_id"));
+                    v.setReaderName(rs.getString("reader_name"));
+                    v.setReaderEmail(rs.getString("reader_email"));
+                    v.setCopyId(rs.getInt("copy_id"));
+                    v.setCopyCode(rs.getString("copy_code"));
+                    v.setBookId(rs.getInt("book_id"));
+                    v.setBookTitle(rs.getString("book_title"));
+                    v.setBookCoverUrl(rs.getString("book_cover_url"));
+                    Timestamp due = rs.getTimestamp("due_date");
+                    v.setDueDate(due != null ? due.toLocalDateTime() : null);
+                    Timestamp ret = rs.getTimestamp("returned_at");
+                    v.setReturnedAt(ret != null ? ret.toLocalDateTime() : null);
+                    v.setStatus(rs.getString("status"));
+                    list.add(v);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getReturnRequests Error: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public boolean processReturn(int borrowItemId) {
+        String updateItemSql = "UPDATE Borrow_Item SET status = 'returned', returned_at = SYSUTCDATETIME() WHERE borrow_item_id = ? AND status = 'return_requested'";
+        String getCopyIdSql = "SELECT copy_id FROM Borrow_Item WHERE borrow_item_id = ?";
+        String updateCopySql = "UPDATE BookCopy SET status = 'available' WHERE copy_id = ?";
+        String getBookIdSql = "SELECT book_id FROM BookCopy WHERE copy_id = ?";
+        String updateBookSql = "UPDATE Book SET stock_quantity = stock_quantity + 1 WHERE BookID = ?";
+        String getBorrowIdSql = "SELECT borrow_id FROM Borrow_Item WHERE borrow_item_id = ?";
+        String updateBorrowSql = "UPDATE Borrow SET status = 'returned' WHERE borrow_id = ? AND NOT EXISTS (SELECT 1 FROM Borrow_Item WHERE borrow_id = ? AND status != 'returned')";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // 1. Update Borrow_Item
+            int updated = 0;
+            try (PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
+                ps.setInt(1, borrowItemId);
+                updated = ps.executeUpdate();
+            }
+            if (updated == 0) {
+                conn.rollback();
+                return false;
+            }
+
+            // 2. Get copyId
+            int copyId = 0;
+            try (PreparedStatement ps = conn.prepareStatement(getCopyIdSql)) {
+                ps.setInt(1, borrowItemId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) copyId = rs.getInt("copy_id");
+                }
+            }
+
+            // 3. Update Book_Copy
+            if (copyId > 0) {
+                try (PreparedStatement ps = conn.prepareStatement(updateCopySql)) {
+                    ps.setInt(1, copyId);
+                    ps.executeUpdate();
+                }
+
+                // 4. Update Book stock
+                int bookId = 0;
+                try (PreparedStatement ps = conn.prepareStatement(getBookIdSql)) {
+                    ps.setInt(1, copyId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) bookId = rs.getInt("book_id");
+                    }
+                }
+                if (bookId > 0) {
+                    try (PreparedStatement ps = conn.prepareStatement(updateBookSql)) {
+                        ps.setInt(1, bookId);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+
+            // 5. Update Borrow status if all returned
+            int borrowId = 0;
+            try (PreparedStatement ps = conn.prepareStatement(getBorrowIdSql)) {
+                ps.setInt(1, borrowItemId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) borrowId = rs.getInt("borrow_id");
+                }
+            }
+            if (borrowId > 0) {
+                try (PreparedStatement ps = conn.prepareStatement(updateBorrowSql)) {
+                    ps.setInt(1, borrowId);
+                    ps.setInt(2, borrowId);
+                    ps.executeUpdate();
+                }
+            }
+
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            System.err.println("processReturn Error: " + e.getMessage());
+            return false;
+        }
     }
 }

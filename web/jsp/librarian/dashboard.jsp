@@ -523,6 +523,9 @@
                 <a href="${pageContext.request.contextPath}/admin/borrow-list" class="sidebar-link">
                     <i class="fas fa-check-circle"></i> Duyệt yêu cầu mượn - Xử lý yêu cầu mượn sách của độc giả
                 </a>
+                <a href="${pageContext.request.contextPath}/admin/return-list" class="sidebar-link">
+                    <i class="fas fa-undo"></i> Duyệt trả sách - Xác nhận sách đã trả
+                </a>
                 <a href="${pageContext.request.contextPath}/admin/readers" class="sidebar-link">
                     <i class="fas fa-users"></i> Quản lý độc giả - Xem thông tin và trạng thái độc giả
                 </a>

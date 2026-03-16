@@ -131,7 +131,21 @@ public class AdminBorrowDetailServlet extends HttpServlet {
             boolean success = false;
             
             if ("approve".equals(action)) {
-                success = borrowDAO.approveRequest(requestId, employee.getEmployeeId(), note);
+                String startDateStr = request.getParameter("startDate");
+                String endDateStr = request.getParameter("endDate");
+                java.time.LocalDate startDate = java.time.LocalDate.now();
+                java.time.LocalDate endDate = startDate.plusDays(7);
+                try {
+                    if (startDateStr != null && !startDateStr.isBlank()) {
+                        startDate = java.time.LocalDate.parse(startDateStr);
+                    }
+                    if (endDateStr != null && !endDateStr.isBlank()) {
+                        endDate = java.time.LocalDate.parse(endDateStr);
+                    }
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.err.println("Invalid date format: " + e.getMessage());
+                }
+                success = borrowDAO.approveRequest(requestId, employee.getEmployeeId(), note, startDate, endDate);
             } else if ("reject".equals(action)) {
                 success = borrowDAO.rejectRequest(requestId, employee.getEmployeeId(), note);
             }

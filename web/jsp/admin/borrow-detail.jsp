@@ -38,6 +38,8 @@
             <p class="mb-1"><strong>Email:</strong> ${borrowRequest.readerEmail != null ? borrowRequest.readerEmail : '—'}</p>
             <p class="mb-1"><strong>Số điện thoại:</strong> ${borrowRequest.readerPhone != null ? borrowRequest.readerPhone : '—'}</p>
             <p class="mb-1"><strong>Ngày yêu cầu:</strong> ${borrowRequest.requestedAt}</p>
+            <p class="mb-1"><strong>Ngày bắt đầu (Dự kiến):</strong> <span class="badge bg-secondary">${borrowRequest.expectedStartDate != null ? borrowRequest.expectedStartDate : '—'}</span></p>
+            <p class="mb-1"><strong>Ngày trả (Dự kiến):</strong> <span class="badge bg-secondary">${borrowRequest.expectedReturnDate != null ? borrowRequest.expectedReturnDate : '—'}</span></p>
             <p class="mb-1"><strong>Ghi chú:</strong> ${borrowRequest.note != null ? borrowRequest.note : '—'}</p>
             <c:if test="${borrowRequest.processedAt != null}">
                 <p class="mb-1"><strong>Xử lý lúc:</strong> ${borrowRequest.processedAt}</p>
@@ -75,6 +77,16 @@
                 <form action="${pageContext.request.contextPath}/admin/borrow-detail" method="post" class="mb-3">
                     <input type="hidden" name="requestId" value="${borrowRequest.requestId}">
                     <input type="hidden" name="action" value="approve">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày mượn (Xác nhận) <span class="text-danger">*</span></label>
+                            <input type="date" name="startDate" id="startDate" class="form-control" value="${borrowRequest.expectedStartDate}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày trả (Xác nhận) <span class="text-danger">*</span></label>
+                            <input type="date" name="endDate" id="endDate" class="form-control" value="${borrowRequest.expectedReturnDate}" required>
+                        </div>
+                    </div>
                     <div class="mb-2">
                         <label class="form-label">Ghi chú (tối đa 500 ký tự)</label>
                         <textarea name="note" class="form-control" maxlength="500" rows="2" placeholder="Ghi chú khi duyệt..."></textarea>

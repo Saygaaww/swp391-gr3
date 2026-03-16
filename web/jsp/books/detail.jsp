@@ -519,10 +519,19 @@
 
                                 <c:choose>
                                     <c:when test="${not empty sessionScope.user and sessionScope.userRole == 'Reader'}">
-                                        <a href="${pageContext.request.contextPath}/customer/borrow-request?bookId=${book.bookId}"
-                                           class="bd-btn bd-btn-teal">
-                                            <i class="fas fa-hand-holding"></i> Mượn sách
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${not empty availableStock and availableStock > 0}">
+                                                <a href="${pageContext.request.contextPath}/customer/borrow-request?bookId=${book.bookId}"
+                                                   class="bd-btn bd-btn-teal">
+                                                    <i class="fas fa-hand-holding"></i> Mượn sách
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button disabled class="bd-btn bd-btn-outline" style="cursor: not-allowed; opacity: 0.6;">
+                                                    <i class="fas fa-hand-holding"></i> Hết sách (Tạm hết)
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                         <form action="${pageContext.request.contextPath}/customer/reservations" method="post" style="display:inline;">
                                             <input type="hidden" name="action" value="create" />
                                             <input type="hidden" name="bookId" value="${book.bookId}" />
@@ -532,10 +541,19 @@
                                         </form>
                                     </c:when>
                                     <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/auth/login"
-                                           class="bd-btn bd-btn-teal">
-                                            <i class="fas fa-hand-holding"></i> Mượn sách
-                                        </a>
+                                        <c:choose>
+                                            <c:when test="${not empty availableStock and availableStock > 0}">
+                                                <a href="${pageContext.request.contextPath}/auth/login"
+                                                   class="bd-btn bd-btn-teal">
+                                                    <i class="fas fa-hand-holding"></i> Mượn sách
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button disabled class="bd-btn bd-btn-outline" style="cursor: not-allowed; opacity: 0.6;">
+                                                    <i class="fas fa-hand-holding"></i> Hết sách (Tạm hết)
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:otherwise>
                                 </c:choose>
 

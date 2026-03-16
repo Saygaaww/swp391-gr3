@@ -81,7 +81,21 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             
             if ("approve".equals(action)) {
                 // Duyet yeu cau
-                success = borrowDAO.approveRequest(requestId, employee.getEmployeeId(), note);
+                String startDateStr = request.getParameter("startDate");
+                String endDateStr = request.getParameter("endDate");
+                java.time.LocalDate startDate = java.time.LocalDate.now();
+                java.time.LocalDate endDate = startDate.plusDays(7);
+                try {
+                    if (startDateStr != null && !startDateStr.isBlank()) {
+                        startDate = java.time.LocalDate.parse(startDateStr);
+                    }
+                    if (endDateStr != null && !endDateStr.isBlank()) {
+                        endDate = java.time.LocalDate.parse(endDateStr);
+                    }
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.err.println("Invalid date format: " + e.getMessage());
+                }
+                success = borrowDAO.approveRequest(requestId, employee.getEmployeeId(), note, startDate, endDate);
                 if (success) {
                     System.out.println("Da duyet yeu cau ID: " + requestId);
                 }

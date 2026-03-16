@@ -41,6 +41,8 @@
                         <form action="${pageContext.request.contextPath}/admin/borrow-approve" method="post" style="display:inline;">
                             <input type="hidden" name="requestId" value="${req.requestId}">
                             <input type="hidden" name="action" value="approve">
+                            <input type="hidden" name="startDate" value="${req.expectedStartDate}">
+                            <input type="hidden" name="endDate" value="${req.expectedReturnDate}">
                             <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Duyệt yêu cầu #${req.requestId}?');"><i class="fas fa-check"></i> Duyệt</button>
                         </form>
                         <form action="${pageContext.request.contextPath}/admin/borrow-approve" method="post" style="display:inline;">

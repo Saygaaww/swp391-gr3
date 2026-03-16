@@ -708,10 +708,16 @@ public class CustomerController extends HttpServlet {
 
     private void handleCreateBorrowRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int readerId = AuthUtil.getReaderId(request);
+        Integer readerIdObj = AuthUtil.getReaderId(request);
         String bookIdStr = request.getParameter("bookId");
         String quantityStr = request.getParameter("quantity");
         String note = request.getParameter("note");
+
+        if (readerIdObj == null || readerIdObj <= 0) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        int readerId = readerIdObj;
 
         if (bookIdStr == null || bookIdStr.isBlank()) {
             response.sendRedirect(request.getContextPath() + "/books");
@@ -740,8 +746,35 @@ public class CustomerController extends HttpServlet {
         List<BorrowRequestItem> items = new ArrayList<>();
         items.add(item);
 
-        BorrowDAO borrowDAO = new BorrowDAO();
-        int requestId = borrowDAO.createBorrowRequest(readerId, note, items);
+        String expectedStartDateStr = request.getParameter("expectedStartDate");
+        String expectedReturnDateStr = request.getParameter("expectedReturnDate");
+        java.time.LocalDate expectedStartDate = java.time.LocalDate.now();
+        try {
+            if (expectedStartDateStr != null && !expectedStartDateStr.isBlank()) {
+                expectedStartDate = java.time.LocalDate.parse(expectedStartDateStr);
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            System.err.println("Invalid start date format: " + e.getMessage());
+        }
+        
+        java.time.LocalDate expectedReturnDate = expectedStartDate.plusDays(7);
+        try {
+            if (expectedReturnDateStr != null && !expectedReturnDateStr.isBlank()) {
+                expectedReturnDate = java.time.LocalDate.parse(expectedReturnDateStr);
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            System.err.println("Invalid return date format: " + e.getMessage());
+        }
+
+        int requestId = 0;
+        try {
+            BorrowDAO borrowDAO = new BorrowDAO();
+            requestId = borrowDAO.createBorrowRequest(readerId, note, expectedStartDate, expectedReturnDate, items);
+        } catch (Exception e) {
+            System.err.println("createBorrowRequest exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         if (requestId > 0) {
             request.getSession().setAttribute("successMessage", "Đã gửi yêu cầu mượn. Mã yêu cầu: #" + requestId);
             response.sendRedirect(request.getContextPath() + "/customer/borrow-request-status");

@@ -72,6 +72,19 @@
                             </div>
                         </div>
 
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Ngày bắt đầu mượn (Dự kiến) <span class="text-danger">*</span></label>
+                                <input type="date" name="expectedStartDate" id="expectedStartDate" class="form-control" required>
+                                <div class="form-text">Chọn ngày bạn muốn bắt đầu mượn sách.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ngày trả (Dự kiến) <span class="text-danger">*</span></label>
+                                <input type="date" name="expectedReturnDate" id="expectedReturnDate" class="form-control" required>
+                                <div class="form-text">Chọn ngày bạn dự định trả sách.</div>
+                            </div>
+                        </div>
+
                         <div class="d-flex gap-2 mt-4">
                             <button type="submit" class="btn btn-primary">
                                 Gửi yêu cầu mượn
@@ -86,4 +99,28 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const startDateInput = document.getElementById("expectedStartDate");
+        const returnDateInput = document.getElementById("expectedReturnDate");
+
+        // Set min date to today
+        const today = new Date();
+        // Cần convert sang timezone phù hợp nếu máy chủ khác múi giờ, ở đây dùng local date của trình duyệt
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const formattedToday = `${yyyy}-${mm}-${dd}`;
+
+        startDateInput.min = formattedToday;
+        returnDateInput.min = formattedToday;
+
+        startDateInput.addEventListener("change", function () {
+            returnDateInput.min = this.value;
+            if (returnDateInput.value && returnDateInput.value < this.value) {
+                returnDateInput.value = this.value;
+            }
+        });
+    });
+</script>
 <%@include file="/includes/footer.jsp" %>

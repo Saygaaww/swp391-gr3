@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 public class BorrowedItemView {
     private int borrowItemId;
     private int borrowId;
+    private int readerId;
+    private String readerName;
+    private String readerEmail;
     private int copyId;
     private String copyCode;
     private int bookId;
@@ -28,6 +31,30 @@ public class BorrowedItemView {
 
     public void setBorrowId(int borrowId) {
         this.borrowId = borrowId;
+    }
+
+    public int getReaderId() {
+        return readerId;
+    }
+
+    public void setReaderId(int readerId) {
+        this.readerId = readerId;
+    }
+
+    public String getReaderName() {
+        return readerName;
+    }
+
+    public void setReaderName(String readerName) {
+        this.readerName = readerName;
+    }
+
+    public String getReaderEmail() {
+        return readerEmail;
+    }
+
+    public void setReaderEmail(String readerEmail) {
+        this.readerEmail = readerEmail;
     }
 
     public int getCopyId() {
@@ -94,4 +121,3 @@ public class BorrowedItemView {
         this.status = status;
     }
 }
-

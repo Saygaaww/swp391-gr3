@@ -270,6 +270,9 @@ public class BookController extends HttpServlet {
                         request.setAttribute("createdAtFormatted", createdAtFormatted);
                     }
 
+                    int availableStock = bookDAO.getAvailableStock(bookId);
+                    request.setAttribute("availableStock", availableStock);
+
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/detail.jsp");
                     dispatcher.forward(request, response);
 

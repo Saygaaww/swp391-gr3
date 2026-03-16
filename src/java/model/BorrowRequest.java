@@ -13,6 +13,8 @@ public class BorrowRequest {
     private Integer processedByEmployeeId;
     private LocalDateTime processedAt;
     private String decisionNote;
+    private java.time.LocalDate expectedStartDate;
+    private java.time.LocalDate expectedReturnDate;
 
     private String readerName;
     private String readerEmail;
@@ -21,6 +23,22 @@ public class BorrowRequest {
     private List<BorrowRequestItem> items = new ArrayList<>();
 
     public BorrowRequest() {
+    }
+
+    public java.time.LocalDate getExpectedStartDate() {
+        return expectedStartDate;
+    }
+
+    public void setExpectedStartDate(java.time.LocalDate expectedStartDate) {
+        this.expectedStartDate = expectedStartDate;
+    }
+
+    public java.time.LocalDate getExpectedReturnDate() {
+        return expectedReturnDate;
+    }
+
+    public void setExpectedReturnDate(java.time.LocalDate expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 
     public int getRequestId() {

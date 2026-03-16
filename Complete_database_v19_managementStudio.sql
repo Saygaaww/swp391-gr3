@@ -169,6 +169,8 @@ CREATE TABLE [dbo].[Borrow_Request](
 	[status] [nvarchar](30) NOT NULL,
 	[requested_at] [datetime2](7) NOT NULL,
 	[note] [nvarchar](max) NULL,
+	[expected_start_date] [date] NULL,
+	[expected_return_date] [date] NULL,
 	[processed_by_employee_id] [int] NULL,
 	[processed_at] [datetime2](7) NULL,
 	[decision_note] [nvarchar](max) NULL,
