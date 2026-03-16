@@ -906,10 +906,9 @@ public class BookDAO {
             LEFT JOIN Category c ON b.CategoryID = c.CategoryID
             WHERE 1=1
                 """;
-        System.out.println("SQL: " + sql);
-        System.out.println("Books size: " + books.size());
+
         if (keyword != null && !keyword.isEmpty()) {
-            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
+            sql += " AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
         }
         if (categoryId > 0) {
             sql += "AND b.CategoryID = ? ";
@@ -973,7 +972,7 @@ public class BookDAO {
                                      WHERE 1=1""";
 
         if (keyword != null && !keyword.isEmpty()) {
-            sql += "AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
+            sql += " AND (b.Title LIKE ? OR b.Summary LIKE ? OR a.AuthorName LIKE ?) ";
         }
 
         if (categoryId > 0) {
@@ -1104,7 +1103,7 @@ public class BookDAO {
     }
 
     public int getMaxTotalPages() {
-        String sql = "SELECT MAX(total_pages) AS max_pages FROM Book";
+        String sql = "SELECT MAX(TotalPages) AS max_pages FROM Book";
         try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -1120,11 +1119,10 @@ public class BookDAO {
     }
 
     public boolean addBook(Book book) {
-        String sql = """
-                     INSERT INTO Book (Title, Summary, Description, CoverURL, "
-                                     + "ContentPath, Price, Currency, TotalPages, PreviewPages, "
-                                     + "Status, AuthorID, CategoryID, CreatedByEmployeeID) "
-                                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""";
+        String sql = "INSERT INTO Book (Title, Summary, Description, CoverURL, "
+                + "ContentPath, Price, Currency, TotalPages, PreviewPages, "
+                + "Status, AuthorID, CategoryID, CreatedByEmployeeID) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -1133,10 +1131,26 @@ public class BookDAO {
             ps.setString(3, book.getDescription());
             ps.setString(4, book.getCoverUrl());
             ps.setString(5, book.getContentPath());
-            ps.setBigDecimal(6, book.getPrice());
-            ps.setString(7, book.getCurrency());
-            ps.setInt(8, book.getTotalPages());
-            ps.setInt(9, book.getPreviewPages());
+
+            if (book.getPrice() != null) {
+                ps.setBigDecimal(6, book.getPrice());
+            } else {
+                ps.setNull(6, Types.DECIMAL);
+            }
+
+            ps.setString(7, book.getCurrency() != null ? book.getCurrency() : "VND");
+
+            if (book.getTotalPages() != null) {
+                ps.setInt(8, book.getTotalPages());
+            } else {
+                ps.setNull(8, Types.INTEGER);
+            }
+
+            if (book.getPreviewPages() != null) {
+                ps.setInt(9, book.getPreviewPages());
+            } else {
+                ps.setNull(9, Types.INTEGER);
+            }
             ps.setString(10, book.getStatus());
 
             if (book.getAuthorId() > 0) {
@@ -1162,5 +1176,21 @@ public class BookDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    // Thêm vào BookDAO nếu cần lấy riêng path mà không cần load toàn bộ object
+
+    public String getContentPathById(int bookId) {
+        String sql = "SELECT ContentPath FROM Book WHERE BookID = ? AND Status = 'active'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("ContentPath");
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting content path", e);
+        }
+        return null;
     }
 }

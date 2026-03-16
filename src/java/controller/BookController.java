@@ -15,7 +15,8 @@ import model.Category;
 import util.StringUtil;
 import util.PaginatedResult;
 import util.AuthUtil;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,13 +26,17 @@ import java.util.logging.Logger;
 
 /**
  * BookController - Enhanced with Complete Pagination Support
- * 
+ *
  * @author FPT Student Team
  */
-@WebServlet(name = "BookController", urlPatterns = { "/books", "/books/*" })
+@WebServlet(name = "BookController", urlPatterns = {"/books", "/books/*"})
 public class BookController extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(BookController.class.getName());
+
+    // Regex validate định dạng dd-MM-yyyy
+    private static final java.util.regex.Pattern DATE_DD_MM_YYYY
+            = java.util.regex.Pattern.compile("^(0[1-9]|[12]\\d|3[01])-(0[1-9]|1[0-2])-(\\d{4})$");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,7 +56,7 @@ public class BookController extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/books/dashboard");
                     return;
                 }
-                
+
                 handleBookListing(request, response);
 
             } else if (pathInfo.equals("/dashboard")) {
@@ -98,6 +103,14 @@ public class BookController extends HttpServlet {
                 // Handle free books: /books/free
                 handleFreeBooks(request, response);
 
+            } else if (pathInfo.startsWith("/preview/")) {
+
+                handleBookPreview(request, response, pathInfo);
+
+            } else if (pathInfo.startsWith("/file/")) {
+
+                handleServeFile(request, response, pathInfo);
+
             } else {
                 // Path not found
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -134,6 +147,100 @@ public class BookController extends HttpServlet {
         }
     }
 
+    private void handleBookPreview(HttpServletRequest request, HttpServletResponse response, String pathInfo)
+            throws ServletException, IOException {
+
+        int bookId;
+        try {
+            bookId = Integer.parseInt(pathInfo.substring("/preview/".length()));
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID sách không hợp lệ");
+            return;
+        }
+
+        BookDAO bookDAO = new BookDAO();
+        try {
+            Book book = bookDAO.getBookById(bookId);
+            if (book == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sách");
+                return;
+            }
+
+            // Nếu sách miễn phí thì chuyển sang đọc toàn bộ luôn
+            if (book.getPrice() == null || book.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                response.sendRedirect(request.getContextPath() + "/customer/read?bookId=" + bookId);
+                return;
+            }
+
+            // previewPages = số trang được phép xem, mặc định 10 nếu chưa cấu hình
+            Integer previewPages = book.getPreviewPages();
+            int allowedPages = (previewPages != null && previewPages > 0) ? previewPages : 10;
+
+            request.setAttribute("book", book);
+            request.setAttribute("allowedPages", allowedPages);
+            request.getRequestDispatcher("/jsp/books/preview.jsp").forward(request, response);
+
+        } finally {
+            bookDAO.close();
+        }
+    }
+
+    private void handleServeFile(HttpServletRequest request, HttpServletResponse response, String pathInfo)
+            throws ServletException, IOException {
+
+        // Chỉ cho phép user đã đăng nhập mới được stream PDF
+        if (!AuthUtil.isLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Vui lòng đăng nhập để xem tài liệu.");
+            return;
+        }
+
+        int bookId;
+        try {
+            bookId = Integer.parseInt(pathInfo.substring("/file/".length()));
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID sách không hợp lệ");
+            return;
+        }
+
+        BookDAO dao = new BookDAO();
+        try {
+            Book book = dao.getBookById(bookId);
+
+            if (book == null || book.getContentPath() == null || book.getContentPath().trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy file sách (đường dẫn trống)");
+                return;
+            }
+
+            // Nếu ContentPath là đường dẫn web tương đối (books/content/...) hoặc bắt đầu bằng /,
+            // map sang đường dẫn vật lý trong webapp
+            String rawPath = book.getContentPath().trim();
+            String physicalPath;
+            if (rawPath.startsWith("/") || rawPath.startsWith("\\")) {
+                // Đã là đường dẫn web từ gốc context
+                physicalPath = getServletContext().getRealPath(rawPath);
+            } else {
+                // Đường dẫn tương đối (ví dụ: books/content/mat-biec.pdf) → thêm "/" phía trước
+                physicalPath = getServletContext().getRealPath("/" + rawPath);
+            }
+
+            java.io.File file = new java.io.File(physicalPath);
+
+            if (!file.exists() || !file.isFile()) {
+                LOGGER.warning("PDF file not found on disk. BookID=" + bookId + ", path=" + physicalPath);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "File không tồn tại trên server");
+                return;
+            }
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + file.getName() + "\"");
+            response.setContentLengthLong(file.length());
+            java.nio.file.Files.copy(file.toPath(), response.getOutputStream());
+
+        } finally {
+            dao.close();
+        }
+    }
+
     /**
      * Handle book detail requests
      */
@@ -156,6 +263,12 @@ public class BookController extends HttpServlet {
                     request.setAttribute("pageTitle", book.getTitle() + " - Thư viện Số FPT");
                     // Authorization flag for book management (upload/update file, etc.)
                     request.setAttribute("canManageBooks", AuthUtil.canManageBooks(request));
+                    // Format createdAt thành dd-MM-yyyy để hiển thị trên JSP
+                    if (book.getCreatedAt() != null) {
+                        String createdAtFormatted = book.getCreatedAt()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                        request.setAttribute("createdAtFormatted", createdAtFormatted);
+                    }
 
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/books/detail.jsp");
                     dispatcher.forward(request, response);
@@ -201,15 +314,17 @@ public class BookController extends HttpServlet {
         int pageSize = parseInteger(pageSizeStr) != null ? parseInteger(pageSizeStr) : 12;
 
         // Validate pagination parameters
-        if (page < 1)
+        if (page < 1) {
             page = 1;
-        if (pageSize < 6)
+        }
+        if (pageSize < 6) {
             pageSize = 6;
-        if (pageSize > 48)
+        }
+        if (pageSize > 48) {
             pageSize = 48; // Prevent abuse
-
-        LOGGER.info("Paginated search - page: " + page + ", pageSize: " + pageSize +
-                ", keyword: " + keyword + ", filters applied");
+        }
+        LOGGER.info("Paginated search - page: " + page + ", pageSize: " + pageSize
+                + ", keyword: " + keyword + ", filters applied");
 
         BookDAO bookDAO = new BookDAO();
         AuthorDAO authorDAO = new AuthorDAO();
@@ -417,10 +532,10 @@ public class BookController extends HttpServlet {
     }
 
     // ========== UTILITY METHODS ==========
-
     private Integer parseInteger(String value) {
-        if (StringUtil.isBlank(value))
+        if (StringUtil.isBlank(value)) {
             return null;
+        }
         try {
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
@@ -429,8 +544,9 @@ public class BookController extends HttpServlet {
     }
 
     private BigDecimal parseBigDecimal(String value) {
-        if (StringUtil.isBlank(value))
+        if (StringUtil.isBlank(value)) {
             return null;
+        }
         try {
             return new BigDecimal(value.trim());
         } catch (NumberFormatException e) {
@@ -516,7 +632,9 @@ public class BookController extends HttpServlet {
         }
     }
 
-    /** Hiển thị form tạo mới hoặc chỉnh sửa sách */
+    /**
+     * Hiển thị form tạo mới hoặc chỉnh sửa sách
+     */
     private void handleBookForm(HttpServletRequest request, HttpServletResponse response, String pathInfo)
             throws ServletException, IOException {
         Book book = null;
@@ -558,7 +676,9 @@ public class BookController extends HttpServlet {
         }
     }
 
-    /** Xử lý POST tạo mới hoặc cập nhật sách */
+    /**
+     * Xử lý POST tạo mới hoặc cập nhật sách
+     */
     private void handleSaveBook(HttpServletRequest request, HttpServletResponse response, String pathInfo)
             throws ServletException, IOException {
         String title = StringUtil.cleanInput(request.getParameter("title"));
@@ -566,6 +686,7 @@ public class BookController extends HttpServlet {
         String description = StringUtil.cleanInput(request.getParameter("description"));
         String coverUrl = StringUtil.cleanInput(request.getParameter("coverUrl"));
         String language = StringUtil.cleanInput(request.getParameter("language"));
+        String createdAtStr = StringUtil.cleanInput(request.getParameter("createdAt"));
 
         Integer authorId = parseIntOrNull(request.getParameter("authorId"));
         Integer categoryId = parseIntOrNull(request.getParameter("categoryId"));
@@ -574,11 +695,32 @@ public class BookController extends HttpServlet {
         Integer pubYear = parseIntOrNull(request.getParameter("publicationYear"));
         java.math.BigDecimal price = parseBdOrNull(request.getParameter("price"));
 
+        String formPath = pathInfo.startsWith("/update/") ? pathInfo.replace("/update/", "/edit/") : null;
+
         if (StringUtil.isBlank(title)) {
             request.setAttribute("error", "Tửa sách không được để trống.");
-            handleBookForm(request, response,
-                    pathInfo.startsWith("/update/") ? pathInfo.replace("/update/", "/edit/") : null);
+            handleBookForm(request, response, formPath);
             return;
+        }
+
+        // Validate createdAt: nếu có nhập thì phải đúng định dạng dd-MM-yyyy
+        java.time.LocalDateTime createdAt = null;
+        if (!StringUtil.isBlank(createdAtStr)) {
+            if (!DATE_DD_MM_YYYY.matcher(createdAtStr.trim()).matches()) {
+                request.setAttribute("error", "Ngày tạo không hợp lệ. Định dạng phải là dd-MM-yyyy (ví dụ: 25-12-2024).");
+                handleBookForm(request, response, formPath);
+                return;
+            }
+            try {
+                java.time.LocalDate date = java.time.LocalDate.parse(
+                        createdAtStr.trim(),
+                        java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                createdAt = date.atStartOfDay();
+            } catch (java.time.format.DateTimeParseException e) {
+                request.setAttribute("error", "Ngày tạo không hợp lệ. Vui lòng kiểm tra lại ngày/tháng.");
+                handleBookForm(request, response, formPath);
+                return;
+            }
         }
 
         Book book = new Book();
@@ -594,6 +736,9 @@ public class BookController extends HttpServlet {
         book.setPublicationYear(pubYear);
         book.setPrice(price);
         book.setCurrency("VND");
+        if (createdAt != null) {
+            book.setCreatedAt(createdAt);
+        }
 
         BookDAO bookDAO = new BookDAO();
         try {
@@ -622,8 +767,9 @@ public class BookController extends HttpServlet {
     }
 
     private Integer parseIntOrNull(String s) {
-        if (s == null || s.isBlank())
+        if (s == null || s.isBlank()) {
             return null;
+        }
         try {
             return Integer.parseInt(s.trim());
         } catch (NumberFormatException e) {
@@ -632,8 +778,9 @@ public class BookController extends HttpServlet {
     }
 
     private java.math.BigDecimal parseBdOrNull(String s) {
-        if (s == null || s.isBlank())
+        if (s == null || s.isBlank()) {
             return null;
+        }
         try {
             return new java.math.BigDecimal(s.trim());
         } catch (NumberFormatException e) {
