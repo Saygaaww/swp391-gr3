@@ -24,6 +24,15 @@
             </div>
         </div>
 
+        <c:if test="${hasUnpaidFines}">
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle me-2 fa-lg"></i>
+                <div>
+                    <strong>Cảnh báo:</strong> Bạn đang có khoản phạt chưa thanh toán (Tổng cộng: <fmt:formatNumber value="${totalUnpaidFines}" type="number" maxFractionDigits="0" /> VNĐ). Vui lòng <a href="<%=ctx%>/customer/fines" class="alert-link">Thanh toán ngay</a> để không bị khóa quyền mượn sách.
+                </div>
+            </div>
+        </c:if>
+
         <c:if test="${not empty sessionScope.successMessage}">
             <div class="alert alert-success">${sessionScope.successMessage}</div>
             <% session.removeAttribute("successMessage"); %>
@@ -70,11 +79,11 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <form action="<%=ctx%>/customer/return-request" method="post" class="d-inline"
-                                          onsubmit="return confirm('Gửi yêu cầu trả sách?');">
+                                    <form action="<%=ctx%>/customer/auto-return" method="post" class="d-inline"
+                                          onsubmit="return confirm('Bạn có chắc muốn trả sách này ngay bây giờ?');">
                                         <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
-                                        <button class="btn btn-outline-danger btn-sm" type="submit">
-                                            Yêu cầu trả
+                                        <button class="btn btn-outline-primary btn-sm" type="submit">
+                                            Trả sách
                                         </button>
                                     </form>
 

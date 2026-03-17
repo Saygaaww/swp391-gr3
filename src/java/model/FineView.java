@@ -94,5 +94,24 @@ public class FineView {
     public void setPaidAt(LocalDateTime paidAt) {
         this.paidAt = paidAt;
     }
+
+    private String readerName;
+    private String readerEmail;
+
+    public String getReaderName() {
+        return readerName;
+    }
+
+    public void setReaderName(String readerName) {
+        this.readerName = readerName;
+    }
+
+    public String getReaderEmail() {
+        return readerEmail;
+    }
+
+    public void setReaderEmail(String readerEmail) {
+        this.readerEmail = readerEmail;
+    }
 }
 

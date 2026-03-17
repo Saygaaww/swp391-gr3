@@ -445,13 +445,13 @@ public class BorrowDAO extends DBContext {
     public List<BorrowedItemView> getActiveBorrowedItemsByReader(int readerId) {
         List<BorrowedItemView> list = new ArrayList<>();
         String sql = "SELECT bi.borrow_item_id, bi.borrow_id, bi.copy_id, bc.copy_code, " +
-                "b.book_id, b.title AS book_title, b.cover_url AS book_cover_url, " +
+                "b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
                 "bi.due_date, bi.returned_at, bi.status " +
                 "FROM Borrow br " +
                 "JOIN Borrow_Item bi ON br.borrow_id = bi.borrow_id " +
                 "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
                 "JOIN Book b ON bc.book_id = b.BookID " +
-                "WHERE br.reader_id = ? AND br.status = 'active' " +
+                "WHERE br.reader_id = ? AND br.status = 'borrowed' AND bi.returned_at IS NULL " +
                 "ORDER BY bi.due_date ASC";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -478,6 +478,101 @@ public class BorrowDAO extends DBContext {
             System.err.println("getActiveBorrowedItemsByReader Error: " + e.getMessage());
         }
         return list;
+    }
+
+    public boolean autoReturnBook(int readerId, int borrowItemId) {
+        String verifySql = "SELECT 1 FROM Borrow_Item bi JOIN Borrow br ON bi.borrow_id = br.borrow_id WHERE br.reader_id = ? AND bi.borrow_item_id = ? AND (bi.status IS NULL OR bi.status NOT IN ('returned'))";
+        
+        String updateItemSql = "UPDATE Borrow_Item SET status = 'returned', returned_at = SYSUTCDATETIME() WHERE borrow_item_id = ?";
+        String getCopyIdSql = "SELECT copy_id FROM Borrow_Item WHERE borrow_item_id = ?";
+        String updateCopySql = "UPDATE BookCopy SET status = 'available' WHERE copy_id = ?";
+        String getBookIdSql = "SELECT book_id FROM BookCopy WHERE copy_id = ?";
+        String updateBookSql = "UPDATE Book SET stock_quantity = stock_quantity + 1 WHERE BookID = ?";
+        String getBorrowIdSql = "SELECT borrow_id FROM Borrow_Item WHERE borrow_item_id = ?";
+        String updateBorrowSql = "UPDATE Borrow SET status = 'returned' WHERE borrow_id = ? AND NOT EXISTS (SELECT 1 FROM Borrow_Item WHERE borrow_id = ? AND status != 'returned')";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // 0. Verify Ownership
+            boolean valid = false;
+            try(PreparedStatement psCheck = conn.prepareStatement(verifySql)) {
+                psCheck.setInt(1, readerId);
+                psCheck.setInt(2, borrowItemId);
+                try(ResultSet rs = psCheck.executeQuery()) {
+                   if(rs.next()) valid = true;
+                }
+            }
+            if (!valid) {
+                 conn.rollback();
+                 return false;
+            }
+
+            // 1. Update Borrow_Item
+            int updated = 0;
+            try (PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
+                ps.setInt(1, borrowItemId);
+                updated = ps.executeUpdate();
+            }
+            if (updated == 0) {
+                conn.rollback();
+                return false;
+            }
+
+            // 2. Get copyId
+            int copyId = 0;
+            try (PreparedStatement ps = conn.prepareStatement(getCopyIdSql)) {
+                ps.setInt(1, borrowItemId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) copyId = rs.getInt("copy_id");
+                }
+            }
+
+            // 3. Update Book_Copy
+            if (copyId > 0) {
+                try (PreparedStatement ps = conn.prepareStatement(updateCopySql)) {
+                    ps.setInt(1, copyId);
+                    ps.executeUpdate();
+                }
+
+                // 4. Update Book stock
+                int bookId = 0;
+                try (PreparedStatement ps = conn.prepareStatement(getBookIdSql)) {
+                    ps.setInt(1, copyId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) bookId = rs.getInt("book_id");
+                    }
+                }
+                if (bookId > 0) {
+                    try (PreparedStatement ps = conn.prepareStatement(updateBookSql)) {
+                        ps.setInt(1, bookId);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+
+            // 5. Update Borrow status if all returned
+            int borrowId = 0;
+            try (PreparedStatement ps = conn.prepareStatement(getBorrowIdSql)) {
+                ps.setInt(1, borrowItemId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) borrowId = rs.getInt("borrow_id");
+                }
+            }
+            if (borrowId > 0) {
+                try (PreparedStatement ps = conn.prepareStatement(updateBorrowSql)) {
+                    ps.setInt(1, borrowId);
+                    ps.setInt(2, borrowId);
+                    ps.executeUpdate();
+                }
+            }
+
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            System.err.println("autoReturnBook Error: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean requestReturn(int readerId, int borrowItemId) {
@@ -607,14 +702,59 @@ public class BorrowDAO extends DBContext {
         return list;
     }
 
-    public boolean processReturn(int borrowItemId) {
-        String updateItemSql = "UPDATE Borrow_Item SET status = 'returned', returned_at = SYSUTCDATETIME() WHERE borrow_item_id = ? AND status = 'return_requested'";
+    public List<BorrowedItemView> getAllBorrowedItems() {
+        List<BorrowedItemView> list = new ArrayList<>();
+        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.first_name + ' ' + r.last_name AS reader_name, r.email AS reader_email, " +
+                "bi.copy_id, bc.copy_code, b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
+                "bi.due_date, bi.returned_at, bi.status " +
+                "FROM Borrow_Item bi " +
+                "JOIN Borrow br ON bi.borrow_id = br.borrow_id " +
+                "JOIN Reader r ON br.reader_id = r.reader_id " +
+                "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
+                "JOIN Book b ON bc.book_id = b.BookID " +
+                "ORDER BY bi.due_date DESC";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    BorrowedItemView v = new BorrowedItemView();
+                    v.setBorrowItemId(rs.getInt("borrow_item_id"));
+                    v.setBorrowId(rs.getInt("borrow_id"));
+                    v.setReaderId(rs.getInt("reader_id"));
+                    v.setReaderName(rs.getString("reader_name"));
+                    v.setReaderEmail(rs.getString("reader_email"));
+                    v.setCopyId(rs.getInt("copy_id"));
+                    v.setCopyCode(rs.getString("copy_code"));
+                    v.setBookId(rs.getInt("book_id"));
+                    v.setBookTitle(rs.getString("book_title"));
+                    v.setBookCoverUrl(rs.getString("book_cover_url"));
+                    Timestamp due = rs.getTimestamp("due_date");
+                    v.setDueDate(due != null ? due.toLocalDateTime() : null);
+                    Timestamp ret = rs.getTimestamp("returned_at");
+                    v.setReturnedAt(ret != null ? ret.toLocalDateTime() : null);
+                    v.setStatus(rs.getString("status"));
+                    list.add(v);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getAllBorrowedItems Error: " + e.getMessage());
+        }
+        return list;
+    }
+
+
+    public boolean processReturn(int borrowItemId, int readerId, String conditionStatus, double fineAmount, int fineTypeId) {
+        // conditionStatus: "returned", "damaged", "lost"
+        String finalStatus = ("returned".equals(conditionStatus)) ? "returned" : conditionStatus;
+        
+        String updateItemSql = "UPDATE Borrow_Item SET status = ?, returned_at = SYSUTCDATETIME() WHERE borrow_item_id = ?";
         String getCopyIdSql = "SELECT copy_id FROM Borrow_Item WHERE borrow_item_id = ?";
-        String updateCopySql = "UPDATE BookCopy SET status = 'available' WHERE copy_id = ?";
+        String updateCopySql = "UPDATE BookCopy SET status = ? WHERE copy_id = ?";
         String getBookIdSql = "SELECT book_id FROM BookCopy WHERE copy_id = ?";
         String updateBookSql = "UPDATE Book SET stock_quantity = stock_quantity + 1 WHERE BookID = ?";
         String getBorrowIdSql = "SELECT borrow_id FROM Borrow_Item WHERE borrow_item_id = ?";
-        String updateBorrowSql = "UPDATE Borrow SET status = 'returned' WHERE borrow_id = ? AND NOT EXISTS (SELECT 1 FROM Borrow_Item WHERE borrow_id = ? AND status != 'returned')";
+        String updateBorrowSql = "UPDATE Borrow SET status = 'returned' WHERE borrow_id = ? AND NOT EXISTS (SELECT 1 FROM Borrow_Item WHERE borrow_id = ? AND status NOT IN ('returned', 'damaged', 'lost'))";
+        String insertFineSql = "INSERT INTO Fine (reader_id, borrow_item_id, fine_type_id, amount, status, created_at) VALUES (?, ?, ?, ?, 'unpaid', SYSUTCDATETIME())";
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -622,12 +762,24 @@ public class BorrowDAO extends DBContext {
             // 1. Update Borrow_Item
             int updated = 0;
             try (PreparedStatement ps = conn.prepareStatement(updateItemSql)) {
-                ps.setInt(1, borrowItemId);
+                ps.setString(1, finalStatus);
+                ps.setInt(2, borrowItemId);
                 updated = ps.executeUpdate();
             }
             if (updated == 0) {
                 conn.rollback();
                 return false;
+            }
+
+            // 1.5. Insert Fine if needed
+            if (fineAmount > 0 && fineTypeId > 0) {
+                try (PreparedStatement ps = conn.prepareStatement(insertFineSql)) {
+                    ps.setInt(1, readerId);
+                    ps.setInt(2, borrowItemId);
+                    ps.setInt(3, fineTypeId);
+                    ps.setBigDecimal(4, java.math.BigDecimal.valueOf(fineAmount));
+                    ps.executeUpdate();
+                }
             }
 
             // 2. Get copyId
@@ -641,28 +793,32 @@ public class BorrowDAO extends DBContext {
 
             // 3. Update Book_Copy
             if (copyId > 0) {
+                String copyStatus = ("returned".equals(finalStatus)) ? "available" : finalStatus;
                 try (PreparedStatement ps = conn.prepareStatement(updateCopySql)) {
-                    ps.setInt(1, copyId);
+                    ps.setString(1, copyStatus);
+                    ps.setInt(2, copyId);
                     ps.executeUpdate();
                 }
 
-                // 4. Update Book stock
-                int bookId = 0;
-                try (PreparedStatement ps = conn.prepareStatement(getBookIdSql)) {
-                    ps.setInt(1, copyId);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) bookId = rs.getInt("book_id");
+                // 4. Update Book stock (Only if book is available/returned successfully)
+                if ("returned".equals(finalStatus)) {
+                    int bookId = 0;
+                    try (PreparedStatement ps = conn.prepareStatement(getBookIdSql)) {
+                        ps.setInt(1, copyId);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) bookId = rs.getInt("book_id");
+                        }
                     }
-                }
-                if (bookId > 0) {
-                    try (PreparedStatement ps = conn.prepareStatement(updateBookSql)) {
-                        ps.setInt(1, bookId);
-                        ps.executeUpdate();
+                    if (bookId > 0) {
+                        try (PreparedStatement ps = conn.prepareStatement(updateBookSql)) {
+                            ps.setInt(1, bookId);
+                            ps.executeUpdate();
+                        }
                     }
                 }
             }
 
-            // 5. Update Borrow status if all returned
+            // 5. Update Borrow status if all returned/lost/damaged
             int borrowId = 0;
             try (PreparedStatement ps = conn.prepareStatement(getBorrowIdSql)) {
                 ps.setInt(1, borrowItemId);

@@ -526,6 +526,12 @@
                 <a href="${pageContext.request.contextPath}/admin/return-list" class="sidebar-link">
                     <i class="fas fa-undo"></i> Duyệt trả sách - Xác nhận sách đã trả
                 </a>
+                <a href="${pageContext.request.contextPath}/admin/borrowed-items" class="sidebar-link">
+                    <i class="fas fa-history"></i> Lịch sử Mượn / Trả
+                </a>
+                <a href="${pageContext.request.contextPath}/admin/fines" class="sidebar-link">
+                    <i class="fas fa-file-invoice-dollar"></i> Quản lý Tiền phạt
+                </a>
                 <a href="${pageContext.request.contextPath}/admin/readers" class="sidebar-link">
                     <i class="fas fa-users"></i> Quản lý độc giả - Xem thông tin và trạng thái độc giả
                 </a>

@@ -172,6 +172,9 @@ public class CustomerController extends HttpServlet {
                     case "/return-request":
                         handleReturnRequest(request, response);
                         break;
+                    case "/auto-return":
+                        handleAutoReturnBook(request, response);
+                        break;
                     case "/reservations":
                         handleCreateOrCancelReservation(request, response);
                         break;
@@ -802,6 +805,22 @@ public class CustomerController extends HttpServlet {
         BorrowDAO borrowDAO = new BorrowDAO();
         List<BorrowedItemView> items = borrowDAO.getActiveBorrowedItemsByReader(readerId);
         request.setAttribute("items", items);
+        
+        // Fetch unpaid fines to notify user
+        dal.FineDAO fineDAO = new dal.FineDAO();
+        List<model.FineView> fines = fineDAO.getFinesByReader(readerId);
+        boolean hasUnpaidFines = false;
+        double totalUnpaid = 0;
+        for (model.FineView f : fines) {
+            if ("unpaid".equals(f.getStatus())) {
+                hasUnpaidFines = true;
+                totalUnpaid += f.getAmount().doubleValue();
+            }
+        }
+        
+        request.setAttribute("hasUnpaidFines", hasUnpaidFines);
+        request.setAttribute("totalUnpaidFines", totalUnpaid);
+        
         request.getRequestDispatcher("/jsp/customer/borrowed-items.jsp").forward(request, response);
     }
 
@@ -818,7 +837,26 @@ public class CustomerController extends HttpServlet {
             BorrowDAO borrowDAO = new BorrowDAO();
             boolean ok = borrowDAO.requestReturn(readerId, borrowItemId);
             request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
-                    ok ? "Đã gửi yêu cầu trả sách." : "Không thể gửi yêu cầu trả sách.");
+                    ok ? "Đã gửi yêu cầu trả sách. Vui lòng chờ thủ thư duyệt." : "Không thể gửi yêu cầu trả sách.");
+        } catch (NumberFormatException ignore) {
+        }
+        response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
+    }
+
+    private void handleAutoReturnBook(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        String borrowItemIdStr = request.getParameter("borrowItemId");
+        if (borrowItemIdStr == null || borrowItemIdStr.isBlank()) {
+            response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
+            return;
+        }
+        try {
+            int borrowItemId = Integer.parseInt(borrowItemIdStr);
+            BorrowDAO borrowDAO = new BorrowDAO();
+            boolean ok = borrowDAO.autoReturnBook(readerId, borrowItemId);
+            request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
+                    ok ? "Đã trả sách tự động thành công." : "Không thể trả sách tự động.");
         } catch (NumberFormatException ignore) {
         }
         response.sendRedirect(request.getContextPath() + "/customer/borrowed-items");
