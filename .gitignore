@@ -1,6 +1,39 @@
+# ===== Build outputs =====
 build/
 dist/
-nbproject/private/
-*.war
-*.jar
+out/
+target/
+
+# Compiled artifacts
 *.class
+*.jar
+*.war
+*.ear
+
+# ===== NetBeans =====
+nbproject/private/
+nbproject/private.properties
+nbproject/Makefile-*.mk
+nbproject/Package-*.bash
+nbproject/Package-*.bat
+nbproject/Package-*.cmd
+
+# ===== IDEs =====
+.idea/
+.vscode/
+*.iml
+
+# ===== OS / temp =====
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+
+# ===== Local scratch files in repo =====
+javac_errors.txt
+dung_diff.txt
+status.txt
+tmp_*/
+tmp_khanh/
