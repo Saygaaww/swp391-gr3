@@ -143,6 +143,45 @@ public class OrderDAO {
         return orders;
     }
 
+    /* ================= COUNTS / AGGREGATES (Sales Analytics) ================= */
+    public int countAllOrders() {
+        String sql = "SELECT COUNT(*) FROM [Order]";
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countOrdersByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM [Order] WHERE status = ?";
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public BigDecimal sumTotalAmountByStatus(String status) {
+        String sql = "SELECT COALESCE(SUM(total_amount), 0) FROM [Order] WHERE status = ?";
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getBigDecimal(1) : BigDecimal.ZERO;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return BigDecimal.ZERO;
+    }
+
     /* ================= GET ORDER BOOKS ================= */
     private List<OrderBook> getOrderBooks(int orderId) {
         List<OrderBook> orderBooks = new ArrayList<>();

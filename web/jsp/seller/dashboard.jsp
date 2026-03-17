@@ -158,6 +158,11 @@
                         text-align: center;
                     }
 
+                    .sidebar-link.sales {
+                        background: #f0fdf4;
+                        border: 1px solid #bbf7d0;
+                    }
+
                     /* ── MAIN ── */
                     .main {
                         flex: 1;
@@ -518,6 +523,14 @@
                             <i class="fas fa-tags"></i> Thể loại
                         </a>
 
+                        <div class="sidebar-section">Bán hàng</div>
+                        <a href="${pageContext.request.contextPath}/seller/sales-report" class="sidebar-link sales">
+                            <i class="fas fa-receipt"></i> Sales Report
+                        </a>
+                        <a href="${pageContext.request.contextPath}/seller/sales-analytics" class="sidebar-link sales">
+                            <i class="fas fa-chart-line"></i> Sales Analytics
+                        </a>
+
                         <div class="sidebar-section">Tài khoản</div>
                         <a href="${pageContext.request.contextPath}/notifications" class="sidebar-link">
                             <i class="fas fa-bell"></i> Thông báo
@@ -566,6 +579,12 @@
                         <div class="quick-actions">
                             <a href="${pageContext.request.contextPath}/books/create" class="action-btn primary">
                                 <i class="fas fa-plus"></i> Thêm sách mới
+                            </a>
+                            <a href="${pageContext.request.contextPath}/seller/sales-report" class="action-btn outline">
+                                <i class="fas fa-receipt"></i> Sales Report
+                            </a>
+                            <a href="${pageContext.request.contextPath}/seller/sales-analytics" class="action-btn outline">
+                                <i class="fas fa-chart-line"></i> Sales Analytics
                             </a>
                             <a href="${pageContext.request.contextPath}/authors/create" class="action-btn outline">
                                 <i class="fas fa-user-plus"></i> Thêm tác giả
