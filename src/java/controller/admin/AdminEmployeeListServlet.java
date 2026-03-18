@@ -75,6 +75,30 @@ public class AdminEmployeeListServlet extends HttpServlet {
                         } else {
                             session.setAttribute("errorMessage", "Mo khoa nhan vien that bai!");
                         }
+                    } else if ("deactivate".equals(action)) {
+                        if (target != null && "inactive".equalsIgnoreCase(target.getStatus())) {
+                            session.setAttribute("errorMessage", "Nhan vien nay da o trang thai inactive roi!");
+                        } else {
+                            boolean success = employeeDAO.updateEmployeeStatus(empId, "inactive");
+                            if (success) {
+                                session.setAttribute("successMessage",
+                                        "Da vo hieu hoa nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
+                            } else {
+                                session.setAttribute("errorMessage", "Vo hieu hoa nhan vien that bai!");
+                            }
+                        }
+                    } else if ("delete".equals(action)) {
+                        if (target != null && !"inactive".equalsIgnoreCase(target.getStatus())) {
+                            session.setAttribute("errorMessage", "Chi duoc xoa vinh vien nhan vien dang inactive.");
+                        } else {
+                            boolean success = employeeDAO.deleteEmployee(empId);
+                            if (success) {
+                                session.setAttribute("successMessage",
+                                        "Da xoa vinh vien nhan vien: " + (target != null ? target.getFullName() : "ID " + empId));
+                            } else {
+                                session.setAttribute("errorMessage", "Xoa vinh vien nhan vien that bai!");
+                            }
+                        }
                     }
                 }
             } catch (NumberFormatException e) {
@@ -246,6 +270,28 @@ public class AdminEmployeeListServlet extends HttpServlet {
                                 session.setAttribute("successMessage", "Da mo khoa nhan vien: " + target.getFullName());
                             } else {
                                 session.setAttribute("errorMessage", "Mo khoa nhan vien that bai!");
+                            }
+                        }
+                    } else if ("deactivate".equals(action)) {
+                        if ("inactive".equalsIgnoreCase(target.getStatus())) {
+                            session.setAttribute("errorMessage", "Nhan vien nay da o trang thai inactive roi!");
+                        } else {
+                            boolean success = employeeDAO.updateEmployeeStatus(empId, "inactive");
+                            if (success) {
+                                session.setAttribute("successMessage", "Da vo hieu hoa nhan vien: " + target.getFullName());
+                            } else {
+                                session.setAttribute("errorMessage", "Vo hieu hoa nhan vien that bai!");
+                            }
+                        }
+                    } else if ("delete".equals(action)) {
+                        if (!"inactive".equalsIgnoreCase(target.getStatus())) {
+                            session.setAttribute("errorMessage", "Chi duoc xoa vinh vien nhan vien dang inactive.");
+                        } else {
+                            boolean success = employeeDAO.deleteEmployee(empId);
+                            if (success) {
+                                session.setAttribute("successMessage", "Da xoa vinh vien nhan vien: " + target.getFullName());
+                            } else {
+                                session.setAttribute("errorMessage", "Xoa vinh vien nhan vien that bai!");
                             }
                         }
                     }

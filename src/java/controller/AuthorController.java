@@ -102,8 +102,10 @@ public class AuthorController extends HttpServlet {
 
         String searchName = StringUtil.cleanInput(request.getParameter("name"));
         String keyword = StringUtil.cleanInput(request.getParameter("keyword"));
+        String effectiveKeyword = !StringUtil.isBlank(keyword) ? keyword : searchName;
 
-        LOGGER.info("Author listing - name: " + searchName + ", keyword: " + keyword);
+        LOGGER.info("Author listing - name: " + searchName + ", keyword: " + keyword
+            + ", effectiveKeyword: " + effectiveKeyword);
 
         AuthorDAO authorDAO = new AuthorDAO();
         BookDAO bookDAO = new BookDAO();
@@ -112,12 +114,9 @@ public class AuthorController extends HttpServlet {
             List<Author> authors;
             String searchSummary = "";
 
-            if (!StringUtil.isBlank(searchName)) {
-                authors = authorDAO.searchAuthorsByName(searchName);
-                searchSummary = "Tìm thấy " + authors.size() + " tác giả với tên chứa \"" + searchName + "\"";
-            } else if (!StringUtil.isBlank(keyword)) {
-                authors = authorDAO.searchAuthorsByName(keyword);
-                searchSummary = "Tìm thấy " + authors.size() + " tác giả với từ khóa \"" + keyword + "\"";
+            if (!StringUtil.isBlank(effectiveKeyword)) {
+                authors = authorDAO.searchAuthorsByName(effectiveKeyword);
+                searchSummary = "Tìm thấy " + authors.size() + " tác giả với từ khóa \"" + effectiveKeyword + "\"";
             } else {
                 authors = authorDAO.getAllAuthors();
                 searchSummary = "Hiển thị tất cả " + authors.size() + " tác giả";
@@ -132,7 +131,7 @@ public class AuthorController extends HttpServlet {
             request.setAttribute("authors", authors);
             request.setAttribute("searchSummary", searchSummary);
             request.setAttribute("selectedName", searchName);
-            request.setAttribute("selectedKeyword", keyword);
+            request.setAttribute("selectedKeyword", effectiveKeyword);
             request.setAttribute("pageTitle", "Danh sách tác giả - Thư viện Số FPT");
             request.setAttribute("totalAuthors", authorDAO.getAllAuthors().size());
 
@@ -370,7 +369,7 @@ public class AuthorController extends HttpServlet {
             throws ServletException, IOException {
 
         request.setAttribute("error",
-                "Bạn không có quyền truy cập chức năng này. Chỉ Librarian/Seller mới có thể quản lý tác giả.");
+            "Bạn không có quyền truy cập chức năng này. Chỉ Admin/Librarian/Seller mới có thể quản lý tác giả.");
         request.setAttribute("pageTitle", "Không có quyền truy cập - Thư viện Số FPT");
 
         // Try to redirect to login if not logged in, otherwise show error
@@ -381,7 +380,7 @@ public class AuthorController extends HttpServlet {
                 requestedURL += "?" + request.getQueryString();
             }
             request.getSession().setAttribute("redirectAfterLogin", requestedURL);
-            response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
+            response.sendRedirect(request.getContextPath() + "/auth/login?error=unauthorized");
         } else {
             // User is logged in but doesn't have permission
             RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/error/unauthorized.jsp");

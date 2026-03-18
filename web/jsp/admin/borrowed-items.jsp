@@ -21,6 +21,37 @@
         </h2>
     </div>
 
+    <div class="return-card">
+        <form method="get" action="${pageContext.request.contextPath}/admin/borrowed-items" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label mb-1">Từ khóa</label>
+                <input type="text" name="keyword" class="form-control"
+                       placeholder="Độc giả, email, tên sách, mã copy..." value="${keyword}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">Trạng thái</label>
+                <select name="status" class="form-select">
+                    <option value="" ${empty status ? 'selected' : ''}>Tất cả</option>
+                    <option value="borrowed" ${status == 'borrowed' ? 'selected' : ''}>borrowed</option>
+                    <option value="return_requested" ${status == 'return_requested' ? 'selected' : ''}>return_requested</option>
+                    <option value="returned" ${status == 'returned' ? 'selected' : ''}>returned</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1">Số dòng</label>
+                <select name="pageSize" class="form-select">
+                    <option value="10" ${pageSize == '10' ? 'selected' : ''}>10</option>
+                    <option value="20" ${pageSize == '20' ? 'selected' : ''}>20</option>
+                    <option value="50" ${pageSize == '50' ? 'selected' : ''}>50</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-dark w-100"><i class="fas fa-search"></i> Lọc</button>
+                <a href="${pageContext.request.contextPath}/admin/borrowed-items" class="btn btn-outline-secondary w-100">Xóa</a>
+            </div>
+        </form>
+    </div>
+
     <!-- Table of Borrowed Items -->
     <div class="return-card">
         <div class="table-responsive">
@@ -132,6 +163,28 @@
                 </c:otherwise>
             </c:choose>
         </div>
+
+        <c:if test="${not empty items}">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">Tổng: ${totalItems} bản ghi</small>
+
+                <c:if test="${totalPages > 1}">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/borrowed-items?page=${currentPage - 1}&keyword=${keyword}&status=${status}&pageSize=${pageSize}">«</a>
+                        </li>
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                <a class="page-link" href="${pageContext.request.contextPath}/admin/borrowed-items?page=${i}&keyword=${keyword}&status=${status}&pageSize=${pageSize}">${i}</a>
+                            </li>
+                        </c:forEach>
+                        <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/borrowed-items?page=${currentPage + 1}&keyword=${keyword}&status=${status}&pageSize=${pageSize}">»</a>
+                        </li>
+                    </ul>
+                </c:if>
+            </div>
+        </c:if>
     </div>
 </main>
 

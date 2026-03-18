@@ -1,7 +1,11 @@
 ﻿<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
     <%@ page import="util.AuthUtil" %>
-        <% boolean isLoggedIn=AuthUtil.isLoggedIn(request); boolean isAdmin=AuthUtil.isAdmin(request); String
-            contextPath=request.getContextPath(); %>
+        <% boolean isLoggedIn=AuthUtil.isLoggedIn(request);
+            boolean isAdmin=AuthUtil.isAdmin(request);
+            String userRole=AuthUtil.getUserRole(request);
+            boolean isLibrarian=AuthUtil.ROLE_LIBRARIAN.equals(userRole);
+            boolean isSeller=AuthUtil.ROLE_SELLER.equals(userRole);
+            String contextPath=request.getContextPath(); %>
             <!DOCTYPE html>
             <html lang="vi">
 
@@ -349,10 +353,18 @@
                     </a>
                     <div class="nav-links">
                         <% if (isAdmin) { %>
-                            <a href="<%= contextPath %>/admin" class="btn btn-primary">Quản trị hệ thống <i
+                            <a href="<%= contextPath %>/books/list" class="btn btn-outline" style="border: none;">Kho sách</a>
+                            <a href="<%= contextPath %>/admin/book-list" class="btn btn-primary">Quản lý Admin <i
                                     class="fas fa-arrow-right"></i></a>
                             <a href="<%= contextPath %>/auth/logout" class="btn btn-outline" style="border:none;">Đăng
                                 xuất</a>
+                            <% } else if (isLibrarian || isSeller) { %>
+                                <a href="<%= contextPath %>/books/list" class="btn btn-outline" style="border: none;">Kho
+                                    sách</a>
+                                <a href="<%= contextPath %>/books/dashboard" class="btn btn-primary">Bảng quản lý <i
+                                        class="fas fa-arrow-right"></i></a>
+                                <a href="<%= contextPath %>/auth/logout" class="btn btn-outline" style="border:none;">Đăng
+                                    xuất</a>
                             <% } else if (isLoggedIn) { %>
                                 <a href="<%= contextPath %>/books" class="btn btn-outline" style="border: none;">Kho
                                     sách</a>
@@ -377,10 +389,23 @@
 
                         <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: flex-start;">
                             <% if (isAdmin) { %>
-                                <a href="<%= contextPath %>/admin" class="btn btn-primary"
+                                <a href="<%= contextPath %>/books/list" class="btn btn-primary"
                                     style="padding: 16px 36px; font-size: 1.1rem;">
-                                    <i class="fas fa-tachometer-alt"></i> Vào Bảng điều khiển
+                                    <i class="fas fa-book"></i> Vào kho sách
                                 </a>
+                                <a href="<%= contextPath %>/admin/book-list" class="btn btn-outline"
+                                   style="padding: 16px 36px; font-size: 1.1rem;">
+                                    <i class="fas fa-toolbox"></i> Quản lý Admin
+                                </a>
+                                <% } else if (isLibrarian || isSeller) { %>
+                                    <a href="<%= contextPath %>/books/list" class="btn btn-primary"
+                                       style="padding: 16px 36px; font-size: 1.1rem;">
+                                        <i class="fas fa-search"></i> Khám phá Thư viện
+                                    </a>
+                                    <a href="<%= contextPath %>/books/dashboard" class="btn btn-outline"
+                                       style="padding: 16px 36px; font-size: 1.1rem;">
+                                        <i class="fas fa-chart-line"></i> Bảng quản lý
+                                    </a>
                                 <% } else if (isLoggedIn) { %>
                                     <a href="<%= contextPath %>/books" class="btn btn-primary"
                                         style="padding: 16px 36px; font-size: 1.1rem;">

@@ -14,74 +14,115 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
                 rel="stylesheet">
+            <style>
+                .search-filter-section {
+                    background: #ffffff;
+                    border: 1px solid #d1d5db;
+                    border-radius: 14px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                }
+
+                .category-search-grid {
+                    display: grid;
+                    grid-template-columns: minmax(260px, 2fr) minmax(180px, 1fr) auto;
+                    gap: 12px;
+                    align-items: start;
+                }
+
+                .field-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+
+                .search-filter-section .form-label {
+                    color: #374151;
+                    font-weight: 600;
+                    font-size: 0.88rem;
+                    letter-spacing: 0;
+                    text-transform: none;
+                    margin: 0;
+                }
+
+                .search-filter-section .form-control,
+                .search-filter-section .form-select {
+                    background: #ffffff;
+                    border: 1px solid #cbd5e1;
+                    color: #111827;
+                }
+
+                .search-filter-section .form-control::placeholder {
+                    color: #9ca3af;
+                }
+
+                .search-filter-section .form-control:focus,
+                .search-filter-section .form-select:focus {
+                    border-color: #64748b;
+                    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+                }
+
+                .field-hint {
+                    color: #6b7280;
+                    font-size: 0.8rem;
+                    line-height: 1.3;
+                }
+
+                .field-submit .btn {
+                    min-width: 110px;
+                    height: 44px;
+                }
+
+                .field-submit {
+                    align-self: end;
+                }
+
+                .category-search-grid .form-control,
+                .category-search-grid .form-select {
+                    min-height: 44px;
+                }
+
+                .field-hint-row {
+                    margin-top: 8px;
+                    color: #6b7280;
+                    font-size: 0.8rem;
+                    line-height: 1.3;
+                }
+
+                .search-results-info {
+                    background: #f8fafc;
+                    border: 1px solid #dbeafe;
+                }
+
+                .results-text {
+                    color: #334155;
+                }
+
+                .sr-only {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    padding: 0;
+                    margin: -1px;
+                    overflow: hidden;
+                    clip: rect(0, 0, 0, 0);
+                    border: 0;
+                }
+
+                @media (max-width: 992px) {
+                    .category-search-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .field-submit .btn {
+                        width: 100%;
+                    }
+                }
+            </style>
         </head>
 
         <body>
-            <!-- Header -->
-            <header class="main-header">
-                <div class="container">
-                    <nav class="navbar">
-                        <a href="${pageContext.request.contextPath}/" class="navbar-brand">
-                            <i class="fas fa-book-open"></i>
-                            Thư viện Số FPT
-                        </a>
-                        <ul class="navbar-nav">
-                            <li><a href="${pageContext.request.contextPath}/books" class="nav-link">
-                                    <i class="fas fa-search"></i> Tìm sách
-                                </a></li>
-                            <li><a href="${pageContext.request.contextPath}/authors" class="nav-link">
-                                    <i class="fas fa-user-edit"></i> Tác giả
-                                </a></li>
-                            <li><a href="${pageContext.request.contextPath}/categories" class="nav-link active">
-                                    <i class="fas fa-tags"></i> Thể loại
-                                </a></li>
-                            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian'}">
-                                <li><a href="${pageContext.request.contextPath}/books/create" class="nav-link">
-                                        <i class="fas fa-plus-circle"></i> Thêm sách
-                                    </a></li>
-                            </c:if>
-                            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Seller'}">
-                                <li><a href="${pageContext.request.contextPath}/books/create" class="nav-link">
-                                        <i class="fas fa-store"></i> Đăng sách bán
-                                    </a></li>
-                            </c:if>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.user}">
-                                    <c:if
-                                        test="${sessionScope.userRole == 'User' or sessionScope.userRole == 'Reader'}">
-                                        <li><a href="${pageContext.request.contextPath}/profile/edit" class="nav-link">
-                                                <i class="fas fa-user-circle"></i>
-                                                <span style="color:#a78bfa;">Hồ sơ</span>
-                                            </a></li>
-                                    </c:if>
-                                    <c:if
-                                        test="${sessionScope.userRole != 'User' and sessionScope.userRole != 'Reader'}">
-                                        <li class="nav-link" style="cursor:default;opacity:0.8;font-size:0.85rem;">
-                                            <i class="fas fa-user-circle"></i>
-                                            <c:choose>
-                                                <c:when test="${sessionScope.userRole == 'Admin'}"><span
-                                                        style="color:#f59e0b;">Admin</span></c:when>
-                                                <c:when test="${sessionScope.userRole == 'Librarian'}"><span
-                                                        style="color:#34d399;">Librarian</span></c:when>
-                                                <c:when test="${sessionScope.userRole == 'Seller'}"><span
-                                                        style="color:#60a5fa;">Seller</span></c:when>
-                                            </c:choose>
-                                        </li>
-                                    </c:if>
-                                    <li><a href="${pageContext.request.contextPath}/auth/logout" class="nav-link">
-                                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                                        </a></li>
-                                </c:when>
-                                <c:otherwise>
-                                    <li><a href="${pageContext.request.contextPath}/auth/login" class="nav-link">
-                                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                                        </a></li>
-                                </c:otherwise>
-                            </c:choose>
-                        </ul>
-                    </nav>
-                </div>
-            </header>
+            <jsp:include page="/includes/navbar.jsp" />
 
             <main class="container">
                 <div class="page-header">
@@ -111,26 +152,19 @@
                     </h2>
 
                     <form method="get" action="${pageContext.request.contextPath}/categories" class="search-form">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label for="name" class="form-label">
-                                    <i class="fas fa-search"></i> Tìm theo tên thể loại
-                                </label>
-                                <input type="text" id="name" name="name" class="form-control"
-                                    placeholder="Nhập tên thể loại..." value="${selectedName}">
-                            </div>
-
-                            <div class="col-md-3">
+                        <div class="category-search-grid">
+                            <div class="field-group">
                                 <label for="keyword" class="form-label">
-                                    <i class="fas fa-key"></i> Từ khóa
+                                    <i class="fas fa-search"></i> Bạn muốn tìm thể loại gì?
                                 </label>
                                 <input type="text" id="keyword" name="keyword" class="form-control"
-                                    placeholder="Tìm kiếm tổng hợp..." value="${selectedKeyword}">
+                                    placeholder="Ví dụ: khoa học, thiếu nhi, kinh doanh..."
+                                    value="${selectedKeyword}">
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="field-group">
                                 <label for="sort" class="form-label">
-                                    <i class="fas fa-sort"></i> Sắp xếp theo
+                                    <i class="fas fa-sort"></i> Sắp xếp
                                 </label>
                                 <select id="sort" name="sort" class="form-select">
                                     <option value="" ${selectedSort==null || selectedSort=='' ? 'selected' : '' }>
@@ -142,13 +176,15 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-2">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary form-control">
+                            <div class="field-group field-submit">
+                                <label class="sr-only" for="btnCategorySearch">Tìm kiếm</label>
+                                <button id="btnCategorySearch" type="submit" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Tìm
                                 </button>
                             </div>
                         </div>
+
+                        <div class="field-hint-row">Nhập từ khóa gần đúng, hệ thống sẽ tìm các thể loại có tên chứa từ đó.</div>
 
                         <div class="search-actions mt-3">
                             <a href="${pageContext.request.contextPath}/categories" class="btn btn-outline">
@@ -200,6 +236,12 @@
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fas fa-eye"></i> Xem chi tiết
                                                     </a>
+                                                    <c:if test="${canManageCatalog}">
+                                                        <a href="${pageContext.request.contextPath}/categories/edit/${category.categoryId}"
+                                                            class="btn btn-outline btn-sm">
+                                                            <i class="fas fa-pen"></i> Sửa
+                                                        </a>
+                                                    </c:if>
                                                     <a href="${pageContext.request.contextPath}/books?categoryId=${category.categoryId}"
                                                         class="btn btn-outline btn-sm">
                                                         <i class="fas fa-book-open"></i> Xem sách

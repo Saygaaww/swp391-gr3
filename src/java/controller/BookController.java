@@ -46,17 +46,6 @@ public class BookController extends HttpServlet {
 
         try {
             if (pathInfo == null || pathInfo.equals("/")) {
-                // Auto-redirect Librarian/Admin to management dashboard
-                String role = (String) request.getSession().getAttribute(AuthUtil.SESSION_USER_ROLE);
-                if (AuthUtil.ROLE_ADMIN.equals(role)) {
-                    response.sendRedirect(request.getContextPath() + "/admin/dashboard");
-                    return;
-                }
-                if (AuthUtil.ROLE_LIBRARIAN.equals(role) || AuthUtil.ROLE_SELLER.equals(role)) {
-                    response.sendRedirect(request.getContextPath() + "/books/dashboard");
-                    return;
-                }
-
                 handleBookListing(request, response);
 
             } else if (pathInfo.equals("/dashboard")) {
@@ -327,7 +316,7 @@ public class BookController extends HttpServlet {
             pageSize = 48; // Prevent abuse
         }
         LOGGER.info("Paginated search - page: " + page + ", pageSize: " + pageSize
-                + ", keyword: " + keyword + ", filters applied");
+            + ", keyword: " + keyword + ", filters applied");
 
         BookDAO bookDAO = new BookDAO();
         AuthorDAO authorDAO = new AuthorDAO();
@@ -391,6 +380,8 @@ public class BookController extends HttpServlet {
             request.setAttribute("selectedYearRange", yearRange);
             request.setAttribute("selectedPriceType", priceType);
             request.setAttribute("selectedSortBy", sortBy != null ? sortBy : "newest");
+            request.setAttribute("isAdmin", AuthUtil.isAdmin(request));
+            request.setAttribute("canManageCatalog", AuthUtil.canManageCatalog(request));
 
             // Build current URL for pagination links
             String currentUrl = buildCurrentUrl(request);

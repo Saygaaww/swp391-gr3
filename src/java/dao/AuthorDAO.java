@@ -171,7 +171,7 @@ public class AuthorDAO {
         
         return false;
     }
-    
+
     /**
      * Check if author name already exists
      * @param authorName Name to check

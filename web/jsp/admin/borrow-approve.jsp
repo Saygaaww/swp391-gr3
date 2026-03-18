@@ -14,10 +14,34 @@
     </div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item active">Duyệt yêu cầu mượn</li>
         </ol>
     </nav>
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+            <form method="get" action="${pageContext.request.contextPath}/admin/borrow-approve" class="row g-2 align-items-end">
+                <div class="col-md-7">
+                    <label class="form-label mb-1">Từ khóa</label>
+                    <input type="text" name="keyword" class="form-control" placeholder="Tên đọc giả, email..." value="${keyword}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label mb-1">Số dòng</label>
+                    <select name="pageSize" class="form-select">
+                        <option value="5" ${pageSize == '5' ? 'selected' : ''}>5</option>
+                        <option value="10" ${pageSize == '10' ? 'selected' : ''}>10</option>
+                        <option value="20" ${pageSize == '20' ? 'selected' : ''}>20</option>
+                        <option value="50" ${pageSize == '50' ? 'selected' : ''}>50</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark w-100"><i class="fas fa-filter"></i> Lọc</button>
+                    <a href="${pageContext.request.contextPath}/admin/borrow-approve" class="btn btn-outline-secondary w-100">Xóa lọc</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <p class="mb-4">Có <strong>${totalRequests}</strong> yêu cầu đang chờ duyệt.</p>
 
@@ -53,6 +77,24 @@
                     </div>
                 </div>
             </c:forEach>
+
+            <c:if test="${totalPages > 1}">
+                <div class="d-flex justify-content-end mt-3">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/borrow-approve?page=${currentPage - 1}&keyword=${keyword}&pageSize=${pageSize}">«</a>
+                        </li>
+                        <c:forEach var="i" begin="1" end="${totalPages}">
+                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                <a class="page-link" href="${pageContext.request.contextPath}/admin/borrow-approve?page=${i}&keyword=${keyword}&pageSize=${pageSize}">${i}</a>
+                            </li>
+                        </c:forEach>
+                        <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/borrow-approve?page=${currentPage + 1}&keyword=${keyword}&pageSize=${pageSize}">»</a>
+                        </li>
+                    </ul>
+                </div>
+            </c:if>
         </c:otherwise>
     </c:choose>
 </main>

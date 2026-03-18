@@ -1,6 +1,6 @@
 package controller.admin;
 
-import dal.BookDAO;
+import dao.BookDAO;
 import model.Book;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import util.AuthUtil;
 
 @WebServlet("/admin/book-delete")
 public class AdminBookDeleteServlet extends HttpServlet {
@@ -36,8 +37,17 @@ public class AdminBookDeleteServlet extends HttpServlet {
             return;
         }
 
+        if (!AuthUtil.isAdmin(request)) {
+            response.sendRedirect(request.getContextPath() + "/auth/login?error=unauthorized");
+            return;
+        }
+
         try {
             String idStr = request.getParameter("id");
+            String mode = request.getParameter("mode");
+            if (mode == null || mode.trim().isEmpty()) {
+                mode = "soft";
+            }
             if (idStr == null || idStr.trim().isEmpty()) {
                 response.sendRedirect(request.getContextPath() + "/admin/book-list");
                 return;
@@ -49,10 +59,26 @@ public class AdminBookDeleteServlet extends HttpServlet {
                 return;
             }
 
-            Book book = bookDAO.getBookById(bookId);
+            Book book = bookDAO.getBookByIdForAdmin(bookId);
             if (book != null) {
-                bookDAO.softDeleteBook(bookId);
-                session.setAttribute("successMessage", "Da vo hieu hoa sach: " + book.getTitle());
+                boolean success;
+                if ("hard".equalsIgnoreCase(mode)) {
+                    success = bookDAO.hardDeleteBook(bookId);
+                    if (success) {
+                        session.setAttribute("successMessage", "Da xoa vinh vien sach: " + book.getTitle());
+                    } else {
+                        session.setAttribute("errorMessage", "Khong the xoa vinh vien sach nay (co du lieu lien quan).");
+                    }
+                } else {
+                    success = bookDAO.softDeleteBook(bookId);
+                    if (success) {
+                        session.setAttribute("successMessage", "Da vo hieu hoa sach: " + book.getTitle());
+                    } else {
+                        session.setAttribute("errorMessage", "Khong the vo hieu hoa sach.");
+                    }
+                }
+            } else {
+                session.setAttribute("errorMessage", "Khong tim thay sach de xu ly.");
             }
 
             response.sendRedirect(request.getContextPath() + "/admin/book-list");

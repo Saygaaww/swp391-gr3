@@ -376,44 +376,7 @@
     </head>
 
     <body>
-        <!-- Header -->
-        <header class="main-header">
-            <div class="container">
-                <nav class="navbar">
-                    <a href="${pageContext.request.contextPath}/" class="navbar-brand">
-                        <i class="fas fa-book-open"></i> Thư viện Số FPT
-                    </a>
-                    <ul class="navbar-nav">
-                        <li><a href="${pageContext.request.contextPath}/books" class="nav-link">
-                                <i class="fas fa-search"></i> Tìm sách
-                            </a></li>
-                        <li><a href="${pageContext.request.contextPath}/authors" class="nav-link">
-                                <i class="fas fa-user-edit"></i> Tác giả
-                            </a></li>
-                        <li><a href="${pageContext.request.contextPath}/categories" class="nav-link active">
-                                <i class="fas fa-tags"></i> Thể loại
-                            </a></li>
-                            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian'}">
-                            <li><a href="${pageContext.request.contextPath}/books/create" class="nav-link">
-                                    <i class="fas fa-plus-circle"></i> Thêm sách
-                                </a></li>
-                            </c:if>
-                            <c:choose>
-                                <c:when test="${not empty sessionScope.user}">
-                                <li><a href="${pageContext.request.contextPath}/auth/logout" class="nav-link">
-                                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                                    </a></li>
-                                </c:when>
-                                <c:otherwise>
-                                <li><a href="${pageContext.request.contextPath}/auth/login" class="nav-link">
-                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                                    </a></li>
-                                </c:otherwise>
-                            </c:choose>
-                    </ul>
-                </nav>
-            </div>
-        </header>
+        <jsp:include page="/includes/navbar.jsp" />
 
         <div class="detail-container">
             <div class="container">
@@ -517,9 +480,25 @@
                                                     </div>
                                                 </div>
                                                 <div class="book-card-footer">
-                                                    <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}">
-                                                        <i class="fas fa-eye"></i> Xem chi tiết
-                                                    </a>
+                                                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                                                        <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}">
+                                                            <i class="fas fa-eye"></i> Xem chi tiết
+                                                        </a>
+                                                        <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+                                                            <a href="${pageContext.request.contextPath}/books/edit/${book.bookId}">
+                                                                <i class="fas fa-pen"></i> Sửa
+                                                            </a>
+                                                        </c:if>
+                                                        <c:if test="${sessionScope.userRole == 'Admin'}">
+                                                            <form action="${pageContext.request.contextPath}/admin/book-delete" method="post"
+                                                                  onsubmit="return confirm('Vô hiệu hóa sách này?');" style="display:inline;">
+                                                                <input type="hidden" name="id" value="${book.bookId}">
+                                                                <button type="submit" style="border:none; background:none; color:#b91c1c; font-size:0.85rem; cursor:pointer;">
+                                                                    <i class="fas fa-trash-alt"></i> Xóa
+                                                                </button>
+                                                            </form>
+                                                        </c:if>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </c:forEach>

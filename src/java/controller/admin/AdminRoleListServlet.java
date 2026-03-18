@@ -5,6 +5,7 @@ import dal.EmployeeDAO;
 import model.Role;
 import model.Employee;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,6 +16,8 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/admin/roles")
 public class AdminRoleListServlet extends HttpServlet {
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
 
     private RoleDAO roleDAO;
     private EmployeeDAO employeeDAO;
@@ -42,13 +45,54 @@ public class AdminRoleListServlet extends HttpServlet {
         }
 
         try {
+            String keyword = request.getParameter("keyword");
+            if (keyword != null) {
+                keyword = keyword.trim();
+                if (keyword.isEmpty()) {
+                    keyword = null;
+                }
+            }
+
+            int page = parsePositiveInt(request.getParameter("page"), 1);
+            int pageSize = parsePageSize(request.getParameter("pageSize"));
+
             List<Role> roleList = roleDAO.getAllRoles();
             for (Role role : roleList) {
                 role.setEmployeeCount(employeeDAO.countEmployeesByRole(role.getRoleId()));
             }
 
-            request.setAttribute("roleList", roleList);
+            List<Role> filtered = new ArrayList<>();
+            for (Role role : roleList) {
+                if (keyword == null) {
+                    filtered.add(role);
+                } else {
+                    String kw = keyword.toLowerCase();
+                    String roleName = role.getRoleName() != null ? role.getRoleName().toLowerCase() : "";
+                    String description = role.getDescription() != null ? role.getDescription().toLowerCase() : "";
+                    if (roleName.contains(kw) || description.contains(kw)
+                            || String.valueOf(role.getRoleId()).contains(kw)) {
+                        filtered.add(role);
+                    }
+                }
+            }
+
+            int totalItems = filtered.size();
+            int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / pageSize));
+            if (page > totalPages) {
+                page = totalPages;
+            }
+
+            int fromIndex = (page - 1) * pageSize;
+            int toIndex = Math.min(fromIndex + pageSize, totalItems);
+            List<Role> pageItems = fromIndex < toIndex ? filtered.subList(fromIndex, toIndex) : new ArrayList<>();
+
+            request.setAttribute("roleList", pageItems);
             request.setAttribute("currentEmployee", currentEmployee);
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", String.valueOf(pageSize));
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalItems", totalItems);
             request.getRequestDispatcher("/jsp/admin/role-list.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -129,5 +173,22 @@ public class AdminRoleListServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    private int parsePositiveInt(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : defaultValue;
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private int parsePageSize(String value) {
+        int parsed = parsePositiveInt(value, DEFAULT_PAGE_SIZE);
+        return (parsed == 5 || parsed == 10 || parsed == 20) ? parsed : DEFAULT_PAGE_SIZE;
     }
 }

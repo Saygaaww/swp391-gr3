@@ -45,14 +45,14 @@ public class AuthController extends HttpServlet {
             case "/register":
                 // Nếu đã login → redirect về home
                 if (isLoggedInAsReader(request)) {
-                    response.sendRedirect(request.getContextPath() + "/books");
+                    response.sendRedirect(request.getContextPath() + "/");
                     return;
                 }
                 forward(request, response, "/jsp/auth/register.jsp");
                 break;
             case "/login":
                 if (isLoggedInAsReader(request)) {
-                    response.sendRedirect(request.getContextPath() + "/books");
+                    response.sendRedirect(request.getContextPath() + "/");
                     return;
                 }
                 forward(request, response, "/jsp/auth/login.jsp");
@@ -183,7 +183,7 @@ public class AuthController extends HttpServlet {
 
                 // Auto login sau đăng ký
                 loginSession(request, reader);
-                response.sendRedirect(request.getContextPath() + "/books?registered=1");
+                response.sendRedirect(request.getContextPath() + "/?registered=1");
             } else {
                 setErrorAndForward(request, response, "Đăng ký thất bại. Vui lòng thử lại.",
                         "/jsp/auth/register.jsp");
@@ -227,13 +227,7 @@ public class AuthController extends HttpServlet {
                 }
                 // Đăng nhập thành công với role từ DB
                 loginEmployeeSession(request, employee);
-
-                // Redirect dựa trên role
-                if (AuthUtil.ROLE_ADMIN.equals(employee.getAuthRole())) {
-                    response.sendRedirect(request.getContextPath() + "/admin/dashboard");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/books");
-                }
+                response.sendRedirect(request.getContextPath() + "/");
                 return;
             }
         } catch (Exception e) {
@@ -268,7 +262,7 @@ public class AuthController extends HttpServlet {
             if (redirect != null && !redirect.isBlank() && redirect.startsWith("/")) {
                 response.sendRedirect(request.getContextPath() + redirect);
             } else {
-                response.sendRedirect(request.getContextPath() + "/books");
+                response.sendRedirect(request.getContextPath() + "/");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Login error", e);
@@ -410,7 +404,7 @@ public class AuthController extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
-        response.sendRedirect(request.getContextPath() + "/auth/login?logout=1");
+        response.sendRedirect(request.getContextPath() + "/");
     }
 
     // ========================= FORGOT PASSWORD =========================
@@ -634,7 +628,7 @@ public class AuthController extends HttpServlet {
     }
 
     private boolean isLoggedInAsReader(HttpServletRequest request) {
-        return AuthUtil.isLoggedIn(request) && AuthUtil.ROLE_READER.equals(AuthUtil.getUserRole(request));
+        return AuthUtil.isLoggedIn(request);
     }
 
     private void forward(HttpServletRequest req, HttpServletResponse resp, String path)
@@ -700,7 +694,7 @@ public class AuthController extends HttpServlet {
                 return;
             }
             loginSession(request, reader);
-            response.sendRedirect(request.getContextPath() + "/books");
+            response.sendRedirect(request.getContextPath() + "/");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Verify Google OTP error", e);
             setErrorAndForward(request, response, "Có lỗi xảy ra. Vui lòng thử lại.", "/jsp/auth/login.jsp");

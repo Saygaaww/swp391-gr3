@@ -387,6 +387,34 @@
                 <p>Tìm kiếm và lọc sách theo tên, thể loại, tác giả...</p>
             </div>
 
+            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+                <div class="compact-filter-bar" style="margin-top: -4px; margin-bottom: 0.9rem;">
+                    <span style="font-size:0.82rem; color:#64748b; font-weight:600;">Khu vực thao tác theo quyền:</span>
+                    <a href="${pageContext.request.contextPath}/books/create" class="btn-clear">
+                        <i class="fas fa-plus"></i> Thêm sách
+                    </a>
+                    <a href="${pageContext.request.contextPath}/books/dashboard" class="btn-clear">
+                        <i class="fas fa-chart-line"></i> Bảng quản lý
+                    </a>
+
+                    <c:if test="${sessionScope.userRole == 'Admin'}">
+                        <div class="filter-divider"></div>
+                        <a href="${pageContext.request.contextPath}/admin/book-list" class="btn-clear">
+                            <i class="fas fa-layer-group"></i> Sách Admin
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/readers" class="btn-clear">
+                            <i class="fas fa-users"></i> Độc giả
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/employees" class="btn-clear">
+                            <i class="fas fa-user-tie"></i> Nhân viên
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/roles" class="btn-clear">
+                            <i class="fas fa-key"></i> Vai trò
+                        </a>
+                    </c:if>
+                </div>
+            </c:if>
+
             <!-- Compact Filter Bar -->
             <form method="get" action="${pageContext.request.contextPath}/books" id="filterForm">
                 <div class="compact-filter-bar">
@@ -623,35 +651,59 @@
                                                         </div>
 
                                                         <div class="book-actions">
-                                                            <form action="${pageContext.request.contextPath}/customer/cart/add"
-                                                                  method="post" style="display:inline;">
-                                                                <input type="hidden" name="bookId"
-                                                                       value="${book.bookId}">
-                                                                <input type="hidden" name="quantity" value="1">
-                                                                <button type="submit"
-                                                                        class="btn btn-outline-success btn-sm"
-                                                                        title="Thêm vào giỏ hàng">
-                                                                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                                                                </button>
-                                                            </form>
+                                                            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+                                                                <a href="${pageContext.request.contextPath}/books/edit/${book.bookId}"
+                                                                   class="btn btn-outline-primary btn-sm">
+                                                                    <i class="fas fa-pen"></i> Sửa
+                                                                </a>
+                                                                <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}"
+                                                                   class="btn btn-primary btn-sm">
+                                                                    <i class="fas fa-eye"></i> Xem
+                                                                </a>
+                                                            </c:if>
 
+                                                            <c:if test="${sessionScope.userRole == 'Admin'}">
+                                                                <form action="${pageContext.request.contextPath}/admin/book-delete"
+                                                                      method="post" style="display:inline;"
+                                                                      onsubmit="return confirm('Vô hiệu hóa sách này?');">
+                                                                    <input type="hidden" name="id" value="${book.bookId}">
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                            title="Vô hiệu hóa sách">
+                                                                        <i class="fas fa-trash-alt"></i> Xóa
+                                                                    </button>
+                                                                </form>
+                                                            </c:if>
 
-                                                            <c:choose>
-                                                                <c:when test="${empty book.price or book.price == 0}">
-                                                                    <a href="${pageContext.request.contextPath}/customer/read?bookId=${book.bookId}"
-                                                                       class="btn btn-primary btn-sm">
-                                                                        <i class="fas fa-book-open"></i>
-                                                                        Đọc ngay
-                                                                    </a>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}"
-                                                                       class="btn btn-primary btn-sm">
-                                                                        <i class="fas fa-eye"></i>
-                                                                        Xem chi tiết
-                                                                    </a>
-                                                                </c:otherwise>
-                                                            </c:choose>
+                                                            <c:if test="${empty sessionScope.userRole or sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
+                                                                <form action="${pageContext.request.contextPath}/customer/cart/add"
+                                                                      method="post" style="display:inline;">
+                                                                    <input type="hidden" name="bookId"
+                                                                           value="${book.bookId}">
+                                                                    <input type="hidden" name="quantity" value="1">
+                                                                    <button type="submit"
+                                                                            class="btn btn-outline-success btn-sm"
+                                                                            title="Thêm vào giỏ hàng">
+                                                                        <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                                                    </button>
+                                                                </form>
+
+                                                                <c:choose>
+                                                                    <c:when test="${empty book.price or book.price == 0}">
+                                                                        <a href="${pageContext.request.contextPath}/customer/read?bookId=${book.bookId}"
+                                                                           class="btn btn-primary btn-sm">
+                                                                            <i class="fas fa-book-open"></i>
+                                                                            Đọc ngay
+                                                                        </a>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}"
+                                                                           class="btn btn-primary btn-sm">
+                                                                            <i class="fas fa-eye"></i>
+                                                                            Xem chi tiết
+                                                                        </a>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </c:if>
 
                                                         </div>
                                                     </div>

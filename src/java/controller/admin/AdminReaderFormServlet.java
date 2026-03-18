@@ -201,6 +201,7 @@ public class AdminReaderFormServlet extends HttpServlet {
             }
 
             if (success) {
+                session.setAttribute("successMessage", isEdit ? "Cap nhat doc gia thanh cong." : "Them doc gia moi thanh cong.");
                 response.sendRedirect(request.getContextPath() + "/admin/readers");
             } else {
                 request.setAttribute("errorMessage", isEdit ? "Cap nhat that bai!" : "Them moi that bai!");

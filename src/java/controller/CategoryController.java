@@ -380,7 +380,7 @@ public class CategoryController extends HttpServlet {
             throws ServletException, IOException {
 
         request.setAttribute("error",
-                "Bạn không có quyền truy cập chức năng này. Chỉ Librarian/Seller mới có thể quản lý thể loại.");
+            "Bạn không có quyền truy cập chức năng này. Chỉ Admin/Librarian/Seller mới có thể quản lý thể loại.");
         request.setAttribute("pageTitle", "Không có quyền truy cập - Thư viện Số FPT");
 
         if (!AuthUtil.isLoggedIn(request)) {
@@ -389,7 +389,7 @@ public class CategoryController extends HttpServlet {
                 requestedURL += "?" + request.getQueryString();
             }
             request.getSession().setAttribute("redirectAfterLogin", requestedURL);
-            response.sendRedirect(request.getContextPath() + "/login?error=unauthorized");
+            response.sendRedirect(request.getContextPath() + "/auth/login?error=unauthorized");
         } else {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/jsp/error/unauthorized.jsp");
             dispatcher.forward(request, response);

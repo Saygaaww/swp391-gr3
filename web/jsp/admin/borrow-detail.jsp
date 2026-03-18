@@ -12,7 +12,7 @@
 <main class="container py-5 my-5" style="min-height: 70vh;">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/borrow-list" class="text-decoration-none">Yêu cầu mượn</a></li>
             <li class="breadcrumb-item active">#${borrowRequest.requestId}</li>
         </ol>

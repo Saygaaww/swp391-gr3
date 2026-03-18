@@ -26,7 +26,7 @@
 <main class="container py-5 my-5" style="min-height: 70vh;">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/book-list" class="text-decoration-none">Danh sách sách</a></li>
             <li class="breadcrumb-item active">Chi tiết</li>
         </ol>
@@ -47,10 +47,21 @@
             <div>
                 <a href="${pageContext.request.contextPath}/admin/book-form?id=${book.bookId}" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-edit"></i> Sửa</a>
                 <a href="${pageContext.request.contextPath}/books/upload/${book.bookId}" class="btn btn-outline-info"><i class="fas fa-upload"></i> Upload nội dung</a>
-                <form action="${pageContext.request.contextPath}/admin/book-delete" method="post" style="display:inline;" onsubmit="return confirm('Vô hiệu hóa sách này?');">
-                    <input type="hidden" name="id" value="${book.bookId}">
-                    <button type="submit" class="btn btn-outline-danger"><i class="fas fa-ban"></i> Vô hiệu hóa</button>
-                </form>
+                <c:choose>
+                    <c:when test="${book.status == 'inactive'}">
+                        <form action="${pageContext.request.contextPath}/admin/book-delete" method="post" style="display:inline;" onsubmit="return confirm('Xóa vĩnh viễn sách này? Hành động không thể hoàn tác.');">
+                            <input type="hidden" name="id" value="${book.bookId}">
+                            <input type="hidden" name="mode" value="hard">
+                            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash"></i> Xóa vĩnh viễn</button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <form action="${pageContext.request.contextPath}/admin/book-delete" method="post" style="display:inline;" onsubmit="return confirm('Vô hiệu hóa sách này?');">
+                            <input type="hidden" name="id" value="${book.bookId}">
+                            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-ban"></i> Vô hiệu hóa</button>
+                        </form>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
 

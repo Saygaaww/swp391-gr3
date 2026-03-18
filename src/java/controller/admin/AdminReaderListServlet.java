@@ -217,6 +217,30 @@ public class AdminReaderListServlet extends HttpServlet {
                             session.setAttribute("errorMessage", "Mo khoa doc gia that bai!");
                         }
                     }
+                } else if ("deactivate".equals(action)) {
+                    if ("inactive".equalsIgnoreCase(reader.getStatus())) {
+                        session.setAttribute("errorMessage", "Doc gia nay da o trang thai inactive roi!");
+                    } else {
+                        success = readerDAO.updateReaderStatus(readerId, "inactive");
+                        if (success) {
+                            session.setAttribute("successMessage", "Da vo hieu hoa doc gia: " + reader.getFullName());
+                            System.out.println("Deactivated reader ID: " + readerId);
+                        } else {
+                            session.setAttribute("errorMessage", "Vo hieu hoa doc gia that bai!");
+                        }
+                    }
+                } else if ("delete".equals(action)) {
+                    if (!"inactive".equalsIgnoreCase(reader.getStatus())) {
+                        session.setAttribute("errorMessage", "Chi duoc xoa vinh vien doc gia dang inactive.");
+                    } else {
+                        success = readerDAO.deleteReader(readerId);
+                        if (success) {
+                            session.setAttribute("successMessage", "Da xoa vinh vien doc gia: " + reader.getFullName());
+                            System.out.println("Deleted reader ID: " + readerId);
+                        } else {
+                            session.setAttribute("errorMessage", "Xoa vinh vien doc gia that bai!");
+                        }
+                    }
                 } else if ("change_role".equals(action)) {
                     String roleIdStr = request.getParameter("roleId");
                     if (roleIdStr != null && !roleIdStr.isEmpty()) {

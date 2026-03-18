@@ -279,6 +279,45 @@
                             </div>
                             <% } %>
 
+                                <% String keyword=(String) request.getAttribute("keyword");
+                                    String pageSize=(String) request.getAttribute("pageSize");
+                                    Integer currentPage=(Integer) request.getAttribute("currentPage");
+                                    Integer totalPages=(Integer) request.getAttribute("totalPages");
+                                    Integer totalItems=(Integer) request.getAttribute("totalItems");
+                                    if(pageSize==null) pageSize="10";
+                                    if(currentPage==null) currentPage=1;
+                                    if(totalPages==null) totalPages=1;
+                                    if(totalItems==null) totalItems=0;
+                                    String encodedKeyword=keyword !=null ? java.net.URLEncoder.encode(keyword,
+                                    java.nio.charset.StandardCharsets.UTF_8) : ""; %>
+
+                                    <div class="content-panel" style="margin-bottom:16px;">
+                                        <form action="<%= request.getContextPath() %>/admin/roles" method="GET"
+                                            style="display:grid; grid-template-columns:2fr 1fr auto auto; gap:10px; align-items:end;">
+                                            <div>
+                                                <label class="form-label">Từ khóa</label>
+                                                <input type="text" name="keyword" class="form-control"
+                                                    placeholder="Mã vai trò, mô tả..."
+                                                    value="<%= keyword != null ? keyword : "" %>">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Số dòng</label>
+                                                <select name="pageSize" class="form-control">
+                                                    <option value="5" <%= "5".equals(pageSize) ? "selected" : ""
+                                                        %>>5</option>
+                                                    <option value="10" <%= "10".equals(pageSize) ? "selected" : ""
+                                                        %>>10</option>
+                                                    <option value="20" <%= "20".equals(pageSize) ? "selected" : ""
+                                                        %>>20</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary" style="width:auto;"><i
+                                                    class="fas fa-search"></i> Lọc</button>
+                                            <a href="<%= request.getContextPath() %>/admin/roles" class="btn"
+                                                style="background:#f3f4f6; color:#374151; text-decoration:none;">Xóa</a>
+                                        </form>
+                                    </div>
+
                                 <div class="main-layout">
                                     <!-- Left: Table -->
                                     <div class="content-panel table-container">
@@ -341,6 +380,32 @@
                                                             <% } %>
                                             </tbody>
                                         </table>
+
+                                        <div
+                                            style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                                            <small style="color:#6b7280;">Tổng: <%= totalItems %> vai trò</small>
+                                            <% if (totalPages > 1) { %>
+                                                <div style="display:flex; gap:6px; align-items:center;">
+                                                    <a class="btn"
+                                                        style="background:#f3f4f6; color:#111827; text-decoration:none; padding:6px 10px;"
+                                                        href="<%= request.getContextPath() %>/admin/roles?page=<%= currentPage - 1 %>&keyword=<%= encodedKeyword %>&pageSize=<%= pageSize %>">
+                                                        «
+                                                    </a>
+                                                    <% for (int i=1; i <=totalPages; i++) { %>
+                                                        <a class="btn"
+                                                            style="text-decoration:none; padding:6px 10px; <%= i == currentPage ? "background:#4f46e5;color:#fff;" : "background:#f3f4f6;color:#111827;" %>"
+                                                            href="<%= request.getContextPath() %>/admin/roles?page=<%= i %>&keyword=<%= encodedKeyword %>&pageSize=<%= pageSize %>">
+                                                            <%= i %>
+                                                        </a>
+                                                        <% } %>
+                                                            <a class="btn"
+                                                                style="background:#f3f4f6; color:#111827; text-decoration:none; padding:6px 10px;"
+                                                                href="<%= request.getContextPath() %>/admin/roles?page=<%= currentPage + 1 %>&keyword=<%= encodedKeyword %>&pageSize=<%= pageSize %>">
+                                                                »
+                                                            </a>
+                                                </div>
+                                                <% } %>
+                                        </div>
                                     </div>
 
                                     <!-- Right: Add Form -->

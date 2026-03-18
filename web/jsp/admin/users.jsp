@@ -30,7 +30,7 @@
     </div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item active">Quản lý Đọc giả</li>
         </ol>
     </nav>
@@ -159,11 +159,23 @@
                                         <td>
                                             <a href="${pageContext.request.contextPath}/admin/reader-form?id=${r.readerId}" class="btn btn-sm btn-outline-primary">Sửa</a>
                                             <c:choose>
+                                                <c:when test="${r.status == 'inactive'}">
+                                                    <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;" onsubmit="return confirm('Xóa vĩnh viễn đọc giả này? Hành động không thể hoàn tác.');">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <input type="hidden" name="id" value="${r.readerId}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i> Xóa vĩnh viễn</button>
+                                                    </form>
+                                                </c:when>
                                                 <c:when test="${r.status == 'blocked'}">
                                                     <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;" onsubmit="return confirm('Mở khóa đọc giả này?');">
                                                         <input type="hidden" name="action" value="unblock">
                                                         <input type="hidden" name="id" value="${r.readerId}">
                                                         <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-unlock"></i> Mở khóa</button>
+                                                    </form>
+                                                    <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;" onsubmit="return confirm('Vô hiệu hóa đọc giả này?');">
+                                                        <input type="hidden" name="action" value="deactivate">
+                                                        <input type="hidden" name="id" value="${r.readerId}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning"><i class="fas fa-ban"></i> Vô hiệu hóa</button>
                                                     </form>
                                                 </c:when>
                                                 <c:otherwise>
@@ -171,6 +183,11 @@
                                                         <input type="hidden" name="action" value="block">
                                                         <input type="hidden" name="id" value="${r.readerId}">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-lock"></i> Khóa</button>
+                                                    </form>
+                                                    <form action="${pageContext.request.contextPath}/admin/readers" method="post" style="display:inline;" onsubmit="return confirm('Vô hiệu hóa đọc giả này?');">
+                                                        <input type="hidden" name="action" value="deactivate">
+                                                        <input type="hidden" name="id" value="${r.readerId}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning"><i class="fas fa-ban"></i> Vô hiệu hóa</button>
                                                     </form>
                                                 </c:otherwise>
                                             </c:choose>

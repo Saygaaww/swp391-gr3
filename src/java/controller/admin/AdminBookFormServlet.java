@@ -67,7 +67,7 @@ public class AdminBookFormServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/admin/book-list");
                     return;
                 }
-                book = bookDAO.getBookById(bookId);
+                book = bookDAO.getBookByIdForAdmin(bookId);
                 if (book == null) {
                     response.sendRedirect(request.getContextPath() + "/admin/book-list");
                     return;
@@ -185,7 +185,7 @@ public class AdminBookFormServlet extends HttpServlet {
             int bookId = 0;
             if (isEdit) {
                 bookId = parseIntSafe(bookIdStr, 0);
-                if (bookId > 0 && bookDAO.getBookById(bookId) == null) errors.append("Sach khong ton tai. ");
+                if (bookId > 0 && bookDAO.getBookByIdForAdmin(bookId) == null) errors.append("Sach khong ton tai. ");
             }
 
             if (errors.length() > 0) {
@@ -219,6 +219,7 @@ public class AdminBookFormServlet extends HttpServlet {
             }
 
             if (success) {
+                session.setAttribute("successMessage", isEdit ? "Cap nhat sach thanh cong." : "Them sach moi thanh cong.");
                 response.sendRedirect(request.getContextPath() + "/admin/book-list");
             } else {
                 request.setAttribute("error", "Khong the luu sach!");
@@ -295,7 +296,7 @@ public class AdminBookFormServlet extends HttpServlet {
 
         if (isEdit && bookIdStr != null && !bookIdStr.isEmpty()) {
             try {
-                Book existingBook = bookDAO.getBookById(Integer.parseInt(bookIdStr));
+                Book existingBook = bookDAO.getBookByIdForAdmin(Integer.parseInt(bookIdStr));
                 request.setAttribute("book", existingBook != null ? existingBook : new Book());
             } catch (NumberFormatException e) {
                 request.setAttribute("book", new Book());

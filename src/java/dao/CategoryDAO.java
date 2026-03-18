@@ -250,7 +250,7 @@ public class CategoryDAO {
         
         return 0;
     }
-    
+
     /**
      * Map ResultSet to Category object - CORRECTED VERSION
      */

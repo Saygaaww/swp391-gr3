@@ -7,7 +7,7 @@
         position: sticky;
         top: 0;
         z-index: 1000;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+        box-shadow: 0 2px 10px rgba(17, 24, 39, 0.08);
     }
 
     /* --- TOP BAR --- */
@@ -17,7 +17,7 @@
         display: flex;
         align-items: center;
         gap: 16px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .navbar-brand-compact {
@@ -40,7 +40,7 @@
         flex: 1;
         display: flex;
         align-items: center;
-        background: #f1f5f9;
+        background: #f3f4f6;
         border-radius: 50px;
         padding: 6px 16px;
         gap: 8px;
@@ -95,7 +95,7 @@
     }
 
     .icon-btn:hover {
-        background: #f1f5f9;
+        background: #f3f4f6;
         color: #1e293b;
     }
 
@@ -119,7 +119,7 @@
         width: 34px;
         height: 34px;
         border-radius: 50%;
-        background: #475569;
+        background: #4b5563;
         color: #fff;
         border: none;
         cursor: pointer;
@@ -189,7 +189,7 @@
 
     /* --- BOTTOM MENU BAR --- */
     .navbar-menu {
-        background: #1e293b;
+        background: #e5e7eb;
         padding: 0 24px;
         display: flex;
         align-items: center;
@@ -207,7 +207,7 @@
         align-items: center;
         gap: 6px;
         padding: 10px 16px;
-        color: #cbd5e1;
+        color: #374151;
         text-decoration: none;
         font-size: 0.85rem;
         font-weight: 500;
@@ -218,8 +218,9 @@
 
     .menu-item:hover,
     .menu-item.active {
-        color: #fff;
-        border-bottom-color: #60a5fa;
+        color: #111827;
+        border-bottom-color: #6b7280;
+        background: #f9fafb;
     }
 
     .menu-item i {
@@ -239,10 +240,14 @@
         </a>
 
         <!-- Search Box -->
-        <form class="navbar-search" action="${pageContext.request.contextPath}/books" method="get">
+        <form class="navbar-search" action="${pageContext.request.contextPath}/books" method="get"
+              title="Tìm kiếm sách nhanh">
             <i class="fas fa-search" style="color:#94a3b8; font-size:0.85rem;"></i>
             <input type="text" name="keyword" placeholder="Tìm kiếm sách, tác giả..."
                    value="${param.keyword}">
+            <button type="submit" class="search-btn" aria-label="Tìm kiếm">
+                <i class="fas fa-search"></i>
+            </button>
         </form>
 
         <!-- Icons -->
@@ -296,8 +301,11 @@
                                 </a>
                             </c:if>
                             <c:if test="${sessionScope.userRole == 'Admin'}">
-                                <a href="${pageContext.request.contextPath}/admin">
-                                    <i class="fas fa-tachometer-alt"></i> Quản trị
+                                <a href="${pageContext.request.contextPath}/admin/dashboard">
+                                    <i class="fas fa-star"></i> Trang đặc biệt Admin
+                                </a>
+                                <a href="${pageContext.request.contextPath}/admin/book-list">
+                                    <i class="fas fa-toolbox"></i> Quản lý Admin
                                 </a>
                             </c:if>
                             <c:if test="${sessionScope.userRole == 'Seller'}">
@@ -324,8 +332,11 @@
 
     <!-- BOTTOM MENU BAR -->
     <nav class="navbar-menu">
-        <a href="${pageContext.request.contextPath}/books" class="menu-item">
+        <a href="${pageContext.request.contextPath}/" class="menu-item">
             <i class="fas fa-home"></i> Trang chủ
+        </a>
+        <a href="${pageContext.request.contextPath}/books" class="menu-item">
+            <i class="fas fa-book"></i> Kho sách
         </a>
         <a href="${pageContext.request.contextPath}/books/latest" class="menu-item">
             <i class="fas fa-fire"></i> Mới nhất
@@ -359,6 +370,39 @@
         <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian'}">
             <a href="${pageContext.request.contextPath}/books/create" class="menu-item">
                 <i class="fas fa-plus"></i> Thêm sách
+            </a>
+        </c:if>
+
+        <c:if test="${sessionScope.userRole == 'Admin'}">
+            <a href="${pageContext.request.contextPath}/admin/dashboard" class="menu-item">
+                <i class="fas fa-star"></i> Trang đặc biệt
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/book-list" class="menu-item">
+                <i class="fas fa-layer-group"></i> Sách Admin
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/readers" class="menu-item">
+                <i class="fas fa-users"></i> Độc giả
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/employees" class="menu-item">
+                <i class="fas fa-user-tie"></i> Nhân viên
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/roles" class="menu-item">
+                <i class="fas fa-key"></i> Vai trò
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/borrow-approve" class="menu-item">
+                <i class="fas fa-check-circle"></i> Duyệt mượn
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/return-list" class="menu-item">
+                <i class="fas fa-undo"></i> Duyệt trả
+            </a>
+            <a href="${pageContext.request.contextPath}/admin/fines" class="menu-item">
+                <i class="fas fa-money-bill-wave"></i> Tiền phạt
+            </a>
+        </c:if>
+
+        <c:if test="${sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+            <a href="${pageContext.request.contextPath}/books/dashboard" class="menu-item">
+                <i class="fas fa-chart-line"></i> Bảng quản lý
             </a>
         </c:if>
     </nav>

@@ -10,7 +10,7 @@ public class DBContext {
     private static final String PORT = "1433";
     private static final String DATABASE = "DigitalLibraryDB";
     private static final String USERNAME = "sa";
-    private static final String PASSWORD = "sa";
+    private static final String PASSWORD = "123";
     
     public Connection getConnection() throws SQLException, ClassNotFoundException {
         String url = "jdbc:sqlserver://" + SERVER + ":" + PORT + 

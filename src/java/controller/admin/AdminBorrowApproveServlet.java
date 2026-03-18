@@ -4,6 +4,7 @@ import dal.BorrowDAO;
 import model.BorrowRequest;
 import model.Employee;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,6 +15,8 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/admin/borrow-approve")
 public class AdminBorrowApproveServlet extends HttpServlet {
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
     
     private BorrowDAO borrowDAO;
     
@@ -32,15 +35,34 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
+
+        String keyword = normalize(request.getParameter("keyword"));
+        int page = parsePositiveInt(request.getParameter("page"), 1);
+        int pageSize = parsePageSize(request.getParameter("pageSize"));
         
         try {
-            List<BorrowRequest> pendingRequests = borrowDAO.getPendingRequests();
+            int totalRequests = borrowDAO.countRequestsFiltered(keyword, "pending");
+            int totalPages = Math.max(1, (int) Math.ceil((double) totalRequests / pageSize));
+            if (page > totalPages) {
+                page = totalPages;
+            }
+
+            List<BorrowRequest> pendingRequests;
+            if (totalRequests > 0) {
+                pendingRequests = borrowDAO.getRequestsFiltered(keyword, "pending", page, pageSize);
+            } else {
+                pendingRequests = new ArrayList<>();
+            }
             
             request.setAttribute("pendingRequests", pendingRequests);
-            request.setAttribute("totalRequests", pendingRequests.size());
+            request.setAttribute("totalRequests", totalRequests);
+            request.setAttribute("keyword", keyword);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("pageSize", String.valueOf(pageSize));
+            request.setAttribute("totalPages", totalPages);
             request.setAttribute("currentEmployee", session.getAttribute("user"));
             
-            System.out.println("Co " + pendingRequests.size() + " yeu cau muon cho duyet");
+            System.out.println("Co " + totalRequests + " yeu cau muon cho duyet");
             
             request.getRequestDispatcher("/jsp/admin/borrow-approve.jsp")
                    .forward(request, response);
@@ -116,5 +138,30 @@ public class AdminBorrowApproveServlet extends HttpServlet {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/admin/borrow-approve");
         }
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private int parsePositiveInt(String value, int defaultValue) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : defaultValue;
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private int parsePageSize(String value) {
+        int parsed = parsePositiveInt(value, DEFAULT_PAGE_SIZE);
+        return (parsed == 5 || parsed == 10 || parsed == 20 || parsed == 50) ? parsed : DEFAULT_PAGE_SIZE;
     }
 }

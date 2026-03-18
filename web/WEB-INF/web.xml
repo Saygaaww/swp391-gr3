@@ -21,8 +21,8 @@
 
     <!-- Default Welcome Files -->
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
         <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
         <welcome-file>books</welcome-file>
     </welcome-file-list>
 

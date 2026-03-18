@@ -128,12 +128,13 @@
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-user-tie" style="color:#4f46e5;"></i> Quản lý Nhân viên
         </h2>
+        <a href="${pageContext.request.contextPath}/admin/employee-form" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-user-plus"></i> Thêm nhân viên</a>
     </div>
 
     <!-- Breadcrumbs -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard"
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/"
                                            class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item active" aria-current="page">Quản Lý Nhân Viên</li>
         </ol>
@@ -306,6 +307,8 @@
                                                   ')}
                                             </td>
                                             <td>
+                                                <a href="${pageContext.request.contextPath}/admin/employee-form?id=${r.employeeId}"
+                                                   class="btn btn-sm btn-outline-primary"><i class="fas fa-pen"></i> Sửa</a>
                                                 <c:choose>
                                                     <c:when
                                                         test="${r.employeeId == sessionScope.user.employeeId}">
@@ -313,6 +316,20 @@
                                                     </c:when>
                                                     <c:when test="${r.roleName == 'Admin'}">
                                                         <span class="badge bg-secondary">Được bảo vệ</span>
+                                                    </c:when>
+                                                    <c:when test="${r.status == 'inactive'}">
+                                                        <form
+                                                            action="${pageContext.request.contextPath}/admin/employees"
+                                                            method="post" style="display:inline;">
+                                                            <input type="hidden" name="action"
+                                                                   value="delete">
+                                                            <input type="hidden" name="id"
+                                                                   value="${r.employeeId}">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-danger"
+                                                                    onclick="return confirm('Xóa vĩnh viễn nhân viên này? Hành động không thể hoàn tác.')"><i
+                                                                    class="fas fa-trash"></i> Xóa vĩnh viễn</button>
+                                                        </form>
                                                     </c:when>
                                                     <c:when test="${r.status == 'blocked'}">
                                                         <form
@@ -326,6 +343,18 @@
                                                                     class="btn btn-sm btn-outline-primary"
                                                                     onclick="return confirm('Mở khóa nhân viên này?')"><i
                                                                     class="fas fa-unlock"></i> Mở khóa</button>
+                                                        </form>
+                                                        <form
+                                                            action="${pageContext.request.contextPath}/admin/employees"
+                                                            method="post" style="display:inline;">
+                                                            <input type="hidden" name="action"
+                                                                   value="deactivate">
+                                                            <input type="hidden" name="id"
+                                                                   value="${r.employeeId}">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-warning"
+                                                                    onclick="return confirm('Vô hiệu hóa nhân viên này?')"><i
+                                                                    class="fas fa-ban"></i> Vô hiệu hóa</button>
                                                         </form>
                                                     </c:when>
                                                     <c:otherwise>
@@ -341,6 +370,18 @@
                                                                     onclick="return confirm('Khóa nhân viên này?')"><i
                                                                     class="fas fa-lock"></i>
                                                                 Khóa</button>
+                                                        </form>
+                                                        <form
+                                                            action="${pageContext.request.contextPath}/admin/employees"
+                                                            method="post" style="display:inline;">
+                                                            <input type="hidden" name="action"
+                                                                   value="deactivate">
+                                                            <input type="hidden" name="id"
+                                                                   value="${r.employeeId}">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm btn-outline-warning"
+                                                                    onclick="return confirm('Vô hiệu hóa nhân viên này?')"><i
+                                                                    class="fas fa-ban"></i> Vô hiệu hóa</button>
                                                         </form>
                                                     </c:otherwise>
                                                 </c:choose>

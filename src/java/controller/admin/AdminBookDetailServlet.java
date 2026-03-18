@@ -63,7 +63,7 @@ public class AdminBookDetailServlet extends HttpServlet {
                 return;
             }
 
-            Book book = bookDAO.getBookById(bookId);
+            Book book = bookDAO.getBookByIdForAdmin(bookId);
 
             if (book == null) {
                 request.setAttribute("errorMessage", "Khong tim thay sach ID: " + bookId);

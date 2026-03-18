@@ -21,7 +21,7 @@
             body {
                 font-family: 'Inter', sans-serif;
                 min-height: 100vh;
-                background: #f0f2f5;
+                background: #eef1f4;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -34,14 +34,15 @@
                 max-width: 900px;
                 min-height: 560px;
                 border-radius: 20px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.10);
+                box-shadow: 0 12px 32px rgba(17, 24, 39, 0.12);
+                border: 1px solid #d1d5db;
                 overflow: hidden;
             }
 
             /* Left banner */
             .banner {
                 flex: 1;
-                background: linear-gradient(145deg, #6366f1 0%, #8b5cf6 60%, #a78bfa 100%);
+                background: linear-gradient(145deg, #6b7280 0%, #4b5563 60%, #374151 100%);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -143,8 +144,7 @@
                 font-size: 0.9rem;
             }
 
-            input[type="email"],
-            input[type="password"] {
+            .input-wrap input {
                 width: 100%;
                 padding: 11px 14px 11px 38px;
                 background: #f9fafb;
@@ -158,9 +158,9 @@
             }
 
             input:focus {
-                border-color: #6366f1;
-                background: #fafafe;
-                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                border-color: #6b7280;
+                background: #ffffff;
+                box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.12);
             }
 
             input::placeholder {
@@ -187,7 +187,7 @@
             .forgot-link {
                 display: block;
                 text-align: right;
-                color: #6366f1;
+                color: #4b5563;
                 text-decoration: none;
                 font-size: 0.8rem;
                 margin-top: 7px;
@@ -201,7 +201,7 @@
             .btn-primary {
                 width: 100%;
                 padding: 12px;
-                background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                background: linear-gradient(135deg, #4b5563, #374151);
                 border: none;
                 border-radius: 9px;
                 color: #fff;
@@ -216,7 +216,7 @@
 
             .btn-primary:hover {
                 transform: translateY(-1px);
-                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+                box-shadow: 0 8px 18px rgba(55, 65, 81, 0.35);
             }
 
             .divider {
@@ -283,7 +283,7 @@
             }
 
             .footer-link a {
-                color: #6366f1;
+                color: #374151;
                 text-decoration: none;
                 font-weight: 500;
             }
@@ -352,9 +352,7 @@
                                                                 <i class="fas fa-envelope icon"></i>
                                                                 <input type="email" id="email" name="email"
                                                                     placeholder="example@email.com" required autofocus
-                                                                    value="<%= request.getAttribute(" inputEmail")
-                                                                    !=null ? request.getAttribute("inputEmail") : ""
-                                                                    %>">
+                                                                    value="<%= request.getAttribute("inputEmail") != null ? request.getAttribute("inputEmail") : "" %>">
                                                             </div>
                                                         </div>
 

@@ -162,6 +162,7 @@ public class AdminEmployeeFormServlet extends HttpServlet {
             }
             
             if (success) {
+                session.setAttribute("successMessage", isEdit ? "Cap nhat nhan vien thanh cong." : "Them nhan vien moi thanh cong.");
                 response.sendRedirect(request.getContextPath() + "/admin/employees");
             } else {
                 reloadFormWithError(request, response, "Thao tác thất bại. Vui lòng thử lại!", isEdit, employeeIdStr);

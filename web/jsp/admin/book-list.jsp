@@ -601,7 +601,7 @@
 
         <%-- Breadcrumb --%>
         <div class="bl-breadcrumb">
-            <a href="${pageContext.request.contextPath}/admin/dashboard"><i class="fas fa-home"></i> Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/"><i class="fas fa-home"></i> Trang chủ</a>
             <i class="fas fa-chevron-right" style="font-size:9px;"></i>
             <span>Danh sách sách</span>
         </div>
@@ -772,14 +772,29 @@
                                                 <a href="${pageContext.request.contextPath}/books/upload/${b.bookId}" class="btn-act btn-act-teal">
                                                     <i class="fas fa-upload"></i> Upload
                                                 </a>
-                                                <form action="${pageContext.request.contextPath}/admin/book-delete" method="post"
-                                                      style="display:inline;"
-                                                      onsubmit="return confirm('Vô hiệu hóa sách này (soft delete)?');">
-                                                    <input type="hidden" name="id" value="${b.bookId}">
-                                                    <button type="submit" class="btn-act btn-act-red">
-                                                        <i class="fas fa-ban"></i> Vô hiệu hóa
-                                                    </button>
-                                                </form>
+                                                <c:choose>
+                                                    <c:when test="${b.status == 'inactive'}">
+                                                        <form action="${pageContext.request.contextPath}/admin/book-delete" method="post"
+                                                              style="display:inline;"
+                                                              onsubmit="return confirm('Xóa vĩnh viễn sách này? Hành động không thể hoàn tác.');">
+                                                            <input type="hidden" name="id" value="${b.bookId}">
+                                                            <input type="hidden" name="mode" value="hard">
+                                                            <button type="submit" class="btn-act btn-act-red">
+                                                                <i class="fas fa-trash"></i> Xóa vĩnh viễn
+                                                            </button>
+                                                        </form>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <form action="${pageContext.request.contextPath}/admin/book-delete" method="post"
+                                                              style="display:inline;"
+                                                              onsubmit="return confirm('Vô hiệu hóa sách này (soft delete)?');">
+                                                            <input type="hidden" name="id" value="${b.bookId}">
+                                                            <button type="submit" class="btn-act btn-act-red">
+                                                                <i class="fas fa-ban"></i> Vô hiệu hóa
+                                                            </button>
+                                                        </form>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </td>
                                     </tr>

@@ -80,6 +80,32 @@ public class BookDAO {
     }
 
     /**
+     * Get book by ID for admin screens (includes all statuses)
+     */
+    public Book getBookByIdForAdmin(int bookId) {
+        String sql = "SELECT b.*, a.AuthorName, c.CategoryName "
+                + "FROM Book b "
+                + "LEFT JOIN Author a ON b.AuthorID = a.AuthorID "
+                + "LEFT JOIN Category c ON b.CategoryID = c.CategoryID "
+                + "WHERE b.BookID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBook(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting admin book by ID: " + bookId, e);
+        }
+
+        return null;
+    }
+
+    /**
      * Search books with basic filters (legacy method for compatibility)
      */
     public List<Book> searchBooks(String title, Integer authorId, Integer categoryId,
@@ -1177,6 +1203,35 @@ public class BookDAO {
         }
         return false;
     }
+
+    /**
+     * Soft delete for admin flow (set inactive).
+     */
+    public boolean softDeleteBook(int bookId) {
+        String sql = "UPDATE Book SET Status = 'inactive', UpdatedAt = SYSUTCDATETIME() WHERE BookID = ?";
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error soft deleting book: " + bookId, e);
+        }
+        return false;
+    }
+
+    /**
+     * Hard delete for admin flow (remove row permanently).
+     */
+    public boolean hardDeleteBook(int bookId) {
+        String sql = "DELETE FROM Book WHERE BookID = ?";
+        try (Connection con = util.DBUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error hard deleting book: " + bookId, e);
+        }
+        return false;
+    }
+
     // Thêm vào BookDAO nếu cần lấy riêng path mà không cần load toàn bộ object
 
     public String getContentPathById(int bookId) {

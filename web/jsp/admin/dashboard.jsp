@@ -27,7 +27,7 @@
 
             body {
                 font-family: 'Inter', sans-serif;
-                background: #f4f7fe;
+                background: #eef1f4;
                 color: #111827;
                 min-height: 100vh;
                 padding: 24px;
@@ -43,7 +43,7 @@
 
             /* Header Banner */
             .header-banner {
-                background: linear-gradient(135deg, #111827, #1e3a8a);
+                background: linear-gradient(135deg, #374151, #4b5563);
                 border-radius: 16px;
                 padding: 32px 40px;
                 color: white;
@@ -74,7 +74,7 @@
 
             .header-content p {
                 font-size: 0.9rem;
-                color: #9ca3af;
+                color: #e5e7eb;
             }
 
             .header-date {
@@ -82,11 +82,117 @@
                 align-items: center;
                 gap: 8px;
                 font-size: 0.85rem;
-                color: #d1d5db;
+                color: #f3f4f6;
                 background: rgba(255, 255, 255, 0.1);
                 padding: 6px 14px;
                 border-radius: 20px;
                 backdrop-filter: blur(4px);
+            }
+
+            .header-tools {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 12px;
+                z-index: 1;
+            }
+
+            .header-actions {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .header-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                text-decoration: none;
+                font-size: 0.85rem;
+                font-weight: 600;
+                border-radius: 999px;
+                padding: 8px 14px;
+                transition: all 0.2s ease;
+            }
+
+            .header-btn-home {
+                color: #111827;
+                background: #f3f4f6;
+            }
+
+            .header-btn-home:hover {
+                background: #ffffff;
+            }
+
+            .header-btn-logout {
+                color: #f9fafb;
+                background: rgba(17, 24, 39, 0.45);
+            }
+
+            .header-btn-logout:hover {
+                background: rgba(17, 24, 39, 0.65);
+            }
+
+            .special-note {
+                margin: 0 0 22px;
+                padding: 14px 16px;
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                background: #ffffff;
+                color: #4b5563;
+                font-size: 0.92rem;
+            }
+
+            .admin-profile-card {
+                background: #ffffff;
+                border: 1px solid #d1d5db;
+                border-radius: 12px;
+                padding: 16px;
+                margin: 0 0 24px;
+            }
+
+            .admin-profile-title {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #1f2937;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .admin-profile-title i {
+                color: #475569;
+            }
+
+            .admin-profile-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .admin-profile-item {
+                background: #f8fafc;
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                padding: 10px 12px;
+            }
+
+            .admin-profile-label {
+                display: block;
+                font-size: 0.74rem;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                margin-bottom: 4px;
+            }
+
+            .admin-profile-value {
+                font-size: 0.92rem;
+                color: #111827;
+                font-weight: 600;
+                word-break: break-word;
             }
 
             /* Stats Grid */
@@ -177,7 +283,7 @@
                 margin-top: 4px;
             }
 
-            /* Quick Actions Section */
+            /* Special Admin Section */
             .section-title {
                 display: flex;
                 align-items: center;
@@ -192,46 +298,39 @@
                 color: #6b7280;
             }
 
-            .actions-grid {
+            .special-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 20px;
             }
 
-            .action-card {
+            .special-card {
                 background: #fff;
                 border-radius: 12px;
                 padding: 24px 20px;
-                text-align: center;
                 text-decoration: none;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
                 transition: all 0.2s ease;
                 display: flex;
-                flex-direction: column;
-                align-items: center;
                 gap: 12px;
                 border: 1px solid transparent;
             }
 
-            .action-card:hover {
+            .special-card:hover {
                 transform: translateY(-4px);
                 box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
                 border-color: #e5e7eb;
             }
 
-            .action-icon {
-                width: 56px;
-                height: 56px;
-                border-radius: 14px;
+            .special-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.5rem;
-                transition: transform 0.2s;
-            }
-
-            .action-card:hover .action-icon {
-                transform: scale(1.05);
+                font-size: 1.2rem;
+                flex-shrink: 0;
             }
 
             /* Colored Icons for Actions */
@@ -275,16 +374,16 @@
                 color: #f43f5e;
             }
 
-            .action-info h3 {
+            .special-info h3 {
                 font-size: 0.95rem;
                 font-weight: 600;
                 color: #111827;
                 margin-bottom: 4px;
             }
 
-            .action-info p {
-                font-size: 0.75rem;
-                color: #9ca3af;
+            .special-info p {
+                font-size: 0.82rem;
+                color: #6b7280;
                 line-height: 1.4;
             }
 
@@ -292,15 +391,23 @@
             @media (max-width: 1024px) {
 
                 .stats-grid,
-                .actions-grid {
+                .special-grid {
                     grid-template-columns: repeat(2, 1fr);
+                }
+
+                .admin-profile-grid {
+                    grid-template-columns: repeat(2, minmax(140px, 1fr));
                 }
             }
 
             @media (max-width: 640px) {
 
                 .stats-grid,
-                .actions-grid {
+                .special-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .admin-profile-grid {
                     grid-template-columns: 1fr;
                 }
 
@@ -308,6 +415,16 @@
                     flex-direction: column;
                     gap: 16px;
                     padding: 24px;
+                }
+
+                .header-tools {
+                    width: 100%;
+                    align-items: flex-start;
+                }
+
+                .header-actions {
+                    width: 100%;
+                    justify-content: flex-start;
                 }
             }
         </style>
@@ -324,22 +441,36 @@
                     <p>Tổng quan quản lý thư viện số - Digital Library Management System</p>
                 </div>
 
-                <div class="header-date">
-                    <i class="far fa-calendar-alt"></i>
-                    <% java.time.LocalDate today = java.time.LocalDate.now();
-                                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("'Thứ' e, dd 'tháng' MM, yyyy",
-                                        new java.util.Locale("vi", "VN"));
-                                out.print(today.format(formatter));%>
+                <div class="header-tools">
+                    <div class="header-date">
+                        <i class="far fa-calendar-alt"></i>
+                        <span id="dashboardDate"></span>
+                    </div>
+                    <div class="header-actions">
+                        <a href="<%= request.getContextPath()%>/" class="header-btn header-btn-home" title="Quay về trang chủ">
+                            <i class="fas fa-arrow-left"></i> Quay về trang chủ
+                        </a>
+                        <a href="<%= request.getContextPath()%>/auth/logout" class="header-btn header-btn-logout" title="Đăng xuất">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    </div>
                 </div>
-                <a href="<%= request.getContextPath()%>/auth/logout"
-                   style="position: absolute; right: 24px; bottom: 24px; color: #9ca3af; text-decoration: none; font-size: 1.2rem; transition: color 0.2s; z-index:1000;"
-                   title="Đăng xuất"
-                   onmouseover="this.style.color = '#fff'"
-                   onmouseout="this.style.color = '#9ca3af'">
-
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
             </div>
+
+            <script>
+                (function () {
+                    const now = new Date();
+                    const weekdays = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const yyyy = now.getFullYear();
+                    const label = weekdays[now.getDay()] + ', ' + dd + ' tháng ' + mm + ', ' + yyyy;
+                    const dateEl = document.getElementById('dashboardDate');
+                    if (dateEl) {
+                        dateEl.textContent = label;
+                    }
+                })();
+            </script>
 
             <!-- Statistics Grid -->
             <div class="stats-grid">
@@ -388,101 +519,58 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <h2 class="section-title"><i class="fas fa-bolt"></i> Thao tac nhanh</h2>
+            <div class="special-note">
+                Trang này chỉ giữ vai trò tổng quan đặc biệt cho Admin. Các thao tác hằng ngày hãy dùng thanh tab chung để quản lý trực tiếp theo phân quyền.
+            </div>
 
-            <div class="actions-grid">
-                <!-- Sách -->
-                <a href="<%= request.getContextPath()%>/admin/book-list" class="action-card">
-                    <div class="action-icon icon-blue"><i class="fas fa-list-ul"></i></div>
-                    <div class="action-info">
-                        <h3>Danh sách sách</h3>
-                        <p>Xem va quan ly sach</p>
+            <div class="admin-profile-card">
+                <div class="admin-profile-title">
+                    <i class="fas fa-id-badge"></i> Thông tin Admin đang đăng nhập
+                </div>
+                <div class="admin-profile-grid">
+                    <div class="admin-profile-item">
+                        <span class="admin-profile-label">Mã nhân viên</span>
+                        <span class="admin-profile-value"><%= currentAdmin != null && currentAdmin.getEmployeeId() != null ? currentAdmin.getEmployeeId() : "-" %></span>
+                    </div>
+                    <div class="admin-profile-item">
+                        <span class="admin-profile-label">Họ tên</span>
+                        <span class="admin-profile-value"><%= currentAdmin != null && currentAdmin.getFullName() != null ? currentAdmin.getFullName() : "-" %></span>
+                    </div>
+                    <div class="admin-profile-item">
+                        <span class="admin-profile-label">Email</span>
+                        <span class="admin-profile-value"><%= currentAdmin != null && currentAdmin.getEmail() != null ? currentAdmin.getEmail() : "-" %></span>
+                    </div>
+                    <div class="admin-profile-item">
+                        <span class="admin-profile-label">Vai trò / Trạng thái</span>
+                        <span class="admin-profile-value"><%= currentAdmin != null ? (currentAdmin.getRoleName() + " / " + currentAdmin.getStatus()) : "-" %></span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title"><i class="fas fa-shield-alt"></i> Khu vực đặc biệt của Admin</h2>
+
+            <div class="special-grid">
+                <a href="<%= request.getContextPath()%>/admin/roles" class="special-card">
+                    <div class="special-icon icon-rose"><i class="fas fa-key"></i></div>
+                    <div class="special-info">
+                        <h3>Điều phối phân quyền</h3>
+                        <p>Quản lý vai trò hệ thống và kiểm soát phạm vi truy cập nâng cao.</p>
                     </div>
                 </a>
 
-                <a href="<%= request.getContextPath()%>/admin/book-form" class="action-card">
-                    <div class="action-icon icon-green"><i class="fas fa-plus"></i></div>
-                    <div class="action-info">
-                        <h3>Thêm sách mới</h3>
-                        <p>Thêm sách vào hệ thống</p>
+                <a href="<%= request.getContextPath()%>/admin/borrowed-items" class="special-card">
+                    <div class="special-icon icon-purple"><i class="fas fa-book-reader"></i></div>
+                    <div class="special-info">
+                        <h3>Giám sát vận hành mượn trả</h3>
+                        <p>Theo dõi trạng thái mượn trả toàn cục, xử lý các điểm nghẽn nghiệp vụ.</p>
                     </div>
                 </a>
 
-                <a href="<%= request.getContextPath()%>/admin/book-list" class="action-card">
-                    <div class="action-icon icon-blue"><i class="fas fa-upload"></i></div>
-                    <div class="action-info">
-                        <h3>Upload nội dung sách</h3>
-                        <p>PDF, EPUB - chọn sách trong danh sách để upload</p>
-                    </div>
-                </a>
-
-                <!-- Độc giả -->
-                <a href="<%= request.getContextPath()%>/admin/readers" class="action-card">
-                    <div class="action-icon icon-cyan"><i class="fas fa-user-friends"></i></div>
-                    <div class="action-info">
-                        <h3>Quản lý Độc giả</h3>
-                        <p>Xem danh sách độc giả</p>
-                    </div>
-                </a>
-
-                <a href="<%= request.getContextPath()%>/admin/reader-form" class="action-card">
-                    <div class="action-icon icon-emerald"><i class="fas fa-user-plus"></i></div>
-                    <div class="action-info">
-                        <h3>Thêm Độc giả</h3>
-                        <p>Đăng ký độc giả mới</p>
-                    </div>
-                </a>
-
-                <!-- Nhân viên -->
-                <a href="<%= request.getContextPath()%>/admin/employees" class="action-card">
-                    <div class="action-icon icon-yellow"><i class="fas fa-user-tie"></i></div>
-                    <div class="action-info">
-                        <h3>Quản lý Nhân viên</h3>
-                        <p>Xem danh sách nhân viên</p>
-                    </div>
-                </a>
-
-                <a href="<%= request.getContextPath()%>/admin/employee-form" class="action-card">
-                    <div class="action-icon icon-orange"><i class="fas fa-user-plus"></i></div>
-                    <div class="action-info">
-                        <h3>Thêm Nhân Viên</h3>
-                        <p>Thêm Nhân Viên Mới</p>
-                    </div>
-                </a>
-
-                <!-- Mượn trả & Vai trò -->
-                <a href="<%= request.getContextPath()%>/admin/borrow-list" class="action-card">
-                    <div class="action-icon icon-purple"><i class="fas fa-check-circle"></i></div>
-                    <div class="action-info">
-                        <h3>Duyệt yêu cầu mượn</h3>
-                        <p>Xử lý yêu cầu mượn</p>
-                    </div>
-                </a>
-
-                <a href="<%= request.getContextPath()%>/admin/roles" class="action-card">
-                    <div class="action-icon icon-rose"><i class="fas fa-key"></i></div>
-                    <div class="action-info">
-                        <h3>Quản lý vai trò</h3>
-                        <p>Phân Quyền Hệ Thống</p>
-                    </div>
-                </a>
-
-                <!-- Sales Report -->
-                <a href="<%= request.getContextPath()%>/admin/sales-report" class="action-card">
-                    <div class="action-icon icon-blue"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <div class="action-info">
-                        <h3>Báo cáo bán hàng</h3>
-                        <p>Xem báo cáo đơn hàng và thanh toán</p>
-                    </div>
-                </a>
-
-                <!-- Sales Analytics -->
-                <a href="<%= request.getContextPath()%>/admin/sales-analytics" class="action-card">
-                    <div class="action-icon icon-green"><i class="fas fa-chart-line"></i></div>
-                    <div class="action-info">
-                        <h3>Phân tích dữ liệu bán hàng</h3>
-                        <p>Thống kê doanh số, doanh thu, top sách</p>
+                <a href="<%= request.getContextPath()%>/admin/fines" class="special-card">
+                    <div class="special-icon icon-orange"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="special-info">
+                        <h3>Kiểm soát tiền phạt</h3>
+                        <p>Giám sát phát sinh khoản phạt và điều phối xử lý theo chính sách.</p>
                     </div>
                 </a>
             </div>
