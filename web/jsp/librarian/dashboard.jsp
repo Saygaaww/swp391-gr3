@@ -97,6 +97,109 @@
                 background: #fef2f2;
             }
 
+            /* ── LIBRARIAN NOTIFICATION ── */
+            .notif-wrap {
+                position: relative;
+            }
+
+            .notif-btn {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                border: 1px solid #e5e7eb;
+                background: #fff;
+                color: #4b5563;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                position: relative;
+            }
+
+            .notif-btn:hover {
+                background: #f3f4f6;
+                color: #7c3aed;
+            }
+
+            .notif-dot {
+                position: absolute;
+                top: -2px;
+                right: -2px;
+                min-width: 18px;
+                height: 18px;
+                border-radius: 999px;
+                background: #ef4444;
+                color: #fff;
+                font-size: 0.68rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 4px;
+                border: 2px solid #fff;
+                line-height: 1;
+            }
+
+            .notif-menu {
+                display: none;
+                position: absolute;
+                right: 0;
+                top: calc(100% + 8px);
+                width: 360px;
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+                overflow: hidden;
+                z-index: 200;
+            }
+
+            .notif-wrap:hover .notif-menu,
+            .notif-wrap:focus-within .notif-menu {
+                display: block;
+            }
+
+            .notif-head {
+                padding: 10px 12px;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: #111827;
+            }
+
+            .notif-group-title {
+                padding: 8px 12px 4px;
+                font-size: 0.74rem;
+                font-weight: 700;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .notif-item {
+                display: block;
+                padding: 8px 12px;
+                text-decoration: none;
+                color: #374151;
+                border-top: 1px solid #f8fafc;
+                font-size: 0.82rem;
+            }
+
+            .notif-item:hover {
+                background: #f8fafc;
+                color: #1f2937;
+            }
+
+            .notif-item b {
+                color: #111827;
+            }
+
+            .notif-empty {
+                padding: 14px 12px;
+                color: #94a3b8;
+                font-size: 0.82rem;
+            }
+
             /* ── LAYOUT ── */
             .layout {
                 display: flex;
@@ -487,6 +590,64 @@
                     <i class="fas fa-user-tie" style="margin-right:4px;"></i>
                     ${sessionScope.userRole}
                 </span>
+                <div class="notif-wrap">
+                    <button class="notif-btn" title="Thông báo">
+                        <i class="fas fa-bell"></i>
+                        <c:if test="${adminNotifCount gt 0}">
+                            <span class="notif-dot">${adminNotifCount}</span>
+                        </c:if>
+                    </button>
+                    <div class="notif-menu">
+                        <div class="notif-head">Thông báo librarian</div>
+
+                        <div class="notif-group-title">Yêu cầu mượn mới (${pendingBorrowCount})</div>
+                        <c:choose>
+                            <c:when test="${empty pendingBorrowNotifications}">
+                                <div class="notif-empty">Không có yêu cầu mượn mới.</div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach var="n" items="${pendingBorrowNotifications}">
+                                    <a class="notif-item" href="${pageContext.request.contextPath}/admin/borrow-detail?id=${n.requestId}">
+                                        <b>${n.readerName}</b> gửi yêu cầu mượn
+                                        <div class="text-muted">Mã #${n.requestId} - ${n.requestedAt}</div>
+                                    </a>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <div class="notif-group-title">Yêu cầu trả sách (${returnRequestCount})</div>
+                        <c:choose>
+                            <c:when test="${empty returnRequestNotifications}">
+                                <div class="notif-empty">Không có yêu cầu trả mới.</div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach var="r" items="${returnRequestNotifications}">
+                                    <a class="notif-item" href="${pageContext.request.contextPath}/admin/borrow/return/${r.borrowItemId}">
+                                        <b>${r.readerName}</b> gửi yêu cầu trả sách
+                                        <div class="text-muted">${r.bookTitle}</div>
+                                    </a>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <div class="notif-group-title">Thanh toán gần đây (${paidFineCount})</div>
+                        <c:choose>
+                            <c:when test="${empty paidFineNotifications}">
+                                <div class="notif-empty">Chưa có thanh toán mới trong 48h.</div>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach var="f" items="${paidFineNotifications}">
+                                    <a class="notif-item" href="${pageContext.request.contextPath}/admin/fines">
+                                        <b>${f.readerName}</b> đã thanh toán tiền phạt
+                                        <div class="text-muted">
+                                            <fmt:formatNumber value="${f.amount}" type="number" maxFractionDigits="0"/> VNĐ - ${f.bookTitle}
+                                        </div>
+                                    </a>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
                 <a href="${pageContext.request.contextPath}/books/list" class="topbar-link">
                     <i class="fas fa-eye"></i> Xem trang người dùng
                 </a>
@@ -517,14 +678,11 @@
                 <a href="${pageContext.request.contextPath}/categories" class="sidebar-link">
                     <i class="fas fa-tags"></i> Thể loại
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/book-list" class="sidebar-link">
-                    <i class="fas fa-book"></i> Danh sách sách - Xem và quản lý toàn bộ sách trong hệ thống
-                </a>
                 <a href="${pageContext.request.contextPath}/admin/borrow-list" class="sidebar-link">
-                    <i class="fas fa-check-circle"></i> Duyệt yêu cầu mượn - Xử lý yêu cầu mượn sách của độc giả
+                    <i class="fas fa-check-circle"></i> Duyệt yêu cầu mượn
                 </a>
                 <a href="${pageContext.request.contextPath}/admin/return-list" class="sidebar-link">
-                    <i class="fas fa-undo"></i> Duyệt trả sách - Xác nhận sách đã trả
+                    <i class="fas fa-undo"></i> Duyệt trả sách
                 </a>
                 <a href="${pageContext.request.contextPath}/admin/borrowed-items" class="sidebar-link">
                     <i class="fas fa-history"></i> Lịch sử Mượn / Trả
@@ -532,12 +690,8 @@
                 <a href="${pageContext.request.contextPath}/admin/fines" class="sidebar-link">
                     <i class="fas fa-file-invoice-dollar"></i> Quản lý Tiền phạt
                 </a>
-                <a href="${pageContext.request.contextPath}/admin/readers" class="sidebar-link">
-                    <i class="fas fa-users"></i> Quản lý độc giả - Xem thông tin và trạng thái độc giả
-                </a>
-                <div class="sidebar-section">Tài khoản</div>
-                <a href="${pageContext.request.contextPath}/notifications" class="sidebar-link">
-                    <i class="fas fa-bell"></i> Thông báo
+                <a href="${pageContext.request.contextPath}/admin/reservations" class="sidebar-link">
+                    <i class="fas fa-bookmark"></i> Quản lý đặt sách
                 </a>
             </aside>
 

@@ -1,21 +1,55 @@
 package dal;
 
+import dao.NotificationDAO;
 import model.BorrowExtendView;
 import model.BorrowRequestItem;
 import model.BorrowedItemView;
 import model.BorrowRequest;
+import model.Notification;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BorrowDAO extends DBContext {
 
+    private int fetchScopeIdentity(Connection conn) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT CAST(SCOPE_IDENTITY() AS INT)")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    private boolean isMissingReservationTable(SQLException ex) {
+        if (ex == null || ex.getMessage() == null) {
+            return false;
+        }
+        String msg = ex.getMessage().toLowerCase();
+        return msg.contains("invalid object name") && msg.contains("reservation");
+    }
+
+    private void tryActivateReservationAfterReturn(int bookId) {
+        if (bookId <= 0) {
+            return;
+        }
+        try {
+            ReservationDAO reservationDAO = new ReservationDAO();
+            reservationDAO.activateNextPendingReservation(bookId);
+        } catch (Exception e) {
+            // Reservation activation is best-effort and must not break return flow.
+            System.err.println("tryActivateReservationAfterReturn Error: " + e.getMessage());
+        }
+    }
+
     public int getPendingRequestsCount() {
         return countByStatus("pending");
     }
 
     public int getActiveBorrowsCount() {
-        String sql = "SELECT COUNT(*) FROM Borrow WHERE status = 'active'";
+        String sql = "SELECT COUNT(*) FROM Borrow WHERE status IN ('active', 'borrowed')";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
@@ -313,11 +347,20 @@ public class BorrowDAO extends DBContext {
         } catch (SQLException e) {
         }
 
-        if (rs.getDate("expected_start_date") != null) {
-            req.setExpectedStartDate(rs.getDate("expected_start_date").toLocalDate());
+        // Optional columns (may not exist in some DB scripts)
+        try {
+            java.sql.Date s = rs.getDate("expected_start_date");
+            if (s != null) {
+                req.setExpectedStartDate(s.toLocalDate());
+            }
+        } catch (SQLException ignore) {
         }
-        if (rs.getDate("expected_return_date") != null) {
-            req.setExpectedReturnDate(rs.getDate("expected_return_date").toLocalDate());
+        try {
+            java.sql.Date r = rs.getDate("expected_return_date");
+            if (r != null) {
+                req.setExpectedReturnDate(r.toLocalDate());
+            }
+        } catch (SQLException ignore) {
         }
 
         return req;
@@ -331,33 +374,95 @@ public class BorrowDAO extends DBContext {
         if (items == null || items.isEmpty()) {
             return 0;
         }
-        String insertReqSql = "INSERT INTO Borrow_Request(reader_id, status, requested_at, note, expected_start_date, expected_return_date) " +
-                "OUTPUT INSERTED.request_id " +
+        // Some DB scripts do not include expected_start_date / expected_return_date in Borrow_Request.
+        // Try the "full" insert first; if it fails due to missing columns, fall back to the basic insert.
+        String insertReqSqlWithDates = "INSERT INTO Borrow_Request(reader_id, status, requested_at, note, expected_start_date, expected_return_date) " +
                 "VALUES (?, 'pending', SYSUTCDATETIME(), ?, ?, ?)";
+        String insertReqSqlBasic = "INSERT INTO Borrow_Request(reader_id, status, requested_at, note) " +
+                "VALUES (?, 'pending', SYSUTCDATETIME(), ?)";
         String insertItemSql = "INSERT INTO Borrow_Request_Item(request_id, book_id, quantity) VALUES(?,?,?)";
+        ReservationDAO reservationDAO = new ReservationDAO();
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
             int requestId;
-            try (PreparedStatement ps = conn.prepareStatement(insertReqSql)) {
-                ps.setInt(1, readerId);
-                ps.setString(2, note);
-                if (expectedStartDate != null) {
-                    ps.setDate(3, java.sql.Date.valueOf(expectedStartDate));
-                } else {
-                    ps.setNull(3, java.sql.Types.DATE);
-                }
-                if (expectedReturnDate != null) {
-                    ps.setDate(4, java.sql.Date.valueOf(expectedReturnDate));
-                } else {
-                    ps.setNull(4, java.sql.Types.DATE);
-                }
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
+
+            // Reservation fairness:
+            // 1) expire old ready slots
+            // 2) if stock returned, promote queue head to READY slot
+            // 3) block non-owner if a READY slot exists
+            try {
+                for (BorrowRequestItem item : items) {
+                    int bookId = item.getBookId();
+                    reservationDAO.expireDueReservations(bookId);
+                    reservationDAO.activateNextPendingReservation(bookId);
+
+                    Integer readyReader = reservationDAO.getReadyReservationReader(bookId);
+                    if (readyReader != null && readyReader != readerId) {
                         conn.rollback();
                         return 0;
                     }
-                    requestId = rs.getInt(1);
+                }
+            } catch (Exception reservationEx) {
+                if (!(reservationEx.getMessage() != null
+                        && reservationEx.getMessage().toLowerCase().contains("invalid object name")
+                        && reservationEx.getMessage().toLowerCase().contains("reservation"))) {
+                    throw reservationEx;
+                }
+            }
+            try {
+                try (PreparedStatement ps = conn.prepareStatement(insertReqSqlWithDates, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setInt(1, readerId);
+                    ps.setString(2, note);
+                    if (expectedStartDate != null) {
+                        ps.setDate(3, java.sql.Date.valueOf(expectedStartDate));
+                    } else {
+                        ps.setNull(3, java.sql.Types.DATE);
+                    }
+                    if (expectedReturnDate != null) {
+                        ps.setDate(4, java.sql.Date.valueOf(expectedReturnDate));
+                    } else {
+                        ps.setNull(4, java.sql.Types.DATE);
+                    }
+                    int affected = ps.executeUpdate();
+                    if (affected <= 0) {
+                        conn.rollback();
+                        return 0;
+                    }
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            requestId = keys.getInt(1);
+                        } else {
+                            // SQL Server driver sometimes doesn't return generated keys reliably
+                            requestId = fetchScopeIdentity(conn);
+                        }
+                    }
+                    if (requestId <= 0) {
+                        conn.rollback();
+                        return 0;
+                    }
+                }
+            } catch (SQLException ex) {
+                // Fallback for schema without expected_* columns
+                try (PreparedStatement ps = conn.prepareStatement(insertReqSqlBasic, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setInt(1, readerId);
+                    ps.setString(2, note);
+                    int affected = ps.executeUpdate();
+                    if (affected <= 0) {
+                        conn.rollback();
+                        return 0;
+                    }
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            requestId = keys.getInt(1);
+                        } else {
+                            requestId = fetchScopeIdentity(conn);
+                        }
+                    }
+                    if (requestId <= 0) {
+                        conn.rollback();
+                        return 0;
+                    }
                 }
             }
 
@@ -371,12 +476,25 @@ public class BorrowDAO extends DBContext {
                 ps.executeBatch();
             }
 
+            // If reader owns the READY reservation, consume it.
+            try {
+                for (BorrowRequestItem item : items) {
+                    reservationDAO.markReadyReservationFulfilled(readerId, item.getBookId());
+                }
+            } catch (Exception reservationEx) {
+                if (!(reservationEx.getMessage() != null
+                        && reservationEx.getMessage().toLowerCase().contains("invalid object name")
+                        && reservationEx.getMessage().toLowerCase().contains("reservation"))) {
+                    throw reservationEx;
+                }
+            }
+
             conn.commit();
             return requestId;
         } catch (Exception e) {
             System.err.println("createBorrowRequest Error: " + e.getMessage());
             e.printStackTrace();
-            return 0;
+            throw new RuntimeException("createBorrowRequest failed: " + e.getMessage(), e);
         }
     }
 
@@ -451,7 +569,9 @@ public class BorrowDAO extends DBContext {
                 "JOIN Borrow_Item bi ON br.borrow_id = bi.borrow_id " +
                 "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
                 "JOIN Book b ON bc.book_id = b.BookID " +
-                "WHERE br.reader_id = ? AND br.status = 'borrowed' AND bi.returned_at IS NULL " +
+                "WHERE br.reader_id = ? "
+                + "AND bi.returned_at IS NULL "
+                + "AND bi.status IN ('borrowed', 'overdue', 'return_requested') " +
                 "ORDER BY bi.due_date ASC";
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -493,6 +613,7 @@ public class BorrowDAO extends DBContext {
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
+            int returnedBookId = 0;
             
             // 0. Verify Ownership
             boolean valid = false;
@@ -548,6 +669,7 @@ public class BorrowDAO extends DBContext {
                         ps.setInt(1, bookId);
                         ps.executeUpdate();
                     }
+                    returnedBookId = bookId;
                 }
             }
 
@@ -568,6 +690,7 @@ public class BorrowDAO extends DBContext {
             }
 
             conn.commit();
+            tryActivateReservationAfterReturn(returnedBookId);
             return true;
         } catch (Exception e) {
             System.err.println("autoReturnBook Error: " + e.getMessage());
@@ -663,7 +786,7 @@ public class BorrowDAO extends DBContext {
     }
     public List<BorrowedItemView> getReturnRequests() {
         List<BorrowedItemView> list = new ArrayList<>();
-        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.first_name + ' ' + r.last_name AS reader_name, r.email AS reader_email, " +
+        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.full_name AS reader_name, r.email AS reader_email, " +
                 "bi.copy_id, bc.copy_code, b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
                 "bi.due_date, bi.returned_at, bi.status " +
                 "FROM Borrow_Item bi " +
@@ -702,9 +825,49 @@ public class BorrowDAO extends DBContext {
         return list;
     }
 
+    public BorrowedItemView getReturnRequestByBorrowItemId(int borrowItemId) {
+        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.full_name AS reader_name, r.email AS reader_email, " +
+                "bi.copy_id, bc.copy_code, b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
+                "bi.due_date, bi.returned_at, bi.status " +
+                "FROM Borrow_Item bi " +
+                "JOIN Borrow br ON bi.borrow_id = br.borrow_id " +
+                "JOIN Reader r ON br.reader_id = r.reader_id " +
+                "JOIN BookCopy bc ON bi.copy_id = bc.copy_id " +
+                "JOIN Book b ON bc.book_id = b.BookID " +
+                "WHERE bi.borrow_item_id = ? AND bi.status = 'return_requested'";
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, borrowItemId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    BorrowedItemView v = new BorrowedItemView();
+                    v.setBorrowItemId(rs.getInt("borrow_item_id"));
+                    v.setBorrowId(rs.getInt("borrow_id"));
+                    v.setReaderId(rs.getInt("reader_id"));
+                    v.setReaderName(rs.getString("reader_name"));
+                    v.setReaderEmail(rs.getString("reader_email"));
+                    v.setCopyId(rs.getInt("copy_id"));
+                    v.setCopyCode(rs.getString("copy_code"));
+                    v.setBookId(rs.getInt("book_id"));
+                    v.setBookTitle(rs.getString("book_title"));
+                    v.setBookCoverUrl(rs.getString("book_cover_url"));
+                    Timestamp due = rs.getTimestamp("due_date");
+                    v.setDueDate(due != null ? due.toLocalDateTime() : null);
+                    Timestamp ret = rs.getTimestamp("returned_at");
+                    v.setReturnedAt(ret != null ? ret.toLocalDateTime() : null);
+                    v.setStatus(rs.getString("status"));
+                    return v;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("getReturnRequestByBorrowItemId Error: " + e.getMessage());
+        }
+        return null;
+    }
+
     public List<BorrowedItemView> getAllBorrowedItems() {
         List<BorrowedItemView> list = new ArrayList<>();
-        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.first_name + ' ' + r.last_name AS reader_name, r.email AS reader_email, " +
+        String sql = "SELECT bi.borrow_item_id, bi.borrow_id, r.reader_id, r.full_name AS reader_name, r.email AS reader_email, " +
                 "bi.copy_id, bc.copy_code, b.BookID AS book_id, b.Title AS book_title, b.CoverURL AS book_cover_url, " +
                 "bi.due_date, bi.returned_at, bi.status " +
                 "FROM Borrow_Item bi " +
@@ -743,7 +906,14 @@ public class BorrowDAO extends DBContext {
     }
 
 
-    public boolean processReturn(int borrowItemId, int readerId, String conditionStatus, double fineAmount, int fineTypeId) {
+    public boolean processReturn(
+            int borrowItemId,
+            int readerId,
+            String conditionStatus,
+            long fineAmount,
+            String fineTypeCode,
+            String fineReason,
+            Integer handledByEmployeeId) {
         // conditionStatus: "returned", "damaged", "lost"
         String finalStatus = ("returned".equals(conditionStatus)) ? "returned" : conditionStatus;
         
@@ -754,10 +924,14 @@ public class BorrowDAO extends DBContext {
         String updateBookSql = "UPDATE Book SET stock_quantity = stock_quantity + 1 WHERE BookID = ?";
         String getBorrowIdSql = "SELECT borrow_id FROM Borrow_Item WHERE borrow_item_id = ?";
         String updateBorrowSql = "UPDATE Borrow SET status = 'returned' WHERE borrow_id = ? AND NOT EXISTS (SELECT 1 FROM Borrow_Item WHERE borrow_id = ? AND status NOT IN ('returned', 'damaged', 'lost'))";
-        String insertFineSql = "INSERT INTO Fine (reader_id, borrow_item_id, fine_type_id, amount, status, created_at) VALUES (?, ?, ?, ?, 'unpaid', SYSUTCDATETIME())";
+        String insertFineSql = "INSERT INTO Fine (reader_id, borrow_item_id, fine_type_id, amount, reason, status, created_at, handled_by_employee_id) VALUES (?, ?, ?, ?, ?, 'unpaid', SYSUTCDATETIME(), ?)";
 
+        int createdFineAmount = 0;
+        String createdFineTypeCode = null;
+        String createdBookTitle = null;
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
+            int returnedBookId = 0;
             
             // 1. Update Borrow_Item
             int updated = 0;
@@ -771,15 +945,29 @@ public class BorrowDAO extends DBContext {
                 return false;
             }
 
-            // 1.5. Insert Fine if needed
-            if (fineAmount > 0 && fineTypeId > 0) {
+            // 1.5. Insert Fine if damaged/lost and fine info is valid.
+            boolean mustCreateFine = "damaged".equals(finalStatus) || "lost".equals(finalStatus);
+            if (mustCreateFine) {
+                int fineTypeId = resolveFineTypeId(conn, fineTypeCode);
+                if (fineTypeId <= 0 || fineAmount <= 0) {
+                    conn.rollback();
+                    return false;
+                }
                 try (PreparedStatement ps = conn.prepareStatement(insertFineSql)) {
                     ps.setInt(1, readerId);
                     ps.setInt(2, borrowItemId);
                     ps.setInt(3, fineTypeId);
                     ps.setBigDecimal(4, java.math.BigDecimal.valueOf(fineAmount));
+                    ps.setString(5, fineReason);
+                    if (handledByEmployeeId != null && handledByEmployeeId > 0) {
+                        ps.setInt(6, handledByEmployeeId);
+                    } else {
+                        ps.setNull(6, Types.INTEGER);
+                    }
                     ps.executeUpdate();
                 }
+                createdFineAmount = (int) fineAmount;
+                createdFineTypeCode = fineTypeCode;
             }
 
             // 2. Get copyId
@@ -814,6 +1002,8 @@ public class BorrowDAO extends DBContext {
                             ps.setInt(1, bookId);
                             ps.executeUpdate();
                         }
+                        returnedBookId = bookId;
+                        createdBookTitle = getBookTitleById(conn, bookId);
                     }
                 }
             }
@@ -835,10 +1025,89 @@ public class BorrowDAO extends DBContext {
             }
 
             conn.commit();
+            if (createdFineAmount > 0 && createdFineTypeCode != null) {
+                sendFineNotification(readerId, createdBookTitle, createdFineTypeCode, createdFineAmount);
+            } else if ("returned".equals(finalStatus)) {
+                sendReturnConfirmNotification(readerId, createdBookTitle != null ? createdBookTitle : getBookTitleHelper(returnedBookId));
+            }
+            tryActivateReservationAfterReturn(returnedBookId);
             return true;
         } catch (Exception e) {
             System.err.println("processReturn Error: " + e.getMessage());
             return false;
+        }
+    }
+
+    private int resolveFineTypeId(Connection conn, String fineTypeCode) throws SQLException {
+        if (fineTypeCode == null || fineTypeCode.isBlank()) {
+            return 0;
+        }
+        String keyword = fineTypeCode.trim().toLowerCase();
+        String sql = "SELECT TOP 1 fine_type_id FROM Fine_Type WHERE LOWER(name) LIKE ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("fine_type_id");
+                }
+            }
+        }
+        return 0;
+    }
+
+    private String getBookTitleById(Connection conn, int bookId) throws SQLException {
+        String sql = "SELECT TOP 1 Title FROM Book WHERE BookID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Title");
+                }
+            }
+        }
+        return null;
+    }
+
+    private String getBookTitleHelper(int bookId) {
+        if (bookId <= 0) return null;
+        try (Connection c = getConnection()) {
+            return getBookTitleById(c, bookId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void sendReturnConfirmNotification(int readerId, String bookTitle) {
+        NotificationDAO dao = null;
+        try {
+            String safeTitle = (bookTitle == null || bookTitle.isBlank()) ? "cuốn sách bạn mượn" : "\"" + bookTitle + "\"";
+            dao = new NotificationDAO();
+            dao.createNotification(new Notification(readerId,
+                    "Sách đã được xác nhận trả",
+                    "Thủ thư đã xác nhận bạn trả sách " + safeTitle + " thành công. Cảm ơn bạn!",
+                    "return"));
+        } catch (Exception e) {
+            System.err.println("sendReturnConfirmNotification Error: " + e.getMessage());
+        } finally {
+            if (dao != null) dao.close();
+        }
+    }
+
+    private void sendFineNotification(int readerId, String bookTitle, String fineTypeCode, int fineAmount) {
+        NotificationDAO dao = null;
+        try {
+            String safeBookTitle = (bookTitle == null || bookTitle.isBlank()) ? "cuốn sách bạn mượn" : "\"" + bookTitle + "\"";
+            String label = "DAMAGE".equalsIgnoreCase(fineTypeCode) ? "hư hỏng" : "mất sách";
+            String title = "Vi phạm sách khi trả";
+            String message = "Sách " + safeBookTitle + " được ghi nhận vi phạm (" + label + "). Mức phạt: " + fineAmount + "đ.";
+            dao = new NotificationDAO();
+            dao.createNotification(new Notification(readerId, title, message, "fine"));
+        } catch (Exception e) {
+            System.err.println("sendFineNotification Error: " + e.getMessage());
+        } finally {
+            if (dao != null) {
+                dao.close();
+            }
         }
     }
 }

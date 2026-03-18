@@ -79,13 +79,20 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <form action="<%=ctx%>/customer/auto-return" method="post" class="d-inline"
-                                          onsubmit="return confirm('Bạn có chắc muốn trả sách này ngay bây giờ?');">
-                                        <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
-                                        <button class="btn btn-outline-primary btn-sm" type="submit">
-                                            Trả sách
-                                        </button>
-                                    </form>
+                                    <c:choose>
+                                        <c:when test="${it.status == 'return_requested'}">
+                                            <span class="badge bg-warning text-dark">Đang chờ thủ thư duyệt</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <form action="<%=ctx%>/customer/return-request" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Bạn có chắc muốn yêu cầu trả sách này? Thủ thư sẽ xem xét và xác nhận.');">
+                                                <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
+                                                <button class="btn btn-outline-primary btn-sm" type="submit">
+                                                    Trả sách
+                                                </button>
+                                            </form>
+                                        </c:otherwise>
+                                    </c:choose>
 
                                     <button class="btn btn-outline-success btn-sm" type="button"
                                             data-bs-toggle="modal" data-bs-target="#extendModal${it.borrowItemId}">

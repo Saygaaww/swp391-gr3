@@ -532,13 +532,15 @@
                                                 </button>
                                             </c:otherwise>
                                         </c:choose>
-                                        <form action="${pageContext.request.contextPath}/customer/reservations" method="post" style="display:inline;">
-                                            <input type="hidden" name="action" value="create" />
-                                            <input type="hidden" name="bookId" value="${book.bookId}" />
-                                            <button type="submit" class="bd-btn bd-btn-outline">
-                                                <i class="fas fa-clock-rotate-left"></i> Đặt sách
-                                            </button>
-                                        </form>
+                                        <c:if test="${empty availableStock or availableStock <= 0}">
+                                            <form action="${pageContext.request.contextPath}/customer/reservations" method="post" style="display:inline;">
+                                                <input type="hidden" name="action" value="create" />
+                                                <input type="hidden" name="bookId" value="${book.bookId}" />
+                                                <button type="submit" class="bd-btn bd-btn-outline">
+                                                    <i class="fas fa-clock-rotate-left"></i> Đặt sách
+                                                </button>
+                                            </form>
+                                        </c:if>
                                     </c:when>
                                     <c:otherwise>
                                         <c:choose>

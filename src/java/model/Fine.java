@@ -11,6 +11,7 @@ public class Fine {
     private BigDecimal amount;
     private String reason;
     private String status;
+    private Integer requestId;
     private LocalDateTime createdAt;
     private LocalDateTime paidAt;
     private Integer handledByEmployeeId;
@@ -72,6 +73,14 @@ public class Fine {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(Integer requestId) {
+        this.requestId = requestId;
     }
 
     public LocalDateTime getCreatedAt() {

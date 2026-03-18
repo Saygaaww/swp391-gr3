@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@include file="/includes/header.jsp" %>
 <% String ctx = request.getContextPath();%>
 <%@include file="/includes/navbar.jsp" %>
@@ -40,13 +41,14 @@
                             <tr>
                                 <th>Sách</th>
                                 <th>Trạng thái</th>
-                                <th>Thời điểm đặt</th>
+                                <th>Thời điểm xếp hàng</th>
                                 <th>Hết hạn</th>
                                 <th class="text-end">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="r" items="${reservations}">
+                                <c:set var="st" value="${fn:toUpperCase(r.status)}" />
                                 <tr>
                                     <td>
                                         <a href="<%=ctx%>/books/detail/${r.bookId}" class="text-decoration-none">
@@ -54,14 +56,36 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <span class="badge bg-${r.status=='active'?'success':(r.status=='pending'?'warning':(r.status=='fulfilled'?'primary':'secondary'))}">
-                                            ${r.status}
-                                        </span>
+                                        <c:choose>
+                                            <c:when test="${st == 'ACTIVE' && empty r.expiresAt}">
+                                                <span class="badge bg-warning text-dark">Waiting</span>
+                                            </c:when>
+                                            <c:when test="${st == 'ACTIVE' && not empty r.expiresAt}">
+                                                <span class="badge bg-success">Ready</span>
+                                            </c:when>
+                                            <c:when test="${st == 'FULFILLED'}">
+                                                <span class="badge bg-primary">Fulfilled</span>
+                                            </c:when>
+                                            <c:when test="${st == 'CANCELLED'}">
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            </c:when>
+                                            <c:when test="${st == 'EXPIRED'}">
+                                                <span class="badge bg-dark">Expired</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-secondary">${r.status}</span>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
                                     <td>${r.queuedAt}</td>
                                     <td>${r.expiresAt}</td>
                                     <td class="text-end">
-                                        <c:if test="${r.status == 'pending' || r.status == 'active'}">
+                                        <c:if test="${st == 'ACTIVE' && not empty r.expiresAt}">
+                                            <a href="<%=ctx%>/customer/borrow-request?bookId=${r.bookId}" class="btn btn-outline-success btn-sm">
+                                                Mượn ngay
+                                            </a>
+                                        </c:if>
+                                        <c:if test="${st == 'ACTIVE'}">
                                             <form method="post" action="<%=ctx%>/customer/reservations" class="d-inline"
                                                   onsubmit="return confirm('Hủy đặt chỗ này?');">
                                                 <input type="hidden" name="action" value="cancel">

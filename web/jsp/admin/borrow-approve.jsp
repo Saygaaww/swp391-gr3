@@ -4,8 +4,9 @@
 <% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
 
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-check-circle" style="color:#4f46e5;"></i> Duyệt yêu cầu mượn sách
@@ -14,7 +15,7 @@
     </div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/books/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item active">Duyệt yêu cầu mượn</li>
         </ol>
     </nav>
@@ -55,6 +56,7 @@
             </c:forEach>
         </c:otherwise>
     </c:choose>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />

@@ -460,6 +460,14 @@
                     </div>
                 </a>
 
+                <a href="<%= request.getContextPath()%>/admin/reservations" class="action-card">
+                    <div class="action-icon icon-yellow"><i class="fas fa-bookmark"></i></div>
+                    <div class="action-info">
+                        <h3>Manage Reservations</h3>
+                        <p>Queue, assign, skip, confirm borrow</p>
+                    </div>
+                </a>
+
                 <a href="<%= request.getContextPath()%>/admin/roles" class="action-card">
                     <div class="action-icon icon-rose"><i class="fas fa-key"></i></div>
                     <div class="action-info">

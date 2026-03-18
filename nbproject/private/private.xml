@@ -3,13 +3,32 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/util/DBUtil.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/RoleDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/RoleDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckFineType.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/book-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/ReviewDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/OtpDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDetailServlet.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/model/FineType.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-project/swp391-gr3/web/jsp/admin/book-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/SeedFineDB.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/CustomerController.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/BorrowDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/BookDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckDB.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/DBContext.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-project/swp391-gr3/web/jsp/librarian/dashboard.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckDB2.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/FineDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/librarian/dashboard.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDeleteServlet.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/CartDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/ReaderDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/CategoryDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/EmployeeDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/PasswordResetDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/util/DBUtil.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckSchema.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/TestBorrowApprove.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/BorrowDAO.java</file>
         </group>
     </open-files>
 </project-private>

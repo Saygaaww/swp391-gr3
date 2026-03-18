@@ -4,15 +4,16 @@
 <% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
 
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
 <style>
     .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 </style>
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/books/dashboard" class="text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a></li>
             <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/admin/borrow-list" class="text-decoration-none">Yêu cầu mượn</a></li>
             <li class="breadcrumb-item active">#${borrowRequest.requestId}</li>
         </ol>
@@ -107,6 +108,7 @@
     </c:if>
 
     <a href="${pageContext.request.contextPath}/admin/borrow-list" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Về danh sách</a>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />
