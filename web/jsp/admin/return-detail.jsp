@@ -40,21 +40,21 @@
                                 ${item.dueDate.dayOfMonth < 10 ? '0' : ''}${item.dueDate.dayOfMonth}/${item.dueDate.monthValue < 10 ? '0' : ''}${item.dueDate.monthValue}/${item.dueDate.year}
                             </c:if>
                             <c:if test="${empty item.dueDate}">-</c:if>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div><strong>Actual Return:</strong>
+                        <div class="col-md-6">
+                            <div><strong>Actual Return:</strong>
                             <c:if test="${not empty item.returnedAt}">
                                 ${item.returnedAt.dayOfMonth < 10 ? '0' : ''}${item.returnedAt.dayOfMonth}/${item.returnedAt.monthValue < 10 ? '0' : ''}${item.returnedAt.monthValue}/${item.returnedAt.year}
                             </c:if>
                             <c:if test="${empty item.returnedAt}">Đang chờ xác nhận</c:if>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <form id="returnForm" action="${pageContext.request.contextPath}/admin/return-process" method="POST" class="card border-0 shadow-sm">
+            <form id="returnForm" action="${pageContext.request.contextPath}/admin/return-process" method="POST" class="card border-0 shadow-sm">
             <div class="card-body">
                 <input type="hidden" name="borrowItemId" value="${item.borrowItemId}" />
                 <input type="hidden" name="readerId" value="${item.readerId}" />
@@ -145,7 +145,8 @@
         }
 
         function normalizeAmount() {
-            if (!amountInput || !amountInput.value) return;
+            if (!amountInput || !amountInput.value)
+                return;
             const n = parseFloat(amountInput.value);
             if (isNaN(n) || n <= 0) {
                 amountInput.value = '';

@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER);%>
 
 <jsp:include page="/includes/header.jsp" />
 
@@ -67,11 +67,11 @@
                         <select name="currency" class="form-select">
                             <option value="VND" <c:if test="${book.currency == 'VND'}">selected</c:if>>VND</option>
                             <option value="USD" <c:if test="${book.currency == 'USD'}">selected</c:if>>USD</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Tổng trang</label>
-                        <input type="number" name="totalPages" class="form-control" value="${book.totalPages != null ? book.totalPages : ''}" min="0">
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tổng trang</label>
+                            <input type="number" name="totalPages" class="form-control" value="${book.totalPages != null ? book.totalPages : ''}" min="0">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Trang xem trước</label>
@@ -83,12 +83,12 @@
                             <option value="active" <c:if test="${book.status == 'active'}">selected</c:if>>Active</option>
                             <option value="inactive" <c:if test="${book.status == 'inactive'}">selected</c:if>>Inactive</option>
                             <option value="draft" <c:if test="${book.status == 'draft'}">selected</c:if>>Draft</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tác giả</label>
-                        <select name="authorId" class="form-select">
-                            <option value="">-- Chọn tác giả --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tác giả</label>
+                            <select name="authorId" class="form-select">
+                                <option value="">-- Chọn tác giả --</option>
                             <c:forEach var="a" items="${authors}">
                                 <option value="${a.authorId}" <c:if test="${book.authorId != null && book.authorId == a.authorId}">selected</c:if>>${a.authorName}</option>
                             </c:forEach>

@@ -4,31 +4,102 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/RoleDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/RoleDAO.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckFineType.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/book-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/read.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/authors/form.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/browse-books.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/profile.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/ReviewDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/OtpDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDetailServlet.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/model/FineType.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/SeedFineDB.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/CustomerController.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/dashboard.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/verify-otp.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/sales-analytics.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/return-list.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/BookDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckDB.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/order-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/categories/list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/extend-requests.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/bookmarks.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDeleteServlet.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/reader-form.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/ReaderDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/reading-history.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/profile/edit-profile.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/CategoryDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/return-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/authors/list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/categories/detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/categories/form.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/borrow-approve.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/authors/detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/register.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/includes/header.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/reset-password.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/SeedFineDB.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/DBContext.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckDB2.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/FineDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/home_1.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/forgot-password.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/librarian/dashboard.jsp</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDeleteServlet.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/CartDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/ReaderDAO.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/CategoryDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/login.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/books/detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/borrow-requests.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/books/form.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/EmployeeDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/books/upload.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/includes/footer.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/TestBorrowApprove.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/sales-report.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/reviews.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/orders.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/employee-form.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/error/unauthorized.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/book-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/notifications.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/profile/linked-accounts.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/OtpDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/fine-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/admin/AdminBookDetailServlet.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/books/list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/controller/CustomerController.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckDB.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/borrow-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/FineDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/fines-history.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/borrowed-items.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/book-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/checkout.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/PasswordResetDAO.java</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/util/DBUtil.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/vnpay-result.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/CheckSchema.java</file>
-            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/TestBorrowApprove.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/profile/change-password.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/book-form.jsp</file>
             <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dal/BorrowDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/css/additional-styles.css</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/change-password.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/dao/RoleDAO.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/seller/dashboard.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/includes/admin-shell-start.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/notifications/inbox.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/auth/verify-google-otp.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/book-detail.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/fines.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/includes/navbar.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/role-list.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/reservations.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/src/java/model/FineType.java</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/my-library.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/users.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/borrowed-items.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/borrow-request.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/reservations.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/books/preview.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/profile/view-profile.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/includes/admin-shell-end.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/employees.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/customer/linked-accounts.jsp</file>
+            <file>file:/D:/Ki5/SWP/Clone-Project/swp391-gr3/web/jsp/admin/borrow-list.jsp</file>
         </group>
     </open-files>
 </project-private>

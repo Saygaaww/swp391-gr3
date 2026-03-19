@@ -1,13 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <!DOCTYPE html>
-    <html lang="vi">
+<!DOCTYPE html>
+<html lang="vi">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Đặt lại mật khẩu - Digital Library</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet">
+              rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             *,
@@ -203,68 +203,73 @@
                 <p>Nhập mật khẩu mới cho tài khoản của bạn</p>
             </div>
 
-            <% String token=(String) request.getAttribute("token"); %>
-                <% if (request.getAttribute("error") !=null && token==null) { %>
-                    <%-- Token invalid/expired - show error state --%>
-                        <div class="invalid-token">
-                            <i class="fas fa-times-circle"></i>
-                            <p>
-                                <%= request.getAttribute("error") %>
-                            </p>
-                        </div>
-                        <% } else { %>
-                            <% if (request.getAttribute("error") !=null) { %>
-                                <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>
-                                    <%= request.getAttribute("error") %>
-                                </div>
-                                <% } %>
-                                    <form method="post" action="<%= request.getContextPath() %>/auth/reset-password">
-                                        <input type="hidden" name="token" value="<%= token != null ? token : "" %>">
-                                        <div class="form-group">
-                                            <label for="password">Mật khẩu mới *</label>
-                                            <div class="input-wrap">
-                                                <i class="fas fa-lock icon"></i>
-                                                <input type="password" id="password" name="password"
-                                                    placeholder="Tối thiểu 8 ký tự" required>
-                                                <button type="button" class="toggle-password"
-                                                    onclick="togglePwd('password','icon1')">
-                                                    <i class="fas fa-eye" id="icon1"></i>
-                                                </button>
-                                            </div>
-                                            <div class="password-hint">Phải có chữ hoa, chữ thường và số</div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="confirmPassword">Xác nhận mật khẩu *</label>
-                                            <div class="input-wrap">
-                                                <i class="fas fa-lock icon"></i>
-                                                <input type="password" id="confirmPassword" name="confirmPassword"
-                                                    placeholder="Nhập lại mật khẩu mới" required>
-                                                <button type="button" class="toggle-password"
-                                                    onclick="togglePwd('confirmPassword','icon2')">
-                                                    <i class="fas fa-eye" id="icon2"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn-primary">
-                                            <i class="fas fa-check" style="margin-right:8px;"></i>Đặt lại mật khẩu
-                                        </button>
-                                    </form>
-                                    <% } %>
+            <% String token = (String) request.getAttribute("token"); %>
+            <% if (request.getAttribute("error") != null && token == null) {%>
+            <%-- Token invalid/expired - show error state --%>
+            <div class="invalid-token">
+                <i class="fas fa-times-circle"></i>
+                <p>
+                    <%= request.getAttribute("error")%>
+                </p>
+            </div>
+            <% } else { %>
+            <% if (request.getAttribute("error") != null) {%>
+            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>
+                <%= request.getAttribute("error")%>
+            </div>
+            <% }%>
+            <form method="post" action="<%= request.getContextPath()%>/auth/reset-password">
+                <input type="hidden" name="token" value="<%= token != null ? token : ""%>">
+                <div class="form-group">
+                    <label for="password">Mật khẩu mới *</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock icon"></i>
+                        <input type="password" id="password" name="password"
+                               placeholder="Tối thiểu 8 ký tự" required>
+                        <button type="button" class="toggle-password"
+                                onclick="togglePwd('password', 'icon1')">
+                            <i class="fas fa-eye" id="icon1"></i>
+                        </button>
+                    </div>
+                    <div class="password-hint">Phải có chữ hoa, chữ thường và số</div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Xác nhận mật khẩu *</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock icon"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword"
+                               placeholder="Nhập lại mật khẩu mới" required>
+                        <button type="button" class="toggle-password"
+                                onclick="togglePwd('confirmPassword', 'icon2')">
+                            <i class="fas fa-eye" id="icon2"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check" style="margin-right:8px;"></i>Đặt lại mật khẩu
+                </button>
+            </form>
+            <% }%>
 
-                                        <div class="footer-link">
-                                            <a href="<%= request.getContextPath() %>/auth/login"><i
-                                                    class="fas fa-arrow-left" style="margin-right:4px;"></i>Quay lại
-                                                đăng nhập</a>
-                                        </div>
+            <div class="footer-link">
+                <a href="<%= request.getContextPath()%>/auth/login"><i
+                        class="fas fa-arrow-left" style="margin-right:4px;"></i>Quay lại
+                    đăng nhập</a>
+            </div>
         </div>
         <script>
             function togglePwd(inputId, iconId) {
                 const input = document.getElementById(inputId);
                 const icon = document.getElementById(iconId);
-                if (input.type === 'password') { input.type = 'text'; icon.className = 'fas fa-eye-slash'; }
-                else { input.type = 'password'; icon.className = 'fas fa-eye'; }
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fas fa-eye';
+                }
             }
         </script>
     </body>
 
-    </html>
+</html>

@@ -11,7 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>
             <%= request.getAttribute("pageTitle") != null ? request.getAttribute("pageTitle")
-                            : "Admin Control Panel"%>
+                    : "Admin Control Panel"%>
         </title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
               rel="stylesheet">
@@ -327,9 +327,9 @@
                 <div class="header-date">
                     <i class="far fa-calendar-alt"></i>
                     <% java.time.LocalDate today = java.time.LocalDate.now();
-                                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("'Thứ' e, dd 'tháng' MM, yyyy",
-                                        new java.util.Locale("vi", "VN"));
-                                out.print(today.format(formatter));%>
+                        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("'Thứ' e, dd 'tháng' MM, yyyy",
+                                new java.util.Locale("vi", "VN"));
+                        out.print(today.format(formatter));%>
                 </div>
                 <a href="<%= request.getContextPath()%>/auth/logout"
                    style="position: absolute; right: 24px; bottom: 24px; color: #9ca3af; text-decoration: none; font-size: 1.2rem; transition: color 0.2s; z-index:1000;"
@@ -348,7 +348,7 @@
                     <div class="stat-info">
                         <div class="stat-value">
                             <%= request.getAttribute("totalBooks") != null ? request.getAttribute("totalBooks")
-                                            : "13"%>
+                                    : "13"%>
                         </div>
                         <div class="stat-label">TỔNG SỐ SÁCH</div>
                     </div>
@@ -359,7 +359,7 @@
                     <div class="stat-info">
                         <div class="stat-value">
                             <%= request.getAttribute("totalReaders") != null
-                                            ? request.getAttribute("totalReaders") : "6"%>
+                                    ? request.getAttribute("totalReaders") : "6"%>
                         </div>
                         <div class="stat-label">ĐỘC GIẢ</div>
                     </div>
@@ -370,7 +370,7 @@
                     <div class="stat-info">
                         <div class="stat-value">
                             <%= request.getAttribute("totalEmployees") != null
-                                            ? request.getAttribute("totalEmployees") : "7"%>
+                                    ? request.getAttribute("totalEmployees") : "7"%>
                         </div>
                         <div class="stat-label">NHÂN VIÊN</div>
                     </div>
@@ -381,7 +381,7 @@
                     <div class="stat-info">
                         <div class="stat-value">
                             <%= request.getAttribute("totalRoles") != null ? request.getAttribute("totalRoles")
-                                            : "4"%>
+                                    : "4"%>
                         </div>
                         <div class="stat-label">VAI TRÒ</div>
                     </div>

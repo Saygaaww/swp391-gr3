@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER);%>
 
 <jsp:include page="/includes/header.jsp" />
 
@@ -52,15 +52,15 @@
                             <option value="active" <c:if test="${employee.status == 'active'}">selected</c:if>>Active</option>
                             <option value="blocked" <c:if test="${employee.status == 'blocked'}">selected</c:if>>Blocked</option>
                             <option value="inactive" <c:if test="${employee.status == 'inactive'}">selected</c:if>>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Mật khẩu ${mode == 'edit' ? '(để trống nếu không đổi)' : '*'}</label>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mật khẩu ${mode == 'edit' ? '(để trống nếu không đổi)' : '*'}</label>
                         <input type="password" name="password" class="form-control" placeholder="Mật khẩu" <c:if test="${mode != 'edit'}">required</c:if>>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-save"></i> Lưu</button>
-                        <a href="${pageContext.request.contextPath}/admin/employees" class="btn btn-outline-secondary">Hủy</a>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-save"></i> Lưu</button>
+                            <a href="${pageContext.request.contextPath}/admin/employees" class="btn btn-outline-secondary">Hủy</a>
                     </div>
                 </div>
             </form>

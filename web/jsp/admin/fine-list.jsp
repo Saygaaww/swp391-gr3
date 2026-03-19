@@ -86,7 +86,7 @@
                                     </td>
                                     <td>
                                         <span class="badge 
-                                        ${(f.status == 'unpaid' || f.status == 'UNPAID') ? 'bg-warning text-dark' : 'bg-success'}">
+                                              ${(f.status == 'unpaid' || f.status == 'UNPAID') ? 'bg-warning text-dark' : 'bg-success'}">
                                             ${(f.status == 'unpaid' || f.status == 'UNPAID') ? 'UNPAID' : 'PAID'}
                                         </span>
                                     </td>

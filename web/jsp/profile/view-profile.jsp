@@ -3,7 +3,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="model.Reader, util.AuthUtil" %>
 <% Reader currentReader = (Reader) session.getAttribute(AuthUtil.SESSION_USER);
-   Employee currentEmployee = (Employee) session.getAttribute(AuthUtil.SESSION_EMPLOYEE_ID);
+    Employee currentEmployee = (Employee) session.getAttribute(AuthUtil.SESSION_EMPLOYEE_ID);
 %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -559,7 +559,7 @@
                 <div class="info-row">
                     <div class="info-label"><i class="fas fa-phone"></i> Điện thoại</div>
                     <% String phone = currentReader != null ? currentReader.getPhone() : null;%>
-                         <div class="info-value <%= (phone == null || phone.isBlank()) ? " empty"
+                    <div class="info-value <%= (phone == null || phone.isBlank()) ? " empty"
                                  : ""%>">
                         <%= (phone != null && !phone.isBlank()) ? phone : "Chưa cập nhật"%>
                     </div>

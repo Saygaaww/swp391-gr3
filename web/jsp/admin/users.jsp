@@ -1,24 +1,84 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER);%>
 
 <jsp:include page="/includes/header.jsp" />
 
 <style>
-    .stat-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #e5e7eb; box-shadow: 0 1px 6px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 14px; }
-    .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .s1 { background: #eef2ff; color: #4f46e5; }
-    .s2 { background: #dcfce7; color: #16a34a; }
-    .s4 { background: #fce4ec; color: #e91e63; }
-    .s3 { background: #fef3c7; color: #d97706; }
-    .stat-info h3 { font-size: 24px; font-weight: 800; color: #1a1a2e; margin: 0; }
-    .stat-info p { font-size: 13px; color: #6b7280; font-weight: 500; margin: 0; }
-    .filter-bar { background: #fff; padding: 14px 22px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
-    .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .status-active { background: #dcfce7; color: #166534; }
-    .status-blocked { background: #fef2f2; color: #991b1b; }
-    .status-inactive { background: #fef3c7; color: #92400e; }
+    .stat-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    .s1 {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+    .s2 {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    .s4 {
+        background: #fce4ec;
+        color: #e91e63;
+    }
+    .s3 {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    .stat-info h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    .stat-info p {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+        margin: 0;
+    }
+    .filter-bar {
+        background: #fff;
+        padding: 14px 22px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+    }
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .status-blocked {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+    .status-inactive {
+        background: #fef3c7;
+        color: #92400e;
+    }
 </style>
 
 <main class="container py-5 my-5" style="min-height: 70vh;">
@@ -97,11 +157,11 @@
                     <option value="active" <c:if test="${filterStatus == 'active'}">selected</c:if>>Active</option>
                     <option value="blocked" <c:if test="${filterStatus == 'blocked'}">selected</c:if>>Blocked</option>
                     <option value="inactive" <c:if test="${filterStatus == 'inactive'}">selected</c:if>>Inactive</option>
-                </select>
-            </div>
-            <div class="col-auto">
-                <select id="filterRoleId" class="form-select form-select-sm" style="min-width: 120px;">
-                    <option value="">Vai trò...</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select id="filterRoleId" class="form-select form-select-sm" style="min-width: 120px;">
+                        <option value="">Vai trò...</option>
                     <c:forEach var="r" items="${roles}">
                         <option value="${r.roleId}" <c:if test="${filterRoleId == r.roleId}">selected</c:if>>${r.roleName}</option>
                     </c:forEach>
@@ -113,18 +173,18 @@
                     <option value="10" <c:if test="${pageSize == '10'}">selected</c:if>>10/trang</option>
                     <option value="20" <c:if test="${pageSize == '20'}">selected</c:if>>20/trang</option>
                     <option value="all" <c:if test="${pageSize == 'all'}">selected</c:if>>Tất cả</option>
-                </select>
-            </div>
-            <div class="col-auto">
-                <button type="button" onclick="applyFilters()" class="btn btn-sm btn-dark"><i class="fas fa-filter"></i> Lọc</button>
-                <button type="button" onclick="clearFilters()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times"></i> Xóa lọc</button>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="button" onclick="applyFilters()" class="btn btn-sm btn-dark"><i class="fas fa-filter"></i> Lọc</button>
+                    <button type="button" onclick="clearFilters()" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times"></i> Xóa lọc</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
                 <c:choose>
                     <c:when test="${empty readerList}">
                         <div class="text-center p-5 text-muted">
@@ -212,13 +272,17 @@
     function applyFilters() {
         var u = '${pageContext.request.contextPath}/admin/readers?page=1';
         var k = document.getElementById('searchKeyword').value.trim();
-        if (k) u += '&keyword=' + encodeURIComponent(k);
+        if (k)
+            u += '&keyword=' + encodeURIComponent(k);
         var s = document.getElementById('filterStatus').value;
-        if (s) u += '&status=' + s;
+        if (s)
+            u += '&status=' + s;
         var r = document.getElementById('filterRoleId').value;
-        if (r) u += '&roleId=' + r;
+        if (r)
+            u += '&roleId=' + r;
         var p = document.getElementById('filterPageSize').value;
-        if (p) u += '&pageSize=' + p;
+        if (p)
+            u += '&pageSize=' + p;
         window.location.href = u;
     }
     function clearFilters() {
@@ -227,17 +291,24 @@
     function goToPage(pg) {
         var u = '${pageContext.request.contextPath}/admin/readers?page=' + pg;
         var k = document.getElementById('searchKeyword').value.trim();
-        if (k) u += '&keyword=' + encodeURIComponent(k);
+        if (k)
+            u += '&keyword=' + encodeURIComponent(k);
         var s = document.getElementById('filterStatus').value;
-        if (s) u += '&status=' + s;
+        if (s)
+            u += '&status=' + s;
         var r = document.getElementById('filterRoleId').value;
-        if (r) u += '&roleId=' + r;
+        if (r)
+            u += '&roleId=' + r;
         var p = document.getElementById('filterPageSize').value;
-        if (p) u += '&pageSize=' + p;
+        if (p)
+            u += '&pageSize=' + p;
         window.location.href = u;
     }
-    document.getElementById('searchKeyword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); applyFilters(); }
+    document.getElementById('searchKeyword').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyFilters();
+        }
     });
 </script>
 

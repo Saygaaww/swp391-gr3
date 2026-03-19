@@ -1,13 +1,13 @@
 ﻿<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
-    <!DOCTYPE html>
-    <html lang="vi">
+<!DOCTYPE html>
+<html lang="vi">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Xác minh Đăng nhập Google - Digital Library</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet">
+              rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             *,
@@ -168,7 +168,7 @@
 
             <c:if test="${not empty error}">
                 <div class="alert-error"><i class="fa-solid fa-circle-exclamation"></i> ${error}</div>
-                <% request.removeAttribute("error"); %>
+                <% request.removeAttribute("error");%>
             </c:if>
 
             <form action="${pageContext.request.contextPath}/auth/verify-google-otp" method="POST" id="otpForm">
@@ -199,12 +199,14 @@
             inputs.forEach((input, index) => {
                 input.addEventListener('input', (e) => {
                     if (e.target.value.length === 1) {
-                        if (index < inputs.length - 1) inputs[index + 1].focus();
+                        if (index < inputs.length - 1)
+                            inputs[index + 1].focus();
                     }
                 });
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Backspace' && e.target.value.length === 0) {
-                        if (index > 0) inputs[index - 1].focus();
+                        if (index > 0)
+                            inputs[index - 1].focus();
                     }
                 });
                 // Handle pasting OTP
@@ -228,4 +230,4 @@
         </script>
     </body>
 
-    </html>
+</html>

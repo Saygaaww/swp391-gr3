@@ -630,7 +630,7 @@
                     <div class="stat-lbl">Trang hiện tại</div>
                 </div>
             </div>
-                    <div class="stat-card">
+            <div class="stat-card">
                 <div class="stat-icon "><i class="fas fa-layer-group"></i></div>
                 <div>
                     <div class="stat-val">${pageSize}</div>

@@ -27,10 +27,25 @@
         justify-content: center;
         font-size: 20px;
     }
-    .s1 { background: #eef2ff; color: #4f46e5; }
-    .s2 { background: #dcfce7; color: #16a34a; }
-    .stat-info h3 { font-size: 24px; font-weight: 800; color: #1a1a2e; margin: 0; }
-    .stat-info p  { font-size: 13px; color: #6b7280; margin: 0; }
+    .s1 {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+    .s2 {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    .stat-info h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin: 0;
+    }
+    .stat-info p  {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
 </style>
 
 <div class="container-fluid px-0">

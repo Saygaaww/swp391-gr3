@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="/includes/header.jsp" %>
-<% String ctx=request.getContextPath(); %>
+<% String ctx = request.getContextPath();%>
 
 <%@include file="/includes/navbar.jsp" %>
 
@@ -25,15 +25,15 @@
         </div>
 
         <div class="books-toolbar">
-            <form action="<%= ctx %>/customer/browse-books" method="get" class="row g-2 align-items-center">
+            <form action="<%= ctx%>/customer/browse-books" method="get" class="row g-2 align-items-center">
                 <div class="col-lg-7">
                     <div class="input-group">
                         <span class="input-group-text"
-                            style="border-radius:14px 0 0 14px; border:1px solid rgba(17,24,39,0.12); background:#fff;">
+                              style="border-radius:14px 0 0 14px; border:1px solid rgba(17,24,39,0.12); background:#fff;">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
                         <input type="text" name="keyword" value="${keyword}" class="form-control"
-                            placeholder="Tìm theo tên sách, tác giả, từ khóa...">
+                               placeholder="Tìm theo tên sách, tác giả, từ khóa...">
                     </div>
                 </div>
                 <div class="col-lg-3">
@@ -60,7 +60,7 @@
                         <i class="fa-solid fa-book-open-reader fa-3x mb-3"></i>
                         <h4>Không tìm thấy sách phù hợp</h4>
                         <p>Hãy thử từ khóa khác hoặc chọn một thể loại khác.</p>
-                        <a class="btn-books-outline" href="<%= ctx %>/customer/browse-books">
+                        <a class="btn-books-outline" href="<%= ctx%>/customer/browse-books">
                             <i class="fa-solid fa-rotate-right"></i>
                             Xem tất cả
                         </a>
@@ -72,7 +72,7 @@
                     <c:forEach items="${books}" var="b">
                         <div class="col">
                             <div class="book-card">
-                                <a href="<%= ctx %>/customer/book-detail?bookId=${b.bookId}" class="book-cover">
+                                <a href="<%= ctx%>/customer/book-detail?bookId=${b.bookId}" class="book-cover">
                                     <c:choose>
                                         <c:when test="${not empty b.coverUrl}">
                                             <img src="${b.coverUrl}" alt="${b.title}">
@@ -92,7 +92,7 @@
                                 </a>
                                 <div class="book-card-body">
                                     <div class="book-title">
-                                        <a href="<%= ctx %>/customer/book-detail?bookId=${b.bookId}" style="color:inherit;">
+                                        <a href="<%= ctx%>/customer/book-detail?bookId=${b.bookId}" style="color:inherit;">
                                             ${b.title}
                                         </a>
                                     </div>
@@ -111,17 +111,17 @@
                                     <c:choose>
                                         <c:when test="${b.stockQuantity <= 0}">
                                             <button type="button" class="btn-books-outline book-cta" disabled
-                                                style="opacity:.6; cursor:not-allowed;">
+                                                    style="opacity:.6; cursor:not-allowed;">
                                                 <i class="fa-solid fa-ban"></i>
                                                 Hết hàng
                                             </button>
                                         </c:when>
                                         <c:otherwise>
-                                            <form action="<%= ctx %>/customer/cart/add" method="post" class="m-0">
+                                            <form action="<%= ctx%>/customer/cart/add" method="post" class="m-0">
                                                 <input type="hidden" name="bookId" value="${b.bookId}">
                                                 <input type="hidden" name="quantity" value="1">
                                                 <button type="submit" class="btn-books-primary book-cta"
-                                                    style="background:linear-gradient(135deg,#10b981,#059669);">
+                                                        style="background:linear-gradient(135deg,#10b981,#059669);">
                                                     <i class="fa-solid fa-cart-plus"></i>
                                                     Thêm vào giỏ
                                                 </button>

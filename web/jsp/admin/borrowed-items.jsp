@@ -88,7 +88,7 @@
                                     </td>
                                     <td>
                                         <span class="badge 
-                                        ${req.status == 'borrowed' ? 'bg-primary' : (req.status == 'return_requested' ? 'bg-warning text-dark' : (req.status == 'returned' ? 'bg-success' : 'bg-secondary'))}">
+                                              ${req.status == 'borrowed' ? 'bg-primary' : (req.status == 'return_requested' ? 'bg-warning text-dark' : (req.status == 'returned' ? 'bg-success' : 'bg-secondary'))}">
                                             ${req.status}
                                         </span>
                                     </td>

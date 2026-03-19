@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="/includes/header.jsp" %>
-<% String ctx = request.getContextPath(); %>
+<% String ctx = request.getContextPath();%>
 <%@include file="/includes/navbar.jsp" %>
 <style>
     .user-home {
@@ -39,7 +39,7 @@
         </c:if>
         <c:if test="${not empty sessionScope.errorMessage}">
             <div class="alert alert-danger">${sessionScope.errorMessage}</div>
-            <% session.removeAttribute("errorMessage"); %>
+            <% session.removeAttribute("errorMessage");%>
         </c:if>
 
         <c:choose>
@@ -50,91 +50,91 @@
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
-                        <tr>
-                            <th>Sách</th>
-                            <th>Copy</th>
-                            <th>Hạn trả</th>
-                            <th>Trạng thái</th>
-                            <th class="text-end">Thao tác</th>
-                        </tr>
+                            <tr>
+                                <th>Sách</th>
+                                <th>Copy</th>
+                                <th>Hạn trả</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="it" items="${items}">
-                            <tr>
-                                <td>
-                                    <a href="<%=ctx%>/books/detail/${it.bookId}" class="text-decoration-none">
-                                        <strong>${it.bookTitle}</strong>
-                                    </a>
-                                </td>
-                                <td><span class="badge bg-light text-dark">${it.copyCode}</span></td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${not empty it.dueDate}">${it.dueDate}</c:when>
-                                        <c:otherwise>-</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <span class="badge bg-${it.status=='borrowed'?'primary':(it.status=='return_requested'?'warning':'secondary')}">
-                                        ${it.status}
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <c:choose>
-                                        <c:when test="${it.status == 'return_requested'}">
-                                            <span class="badge bg-warning text-dark">Đang chờ thủ thư duyệt</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <form action="<%=ctx%>/customer/return-request" method="post" class="d-inline"
-                                                  onsubmit="return confirm('Bạn có chắc muốn yêu cầu trả sách này? Thủ thư sẽ xem xét và xác nhận.');">
-                                                <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
-                                                <button class="btn btn-outline-primary btn-sm" type="submit">
-                                                    Trả sách
-                                                </button>
-                                            </form>
-                                        </c:otherwise>
-                                    </c:choose>
-
-                                    <button class="btn btn-outline-success btn-sm" type="button"
-                                            data-bs-toggle="modal" data-bs-target="#extendModal${it.borrowItemId}">
-                                        Gia hạn
-                                    </button>
-
-                                    <!-- Extend modal -->
-                                    <div class="modal fade" id="extendModal${it.borrowItemId}" tabindex="-1"
-                                         aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form action="<%=ctx%>/customer/extend-borrow" method="post">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Yêu cầu gia hạn</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
-                                                        <div class="mb-2"><strong>${it.bookTitle}</strong></div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Gia hạn (ngày)</label>
-                                                            <input type="number" name="extendDays" class="form-control" value="7" min="1" max="30">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Ghi chú (tuỳ chọn)</label>
-                                                            <input type="text" name="note" class="form-control" maxlength="500"
-                                                                   placeholder="Lý do xin gia hạn...">
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-secondary"
-                                                                data-bs-dismiss="modal">Đóng</button>
-                                                        <button type="submit" class="btn btn-success">Gửi yêu cầu</button>
-                                                    </div>
+                            <c:forEach var="it" items="${items}">
+                                <tr>
+                                    <td>
+                                        <a href="<%=ctx%>/books/detail/${it.bookId}" class="text-decoration-none">
+                                            <strong>${it.bookTitle}</strong>
+                                        </a>
+                                    </td>
+                                    <td><span class="badge bg-light text-dark">${it.copyCode}</span></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty it.dueDate}">${it.dueDate}</c:when>
+                                            <c:otherwise>-</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-${it.status=='borrowed'?'primary':(it.status=='return_requested'?'warning':'secondary')}">
+                                            ${it.status}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <c:choose>
+                                            <c:when test="${it.status == 'return_requested'}">
+                                                <span class="badge bg-warning text-dark">Đang chờ thủ thư duyệt</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <form action="<%=ctx%>/customer/return-request" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Bạn có chắc muốn yêu cầu trả sách này? Thủ thư sẽ xem xét và xác nhận.');">
+                                                    <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
+                                                    <button class="btn btn-outline-primary btn-sm" type="submit">
+                                                        Trả sách
+                                                    </button>
                                                 </form>
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                        <button class="btn btn-outline-success btn-sm" type="button"
+                                                data-bs-toggle="modal" data-bs-target="#extendModal${it.borrowItemId}">
+                                            Gia hạn
+                                        </button>
+
+                                        <!-- Extend modal -->
+                                        <div class="modal fade" id="extendModal${it.borrowItemId}" tabindex="-1"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form action="<%=ctx%>/customer/extend-borrow" method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Yêu cầu gia hạn</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                    aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="borrowItemId" value="${it.borrowItemId}">
+                                                            <div class="mb-2"><strong>${it.bookTitle}</strong></div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Gia hạn (ngày)</label>
+                                                                <input type="number" name="extendDays" class="form-control" value="7" min="1" max="30">
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Ghi chú (tuỳ chọn)</label>
+                                                                <input type="text" name="note" class="form-control" maxlength="500"
+                                                                       placeholder="Lý do xin gia hạn...">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-outline-secondary"
+                                                                    data-bs-dismiss="modal">Đóng</button>
+                                                            <button type="submit" class="btn btn-success">Gửi yêu cầu</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </c:forEach>
+                                    </td>
+                                </tr>
+                            </c:forEach>
                         </tbody>
                     </table>
                 </div>

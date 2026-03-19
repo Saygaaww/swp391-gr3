@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER);%>
 
 <jsp:include page="/includes/header.jsp" />
 
@@ -37,10 +37,10 @@
                         <label class="form-label">Email <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control" value="${reader.email}" required maxlength="255" <c:if test="${mode == 'edit'}">readonly</c:if>>
                         <c:if test="${mode == 'edit'}"><small class="text-muted">Không đổi email khi sửa.</small></c:if>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Số điện thoại</label>
-                        <input type="text" name="phone" class="form-control" value="${reader.phone}" maxlength="30">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" name="phone" class="form-control" value="${reader.phone}" maxlength="30">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Vai trò <span class="text-danger">*</span></label>
@@ -57,15 +57,15 @@
                             <option value="active" <c:if test="${reader.status == 'active'}">selected</c:if>>Active</option>
                             <option value="blocked" <c:if test="${reader.status == 'blocked'}">selected</c:if>>Blocked</option>
                             <option value="inactive" <c:if test="${reader.status == 'inactive'}">selected</c:if>>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Mật khẩu ${mode == 'edit' ? '(để trống nếu không đổi)' : '*'}</label>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mật khẩu ${mode == 'edit' ? '(để trống nếu không đổi)' : '*'}</label>
                         <input type="password" name="password" class="form-control" placeholder="Mật khẩu" minlength="3" <c:if test="${mode != 'edit'}">required</c:if>>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-save"></i> Lưu</button>
-                        <a href="${pageContext.request.contextPath}/admin/readers" class="btn btn-outline-secondary">Hủy</a>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary" style="background:#1a1a2e; border-color:#1a1a2e;"><i class="fas fa-save"></i> Lưu</button>
+                            <a href="${pageContext.request.contextPath}/admin/readers" class="btn btn-outline-secondary">Hủy</a>
                     </div>
                 </div>
             </form>

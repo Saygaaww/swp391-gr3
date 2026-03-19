@@ -289,12 +289,27 @@
         margin-top: 1px;
     }
 
-    .notif-icon-return  { background: #d1fae5; color: #059669; }
-    .notif-icon-fine    { background: #fee2e2; color: #dc2626; }
-    .notif-icon-reservation { background: #fef3c7; color: #d97706; }
-    .notif-icon-general { background: #e0e7ff; color: #6366f1; }
+    .notif-icon-return  {
+        background: #d1fae5;
+        color: #059669;
+    }
+    .notif-icon-fine    {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    .notif-icon-reservation {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    .notif-icon-general {
+        background: #e0e7ff;
+        color: #6366f1;
+    }
 
-    .notif-item-body { flex: 1; min-width: 0; }
+    .notif-item-body {
+        flex: 1;
+        min-width: 0;
+    }
 
     .notif-item-title {
         font-weight: 600;
@@ -423,7 +438,8 @@
             __notifUnreadCount = __nDao.getUnreadCount(__rid);
             __nDao.close();
         }
-    } catch (Exception ignore) {}
+    } catch (Exception ignore) {
+    }
     request.setAttribute("recentNotifs", __recentNotifs);
     request.setAttribute("notifUnreadCount", __notifUnreadCount);
 %>
@@ -494,15 +510,15 @@
                                     <c:forEach var="n" items="${recentNotifs}">
                                         <div class="notif-item ${n.read ? '' : 'unread'}">
                                             <div class="notif-item-icon
-                                                ${n.notifType == 'return' ? 'notif-icon-return' :
-                                                  n.notifType == 'fine' ? 'notif-icon-fine' :
-                                                  n.notifType == 'reservation' ? 'notif-icon-reservation' :
-                                                  'notif-icon-general'}">
+                                                 ${n.notifType == 'return' ? 'notif-icon-return' :
+                                                   n.notifType == 'fine' ? 'notif-icon-fine' :
+                                                   n.notifType == 'reservation' ? 'notif-icon-reservation' :
+                                                   'notif-icon-general'}">
                                                 <i class="fas
-                                                    ${n.notifType == 'return' ? 'fa-check-circle' :
-                                                      n.notifType == 'fine' ? 'fa-exclamation-triangle' :
-                                                      n.notifType == 'reservation' ? 'fa-bookmark' :
-                                                      'fa-bell'}"></i>
+                                                   ${n.notifType == 'return' ? 'fa-check-circle' :
+                                                     n.notifType == 'fine' ? 'fa-exclamation-triangle' :
+                                                     n.notifType == 'reservation' ? 'fa-bookmark' :
+                                                     'fa-bell'}"></i>
                                             </div>
                                             <div class="notif-item-body">
                                                 <div class="notif-item-title">${n.title}</div>

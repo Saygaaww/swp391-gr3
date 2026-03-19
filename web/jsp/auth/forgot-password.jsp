@@ -1,13 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <!DOCTYPE html>
-    <html lang="vi">
+<!DOCTYPE html>
+<html lang="vi">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Quên mật khẩu - Digital Library</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet">
+              rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             *,
@@ -175,36 +175,36 @@
                 <p>Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
             </div>
 
-            <% if (request.getAttribute("error") !=null) { %>
-                <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>
-                    <%= request.getAttribute("error") %>
+            <% if (request.getAttribute("error") != null) {%>
+            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>
+                <%= request.getAttribute("error")%>
+            </div>
+            <% } %>
+            <% if (request.getAttribute("success") != null) {%>
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i>
+                <%= request.getAttribute("success")%>
+            </div>
+            <% } else {%>
+            <form method="post" action="<%= request.getContextPath()%>/auth/forgot-password">
+                <div class="form-group">
+                    <label for="email">Email đã đăng ký</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="example@email.com"
+                               required autofocus>
+                    </div>
                 </div>
-                <% } %>
-                    <% if (request.getAttribute("success") !=null) { %>
-                        <div class="alert alert-success"><i class="fas fa-check-circle"></i>
-                            <%= request.getAttribute("success") %>
-                        </div>
-                        <% } else { %>
-                            <form method="post" action="<%= request.getContextPath() %>/auth/forgot-password">
-                                <div class="form-group">
-                                    <label for="email">Email đã đăng ký</label>
-                                    <div class="input-wrap">
-                                        <i class="fas fa-envelope"></i>
-                                        <input type="email" id="email" name="email" placeholder="example@email.com"
-                                            required autofocus>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn-primary">
-                                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Gửi link đặt lại
-                                </button>
-                            </form>
-                            <% } %>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Gửi link đặt lại
+                </button>
+            </form>
+            <% }%>
 
-                                <div class="footer-link">
-                                    <a href="<%= request.getContextPath() %>/auth/login"><i class="fas fa-arrow-left"
-                                            style="margin-right:4px;"></i>Quay lại đăng nhập</a>
-                                </div>
+            <div class="footer-link">
+                <a href="<%= request.getContextPath()%>/auth/login"><i class="fas fa-arrow-left"
+                                                                        style="margin-right:4px;"></i>Quay lại đăng nhập</a>
+            </div>
         </div>
     </body>
 
-    </html>
+</html>

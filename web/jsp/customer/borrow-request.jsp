@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="/includes/header.jsp" %>
-<% String ctx = request.getContextPath(); %>
+<% String ctx = request.getContextPath();%>
 <%@include file="/includes/navbar.jsp" %>
 <style>
     .user-home {
@@ -112,15 +112,15 @@
         const dd = String(today.getDate()).padStart(2, '0');
         const formattedToday = `${yyyy}-${mm}-${dd}`;
 
-        startDateInput.min = formattedToday;
-        returnDateInput.min = formattedToday;
+                startDateInput.min = formattedToday;
+                returnDateInput.min = formattedToday;
 
-        startDateInput.addEventListener("change", function () {
-            returnDateInput.min = this.value;
-            if (returnDateInput.value && returnDateInput.value < this.value) {
-                returnDateInput.value = this.value;
-            }
-        });
-    });
+                startDateInput.addEventListener("change", function () {
+                    returnDateInput.min = this.value;
+                    if (returnDateInput.value && returnDateInput.value < this.value) {
+                        returnDateInput.value = this.value;
+                    }
+                });
+            });
 </script>
 <%@include file="/includes/footer.jsp" %>

@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="/includes/header.jsp" %>
-<% String ctx = request.getContextPath(); %>
+<% String ctx = request.getContextPath();%>
 <%@include file="/includes/navbar.jsp" %>
 <style>
     .user-home {
@@ -27,7 +27,7 @@
         </c:if>
         <c:if test="${not empty sessionScope.errorMessage}">
             <div class="alert alert-danger">${sessionScope.errorMessage}</div>
-            <% session.removeAttribute("errorMessage"); %>
+            <% session.removeAttribute("errorMessage");%>
         </c:if>
 
         <c:choose>
@@ -73,22 +73,22 @@
                                         <div class="table-responsive">
                                             <table class="table table-sm align-middle">
                                                 <thead>
-                                                <tr>
-                                                    <th>Sách</th>
-                                                    <th class="text-end">Số lượng</th>
-                                                </tr>
+                                                    <tr>
+                                                        <th>Sách</th>
+                                                        <th class="text-end">Số lượng</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody>
-                                                <c:forEach var="it" items="${r.items}">
-                                                    <tr>
-                                                        <td>
-                                                            <a href="<%=ctx%>/books/detail/${it.bookId}" class="text-decoration-none">
-                                                                ${it.bookTitle}
-                                                            </a>
-                                                        </td>
-                                                        <td class="text-end">${it.quantity}</td>
-                                                    </tr>
-                                                </c:forEach>
+                                                    <c:forEach var="it" items="${r.items}">
+                                                        <tr>
+                                                            <td>
+                                                                <a href="<%=ctx%>/books/detail/${it.bookId}" class="text-decoration-none">
+                                                                    ${it.bookTitle}
+                                                                </a>
+                                                            </td>
+                                                            <td class="text-end">${it.quantity}</td>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </tbody>
                                             </table>
                                         </div>

@@ -65,7 +65,7 @@
                                             <ul class="mb-0 ps-3">
                                                 <c:forEach var="item" items="${order.orderBooks}">
                                                     <li>${item.bookTitle} (x${item.quantity})</li>
-                                                </c:forEach>
+                                                    </c:forEach>
                                             </ul>
                                         </td>
                                         <td>

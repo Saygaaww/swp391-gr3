@@ -1,13 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER);%>
 
 <jsp:include page="/includes/header.jsp" />
 <jsp:include page="/includes/admin-shell-start.jsp" />
 
 <style>
-    .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
 </style>
 
 <div class="container-fluid px-0">
@@ -57,9 +63,9 @@
                 <c:choose>
                     <c:when test="${empty borrowRequest.items}">
                         <li class="list-group-item">Không có đầu mục nào.</li>
-                    </c:when>
-                    <c:otherwise>
-                        <c:forEach var="item" items="${borrowRequest.items}">
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="item" items="${borrowRequest.items}">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <strong>${item.bookTitle != null ? item.bookTitle : 'Book #'.concat(item.bookId)}</strong>
                                 <span class="badge bg-primary">x ${item.quantity}</span>

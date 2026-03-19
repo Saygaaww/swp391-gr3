@@ -1,13 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <!DOCTYPE html>
-    <html lang="vi">
+<!DOCTYPE html>
+<html lang="vi">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Đăng nhập - Digital Library</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet">
+              rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             *,
@@ -323,88 +323,88 @@
                 <div class="card-title">Đăng nhập</div>
                 <div class="card-subtitle">Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục.</div>
 
-                <% if (request.getAttribute("error") !=null) { %>
-                    <div class="alert-error">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <%= request.getAttribute("error") %>
+                <% if (request.getAttribute("error") != null) {%>
+                <div class="alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= request.getAttribute("error")%>
+                </div>
+                <% } %>
+                <% String logout = request.getParameter("logout");
+                            String reset = request.getParameter("reset"); %>
+                <% if ("1".equals(logout)) { %>
+                <div class="alert-success">
+                    <i class="fas fa-check-circle"></i>Bạn đã đăng xuất thành công.
+                </div>
+                <% } else if ("1".equals(reset)) { %>
+                <div class="alert-success">
+                    <i class="fas fa-check-circle"></i>Đặt lại mật khẩu thành công! Hãy đăng nhập.
+                </div>
+                <% }%>
+
+                <form method="post" action="<%= request.getContextPath()%>/auth/login">
+                    <% String redirect = request.getParameter("redirect"); %>
+                    <% if (redirect != null && !redirect.isBlank()) {%>
+                    <input type="hidden" name="redirect" value="<%= redirect%>">
+                    <% }%>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope icon"></i>
+                            <input type="email" id="email" name="email"
+                                   placeholder="example@email.com" required autofocus
+                                   value="<%= request.getAttribute(" inputEmail")
+                                                                            != null ? request.getAttribute("inputEmail") : ""%>">
+                        </div>
                     </div>
-                    <% } %>
-                        <% String logout=request.getParameter("logout"); String reset=request.getParameter("reset"); %>
-                            <% if ("1".equals(logout)) { %>
-                                <div class="alert-success">
-                                    <i class="fas fa-check-circle"></i>Bạn đã đăng xuất thành công.
-                                </div>
-                                <% } else if ("1".equals(reset)) { %>
-                                    <div class="alert-success">
-                                        <i class="fas fa-check-circle"></i>Đặt lại mật khẩu thành công! Hãy đăng nhập.
-                                    </div>
-                                    <% } %>
 
-                                        <form method="post" action="<%= request.getContextPath() %>/auth/login">
-                                            <% String redirect=request.getParameter("redirect"); %>
-                                                <% if (redirect !=null && !redirect.isBlank()) { %>
-                                                    <input type="hidden" name="redirect" value="<%= redirect %>">
-                                                    <% } %>
+                    <div class="form-group">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-lock icon"></i>
+                            <input type="password" id="password" name="password"
+                                   placeholder="••••••••" required>
+                            <button type="button" class="toggle-password"
+                                    onclick="togglePwd()" id="toggleBtn">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <a href="<%= request.getContextPath()%>/auth/forgot-password"
+                           class="forgot-link">Quên mật khẩu?</a>
+                    </div>
 
-                                                        <div class="form-group">
-                                                            <label for="email">Email</label>
-                                                            <div class="input-wrap">
-                                                                <i class="fas fa-envelope icon"></i>
-                                                                <input type="email" id="email" name="email"
-                                                                    placeholder="example@email.com" required autofocus
-                                                                    value="<%= request.getAttribute(" inputEmail")
-                                                                    !=null ? request.getAttribute("inputEmail") : ""
-                                                                    %>">
-                                                            </div>
-                                                        </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"
+                           style="margin-right:8px;"></i>Đăng nhập
+                    </button>
+                </form>
 
-                                                        <div class="form-group">
-                                                            <label for="password">Mật khẩu</label>
-                                                            <div class="input-wrap">
-                                                                <i class="fas fa-lock icon"></i>
-                                                                <input type="password" id="password" name="password"
-                                                                    placeholder="••••••••" required>
-                                                                <button type="button" class="toggle-password"
-                                                                    onclick="togglePwd()" id="toggleBtn">
-                                                                    <i class="fas fa-eye" id="toggleIcon"></i>
-                                                                </button>
-                                                            </div>
-                                                            <a href="<%= request.getContextPath() %>/auth/forgot-password"
-                                                                class="forgot-link">Quên mật khẩu?</a>
-                                                        </div>
+                <div class="divider"><span>hoặc đăng nhập với</span></div>
 
-                                                        <button type="submit" class="btn-primary">
-                                                            <i class="fas fa-sign-in-alt"
-                                                                style="margin-right:8px;"></i>Đăng nhập
-                                                        </button>
-                                        </form>
+                <a href="<%= request.getContextPath()%>/auth/oauth/google" class="social-btn">
+                    <!-- Google SVG logo -->
+                    <svg class="google-logo" viewBox="0 0 48 48"
+                         xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#FFC107"
+                          d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3l5.7-5.7C34.6 6.7 29.6 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.4-3.4-.1-.4-.3-1-.5-1z" />
+                    <path fill="#FF3D00"
+                          d="M6.3 14.7l6.6 4.8C14.5 16 19 13 24 13c3.1 0 5.9 1.1 8 3l5.7-5.7C34.6 6.7 29.6 4.5 24 4.5c-7.7 0-14.3 4.4-17.7 10.2z" />
+                    <path fill="#4CAF50"
+                          d="M24 41.5c5.4 0 10.3-2.1 14-5.4l-6.5-5.5C29.5 32.6 26.9 33.5 24 33.5c-5.3 0-9.6-3.1-11.3-7.4l-6.6 5.1C9.6 37 16.3 41.5 24 41.5z" />
+                    <path fill="#1976D2"
+                          d="M43.6 20.5H42V20H24v8h11.3c-.9 2.4-2.5 4.4-4.6 5.8l6.5 5.5C42.7 35.5 44 30 44 24c0-1.2-.1-2.3-.4-3.5z" />
+                    </svg>
+                    Tiếp tục với Google
+                </a>
+                <a href="<%= request.getContextPath()%>/auth/oauth/facebook"
+                   class="social-btn fb-btn">
+                    <i class="fab fa-facebook-f"></i> Tiếp tục với Facebook
+                </a>
 
-                                        <div class="divider"><span>hoặc đăng nhập với</span></div>
-
-                                        <a href="<%= request.getContextPath() %>/auth/oauth/google" class="social-btn">
-                                            <!-- Google SVG logo -->
-                                            <svg class="google-logo" viewBox="0 0 48 48"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill="#FFC107"
-                                                    d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3l5.7-5.7C34.6 6.7 29.6 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.4-3.4-.1-.4-.3-1-.5-1z" />
-                                                <path fill="#FF3D00"
-                                                    d="M6.3 14.7l6.6 4.8C14.5 16 19 13 24 13c3.1 0 5.9 1.1 8 3l5.7-5.7C34.6 6.7 29.6 4.5 24 4.5c-7.7 0-14.3 4.4-17.7 10.2z" />
-                                                <path fill="#4CAF50"
-                                                    d="M24 41.5c5.4 0 10.3-2.1 14-5.4l-6.5-5.5C29.5 32.6 26.9 33.5 24 33.5c-5.3 0-9.6-3.1-11.3-7.4l-6.6 5.1C9.6 37 16.3 41.5 24 41.5z" />
-                                                <path fill="#1976D2"
-                                                    d="M43.6 20.5H42V20H24v8h11.3c-.9 2.4-2.5 4.4-4.6 5.8l6.5 5.5C42.7 35.5 44 30 44 24c0-1.2-.1-2.3-.4-3.5z" />
-                                            </svg>
-                                            Tiếp tục với Google
-                                        </a>
-                                        <a href="<%= request.getContextPath() %>/auth/oauth/facebook"
-                                            class="social-btn fb-btn">
-                                            <i class="fab fa-facebook-f"></i> Tiếp tục với Facebook
-                                        </a>
-
-                                        <div class="footer-link">
-                                            Chưa có tài khoản? <a
-                                                href="<%= request.getContextPath() %>/auth/register">Đăng ký ngay</a>
-                                        </div>
+                <div class="footer-link">
+                    Chưa có tài khoản? <a
+                        href="<%= request.getContextPath()%>/auth/register">Đăng ký ngay</a>
+                </div>
             </div>
         </div>
 
@@ -412,10 +412,15 @@
             function togglePwd() {
                 const pwd = document.getElementById('password');
                 const icon = document.getElementById('toggleIcon');
-                if (pwd.type === 'password') { pwd.type = 'text'; icon.className = 'fas fa-eye-slash'; }
-                else { pwd.type = 'password'; icon.className = 'fas fa-eye'; }
+                if (pwd.type === 'password') {
+                    pwd.type = 'text';
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    pwd.type = 'password';
+                    icon.className = 'fas fa-eye';
+                }
             }
         </script>
     </body>
 
-    </html>
+</html>
