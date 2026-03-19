@@ -2,8 +2,35 @@
 <%@page import="jakarta.security.auth.message.config.AuthConfig"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="model.Reader, util.AuthUtil" %>
-<% Reader currentReader = (Reader) session.getAttribute(AuthUtil.SESSION_USER);
-   Employee currentEmployee = (Employee) session.getAttribute(AuthUtil.SESSION_EMPLOYEE_ID);
+<%
+    Object sessionUser = session.getAttribute(AuthUtil.SESSION_USER);
+    String pName = "—";
+    String pEmail = "—";
+    String pPhone = "—";
+    String pRole = "—";
+    String pAvatar = null;
+    String pInitials = "?";
+    boolean isReader = false;
+    boolean hasPwd = false;
+    
+    if (sessionUser instanceof model.Reader) {
+        model.Reader r = (model.Reader) sessionUser;
+        pName = r.getFullName();
+        pEmail = r.getEmail();
+        pPhone = r.getPhone() != null && !r.getPhone().isEmpty() ? r.getPhone() : "Chua c?p nh?t";
+        pRole = r.getRoleName() != null ? r.getRoleName() : "Ð?c gi?";
+        pAvatar = r.getAvatarUrl();
+        pInitials = r.getInitials();
+        isReader = true;
+        hasPwd = r.hasPassword();
+    } else if (sessionUser instanceof model.Employee) {
+        model.Employee e = (model.Employee) sessionUser;
+        pName = e.getFullName();
+        pEmail = e.getEmail();
+        pRole = e.getRoleName() != null ? e.getRoleName() : "Nhân viên";
+        pInitials = pName != null && pName.length() > 0 ? String.valueOf(pName.charAt(0)).toUpperCase() : "?";
+        hasPwd = e.hasPassword();
+    }
 %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -511,23 +538,22 @@
             <!-- Hero card -->
             <div class="profile-hero">
                 <div class="avatar-circle" id="heroAvatar">
-                    <% if (currentReader != null && currentReader.getAvatarUrl() != null
-                                && !currentReader.getAvatarUrl().isBlank()) {%>
-                    <img src="<%= currentReader.getAvatarUrl()%>" alt="Avatar"
+                    <% if (pAvatar != null && !pAvatar.trim().isEmpty()) {%>
+                    <img src="<%= pAvatar %>" alt="Avatar"
                          id="heroAvatarImg">
                     <% } else {%>
                     <span id="heroAvatarInitials">
-                        <%= currentReader != null ? currentReader.getInitials() : "?"%>
+                        <%= pInitials %>
                     </span>
                     <% }%>
                 </div>
                 <div>
                     <div class="hero-name">
-                        <%= currentReader != null ? currentReader.getFullName() : "—"%>
+                        <%= pName %>
                     </div>
                     <div class="hero-email">
                         <i class="fas fa-envelope" style="color:#a78bfa;"></i>
-                        <%= currentReader != null ? currentReader.getEmail() : "—"%>
+                        <%= pEmail %>
                     </div>
                     <span class="role-badge">
                         <i class="fas fa-user-circle"></i>
@@ -535,7 +561,7 @@
                                 ? session.getAttribute("userRole") : "User"%>
                     </span>
                 </div>
-                <button class="edit-btn" onclick="openModal()">
+                <% if (isReader) { %><button class="edit-btn" onclick="openModal()">
                     <i class="fas fa-pen"></i> Chỉnh sửa
                 </button>
             </div>
@@ -547,18 +573,18 @@
                 <div class="info-row">
                     <div class="info-label"><i class="fas fa-user"></i> Họ và tên</div>
                     <div class="info-value">
-                        <%= currentReader != null ? currentReader.getFullName() : "—"%>
+                        <%= pName %>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
                     <div class="info-value">
-                        <%= currentReader != null ? currentReader.getEmail() : "—"%>
+                        <%= pEmail %>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-label"><i class="fas fa-phone"></i> Điện thoại</div>
-                    <% String phone = currentReader != null ? currentReader.getPhone() : null;%>
+                    <% String phone = pPhone; %>
                          <div class="info-value <%= (phone == null || phone.isBlank()) ? " empty"
                                  : ""%>">
                         <%= (phone != null && !phone.isBlank()) ? phone : "Chưa cập nhật"%>
@@ -566,7 +592,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label"><i class="fas fa-shield-alt"></i> Xác thực</div>
-                    <% boolean hasPwd = currentReader != null && currentReader.hasPassword(); %>
+                    
                     <div class="info-value">
                         <% if (hasPwd) { %>
                         <span style="color:#16a34a;"><i class="fas fa-check-circle"></i>
@@ -595,13 +621,13 @@
                         <div class="form-label">Ảnh đại diện</div>
                         <div class="avatar-upload-wrap">
                             <div class="avatar-preview" id="modalAvatar">
-                                <% if (currentReader != null && currentReader.getAvatarUrl() != null
-                                            && !currentReader.getAvatarUrl().isBlank()) {%>
-                                <img src="<%= currentReader.getAvatarUrl()%>" alt="preview"
+                                <% if (pAvatar != null
+                                            && !pAvatar.trim().isEmpty()) {%>
+                                <img src="<%= pAvatar %>" alt="preview"
                                      id="avatarPreviewImg">
                                 <% } else {%>
                                 <span id="avatarPreviewInitials">
-                                    <%= currentReader != null ? currentReader.getInitials() : "?"%>
+                                    <%= pInitials %>
                                 </span>
                                 <% }%>
                             </div>
@@ -613,7 +639,7 @@
                         </div>
                         <!-- Hidden field chứa base64 hoặc URL -->
                         <input type="hidden" name="avatarUrl" id="avatarUrlHidden"
-                               value="<%= currentReader != null && currentReader.getAvatarUrl() != null ? currentReader.getAvatarUrl() : ""%>">
+                               value="<%= pAvatar != null ? pAvatar : ""%>">
                         <div style="font-size:0.75rem;color:#9ca3af;margin-top:4px;">Hỗ trợ JPG, PNG, GIF. Tối
                             đa 2MB.</div>
                     </div>
@@ -623,7 +649,7 @@
                         <label class="form-label" for="fullName">Họ và tên <span
                                 style="color:#dc2626;">*</span></label>
                         <input type="text" id="fullName" name="fullName" class="form-input"
-                               value="<%= currentReader != null && currentReader.getFullName() != null ? currentReader.getFullName() : ""%>"
+                               value="<%= pName != null ? pName : ""%>"
                                placeholder="Nhập họ và tên" required>
                     </div>
 
@@ -631,7 +657,7 @@
                     <div class="form-group">
                         <label class="form-label">Email</label>
                         <input type="email" class="form-input" disabled
-                               value="<%= currentReader != null && currentReader.getEmail() != null ? currentReader.getEmail() : ""%>">
+                               value="<%= pEmail != null ? pEmail : ""%>">
                         <div style="font-size:0.75rem;color:#9ca3af;margin-top:4px;">Email không thể thay đổi.
                         </div>
                     </div>
@@ -640,7 +666,7 @@
                     <div class="form-group">
                         <label class="form-label" for="phone">Số điện thoại</label>
                         <input type="tel" id="phone" name="phone" class="form-input"
-                               value="<%= currentReader != null && currentReader.getPhone() != null ? currentReader.getPhone() : ""%>"
+                               value="<%= pPhone != null ? pPhone : ""%>"
                                placeholder="Vd: 0901234567" oninput="validatePhone(this)">
                         <div id="phoneError"
                              style="display:none;font-size:0.75rem;color:#dc2626;margin-top:4px;">
@@ -655,7 +681,7 @@
                     </div>
                 </form>
             </div>
-        </div>
+        </div><% } %>
 
         <script>
             function openModal() {

@@ -116,6 +116,9 @@ public class CustomerController extends HttpServlet {
                 case "/fines":
                     handleFines(request, response);
                     break;
+                case "/fines-history":
+                    handleFinePaymentHistory(request, response);
+                    break;
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     break;
@@ -180,6 +183,9 @@ public class CustomerController extends HttpServlet {
                         break;
                     case "/fines/pay":
                         handlePayFine(request, response);
+                        break;
+                    case "/fines/pay-all":
+                        handlePayAllFines(request, response);
                         break;
                     default:
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -769,6 +775,21 @@ public class CustomerController extends HttpServlet {
             System.err.println("Invalid return date format: " + e.getMessage());
         }
 
+        // Business validation: reader cannot create borrow requests in the past
+        java.time.LocalDate today = java.time.LocalDate.now();
+        if (expectedStartDate.isBefore(today)) {
+            request.getSession().setAttribute("errorMessage",
+                    "Ngày bắt đầu mượn không được ở quá khứ.");
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
+            return;
+        }
+        if (expectedReturnDate.isBefore(expectedStartDate)) {
+            request.getSession().setAttribute("errorMessage",
+                    "Ngày trả dự kiến phải lớn hơn hoặc bằng ngày bắt đầu mượn.");
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
+            return;
+        }
+
         int requestId = 0;
         try {
             BorrowDAO borrowDAO = new BorrowDAO();
@@ -776,13 +797,17 @@ public class CustomerController extends HttpServlet {
         } catch (Exception e) {
             System.err.println("createBorrowRequest exception: " + e.getMessage());
             e.printStackTrace();
+            request.getSession().setAttribute("errorMessage", "Không thể tạo yêu cầu mượn: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
+            return;
         }
 
         if (requestId > 0) {
             request.getSession().setAttribute("successMessage", "Đã gửi yêu cầu mượn. Mã yêu cầu: #" + requestId);
             response.sendRedirect(request.getContextPath() + "/customer/borrow-request-status");
         } else {
-            request.getSession().setAttribute("errorMessage", "Không thể tạo yêu cầu mượn. Vui lòng thử lại.");
+            request.getSession().setAttribute("errorMessage",
+                    "Không thể tạo yêu cầu mượn. Vui lòng thử lại. (DB schema/constraints may be mismatched)");
             response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
         }
     }
@@ -900,8 +925,14 @@ public class CustomerController extends HttpServlet {
 
     private void handleReservations(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int readerId = AuthUtil.getReaderId(request);
+        Integer readerIdObj = AuthUtil.getReaderId(request);
+        if (readerIdObj == null || readerIdObj <= 0) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        int readerId = readerIdObj;
         ReservationDAO dao = new ReservationDAO();
+        dao.expireDueReservationsByReader(readerId);
         List<Reservation> list = dao.getReservationsByReader(readerId);
         request.setAttribute("reservations", list);
         request.getRequestDispatcher("/jsp/customer/reservations.jsp").forward(request, response);
@@ -909,7 +940,12 @@ public class CustomerController extends HttpServlet {
 
     private void handleCreateOrCancelReservation(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int readerId = AuthUtil.getReaderId(request);
+        Integer readerIdObj = AuthUtil.getReaderId(request);
+        if (readerIdObj == null || readerIdObj <= 0) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
+        int readerId = readerIdObj;
         String action = request.getParameter("action");
         ReservationDAO dao = new ReservationDAO();
         boolean ok = false;
@@ -918,7 +954,15 @@ public class CustomerController extends HttpServlet {
             String bookIdStr = request.getParameter("bookId");
             if (bookIdStr != null && !bookIdStr.isBlank()) {
                 try {
-                    ok = dao.createReservation(readerId, Integer.parseInt(bookIdStr));
+                    int bookId = Integer.parseInt(bookIdStr);
+                    int stock = dao.getCurrentBookStock(bookId);
+                    if (stock > 0) {
+                        request.getSession().setAttribute("successMessage",
+                                "Sach hien dang con ban. Vui long muon theo luong thong thuong.");
+                        response.sendRedirect(request.getContextPath() + "/customer/borrow-request?bookId=" + bookId);
+                        return;
+                    }
+                    ok = dao.createReservation(readerId, bookId);
                 } catch (NumberFormatException ignore) {
                 }
             }
@@ -933,7 +977,7 @@ public class CustomerController extends HttpServlet {
         }
 
         request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
-                ok ? "Thao tác đặt chỗ thành công." : "Không thể thực hiện đặt chỗ.");
+                ok ? "Da them vao hang doi dat sach." : "Khong the thuc hien dat cho luc nay.");
         response.sendRedirect(request.getContextPath() + "/customer/reservations");
     }
 
@@ -944,6 +988,15 @@ public class CustomerController extends HttpServlet {
         List<FineView> fines = dao.getFinesByReader(readerId);
         request.setAttribute("fines", fines);
         request.getRequestDispatcher("/jsp/customer/fines.jsp").forward(request, response);
+    }
+
+    private void handleFinePaymentHistory(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        FineDAO dao = new FineDAO();
+        List<FineView> paidFines = dao.getPaidFinesByReader(readerId);
+        request.setAttribute("paidFines", paidFines);
+        request.getRequestDispatcher("/jsp/customer/fines-history.jsp").forward(request, response);
     }
 
     private void handlePayFine(HttpServletRequest request, HttpServletResponse response)
@@ -963,6 +1016,16 @@ public class CustomerController extends HttpServlet {
         }
         request.getSession().setAttribute(ok ? "successMessage" : "errorMessage",
                 ok ? "Đã ghi nhận thanh toán tiền phạt." : "Không thể thanh toán tiền phạt.");
+        response.sendRedirect(request.getContextPath() + "/customer/fines");
+    }
+
+    private void handlePayAllFines(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int readerId = AuthUtil.getReaderId(request);
+        FineDAO dao = new FineDAO();
+        int updated = dao.markAllUnpaidFinesPaid(readerId);
+        request.getSession().setAttribute(updated > 0 ? "successMessage" : "errorMessage",
+                updated > 0 ? ("Đã ghi nhận thanh toán " + updated + " khoản phạt.") : "Bạn không có khoản phạt chưa thanh toán.");
         response.sendRedirect(request.getContextPath() + "/customer/fines");
     }
 }

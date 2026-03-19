@@ -4,8 +4,9 @@
 <% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
 
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-check-circle" style="color:#4f46e5;"></i> Duyệt yêu cầu mượn sách
@@ -97,6 +98,7 @@
             </c:if>
         </c:otherwise>
     </c:choose>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />

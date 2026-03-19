@@ -5,7 +5,8 @@ import java.time.LocalDateTime;
 
 public class Payment {
     private int paymentId;
-    private int orderId;
+    private Integer orderId;
+    private Integer fineId;
     private BigDecimal amount;
     private String paymentMethod;
     private String paymentStatus;
@@ -23,12 +24,20 @@ public class Payment {
         this.paymentId = paymentId;
     }
 
-    public int getOrderId() {
+    public Integer getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(int orderId) {
+    public void setOrderId(Integer orderId) {
         this.orderId = orderId;
+    }
+
+    public Integer getFineId() {
+        return fineId;
+    }
+
+    public void setFineId(Integer fineId) {
+        this.fineId = fineId;
     }
 
     public BigDecimal getAmount() {

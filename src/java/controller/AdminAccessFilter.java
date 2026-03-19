@@ -42,7 +42,9 @@ public class AdminAccessFilter implements Filter {
             return;
         }
 
-        if (!AuthUtil.isAdmin(httpRequest)) {
+        // Sidebar on librarian dashboard links to several /admin/* management pages.
+        // Allow both Admin and Librarian to pass this filter.
+        if (!AuthUtil.hasAnyRole(httpRequest, AuthUtil.ROLE_ADMIN, AuthUtil.ROLE_LIBRARIAN)) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/auth/login?error=unauthorized");
             return;
         }

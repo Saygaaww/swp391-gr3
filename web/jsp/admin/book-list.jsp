@@ -567,6 +567,7 @@
     tbody tr:nth-child(5)  {
         animation-delay: .15s;
     }
+    
     tbody tr:nth-child(n+6){
         animation-delay: .18s;
     }

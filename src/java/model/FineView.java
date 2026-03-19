@@ -10,6 +10,7 @@ public class FineView {
     private String copyCode;
     private int fineTypeId;
     private String fineTypeName;
+    private String reason;
     private BigDecimal amount;
     private String status;
     private LocalDateTime createdAt;
@@ -61,6 +62,14 @@ public class FineView {
 
     public void setFineTypeName(String fineTypeName) {
         this.fineTypeName = fineTypeName;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public BigDecimal getAmount() {

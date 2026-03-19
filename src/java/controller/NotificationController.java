@@ -27,12 +27,16 @@ public class NotificationController extends HttpServlet {
         if (!requireReaderLogin(request, response))
             return;
 
-        Reader reader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
-        NotificationDAO dao = null;
-        try {
-            dao = new NotificationDAO();
-            request.setAttribute("notifications", dao.getAllNotifications(reader.getReaderId()));
-            request.setAttribute("unreadCount", dao.getUnreadCount(reader.getReaderId()));
+        Object su = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+          int rId = 0;
+          if (su instanceof model.Reader) { rId = ((model.Reader)su).getReaderId(); } else if (su instanceof model.Employee) { rId = ((model.Employee)su).getEmployeeId(); }
+          NotificationDAO dao = null;
+          try {
+              dao = new NotificationDAO();
+              request.setAttribute("notifications",
+                      dao.getAllNotifications(rId));
+              request.setAttribute("unreadCount",
+                      dao.getUnreadCount(rId));
             request.getRequestDispatcher("/jsp/notifications/inbox.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Get notifications error", e);
@@ -50,22 +54,24 @@ public class NotificationController extends HttpServlet {
 
         if (!requireReaderLogin(request, response))
             return;
-        Reader reader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        Object su = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+          int rId = 0;
+          if (su instanceof model.Reader) { rId = ((model.Reader)su).getReaderId(); } else if (su instanceof model.Employee) { rId = ((model.Employee)su).getEmployeeId(); }
 
-        String pathInfo = request.getPathInfo();
-        if (pathInfo == null)
-            pathInfo = "";
+          String pathInfo = request.getPathInfo();
+          if (pathInfo == null)
+              pathInfo = "";
 
-        NotificationDAO dao = null;
-        try {
-            dao = new NotificationDAO();
-            if ("/mark-read".equals(pathInfo)) {
-                String notifIdStr = request.getParameter("notificationId");
-                if ("all".equals(notifIdStr)) {
-                    dao.markAllAsRead(reader.getReaderId());
-                } else {
-                    int notifId = Integer.parseInt(notifIdStr);
-                    dao.markAsRead(notifId, reader.getReaderId());
+          NotificationDAO dao = null;
+          try {
+              dao = new NotificationDAO();
+              if ("/mark-read".equals(pathInfo)) {
+                  String notifIdStr = request.getParameter("notificationId");
+                  if ("all".equals(notifIdStr)) {
+                      dao.markAllAsRead(rId);
+                  } else {
+                      int notifId = Integer.parseInt(notifIdStr);
+                      dao.markAsRead(notifId, rId);
                 }
             }
         } catch (Exception e) {
@@ -85,12 +91,5 @@ public class NotificationController extends HttpServlet {
         }
     }
 
-    private boolean requireReaderLogin(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        if (!AuthUtil.isLoggedIn(request) || !AuthUtil.ROLE_READER.equals(AuthUtil.getUserRole(request))) {
-            response.sendRedirect(request.getContextPath() + "/auth/login?redirect=/notifications");
-            return false;
-        }
-        return true;
-    }
+    private boolean requireReaderLogin(HttpServletRequest request, HttpServletResponse response) throws IOException { if (!util.AuthUtil.isLoggedIn(request)) { response.sendRedirect(request.getContextPath() + "/auth/login?redirect=/notifications"); return false; } return true; }
 }

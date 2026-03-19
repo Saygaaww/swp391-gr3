@@ -1,6 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ page import="model.Reader, util.AuthUtil" %>
-        <% Reader currentReader=(Reader) session.getAttribute(AuthUtil.SESSION_USER); %>
+<% Object su = session.getAttribute(AuthUtil.SESSION_USER); boolean isReader = (su instanceof model.Reader); %>
             <!DOCTYPE html>
             <html lang="vi">
 
@@ -247,7 +247,7 @@
                                     <div class="card">
                                         <div class="card-title"><i class="fas fa-lock"></i> Đổi mật khẩu</div>
 
-                                        <% if (currentReader !=null && !currentReader.hasPassword()) { %>
+                                        <% boolean hasPwd = false; if (su instanceof model.Reader) hasPwd = ((model.Reader)su).hasPassword(); else if (su instanceof model.Employee) hasPwd = ((model.Employee)su).hasPassword(); if (!hasPwd) { %>
                                             <div class="alert alert-error" style="margin-bottom:0;">
                                                 <i class="fas fa-info-circle"></i>
                                                 Tài khoản của bạn đăng nhập qua mạng xã hội. Vui lòng thiết lập mật khẩu
@@ -268,7 +268,9 @@
                                                                     class="fas fa-eye" id="i1"></i></button>
                                                         </div>
                                                     </div>
-                                                    <div class="form-group">
+                                                             <button type="button" id="btnNext" class="btn-primary" onclick="showNewPwd()" style="margin-bottom:15px; width: 100%;">Tiếp tục</button>
+         <div id="newPwdFields" style="display:none;">
+<div class="form-group">
                                                         <label for="newPassword">Mật khẩu mới *</label>
                                                         <div class="input-wrap">
                                                             <i class="fas fa-key icon"></i>
@@ -308,6 +310,21 @@
                         else { el.type = 'password'; icon.className = 'fas fa-eye'; }
                     }
                 </script>
-            </body>
+            <script>
+function showNewPwd() {
+    var current = document.getElementById('currentPassword').value;
+    if (current.trim().length === 0) {
+        alert('Vui lòng nhập mật khẩu hiện tại trước!');
+        document.getElementById('currentPassword').focus();
+        return;
+    }
+    document.getElementById('newPwdFields').style.display = 'block';
+    document.getElementById('btnNext').style.display = 'none';
+    document.getElementById('currentPassword').setAttribute('readonly', 'true');
+    document.getElementById('currentPassword').style.backgroundColor = '#e5e7eb';
+    document.getElementById('newPassword').focus();
+}
+</script>
+</body>
 
             </html>

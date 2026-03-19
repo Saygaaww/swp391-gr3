@@ -1,6 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="dal.FineDAO" %>
+<%@ page import="model.FineView" %>
+<%@ page import="dao.NotificationDAO" %>
+<%@ page import="model.Notification" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.math.BigDecimal" %>
 <style>
     /* ===== COMPACT NAVBAR ===== */
     .site-header {
@@ -187,6 +195,150 @@
         color: #ef4444;
     }
 
+    /* Notification Dropdown */
+    .notif-dropdown {
+        position: relative;
+    }
+
+    .notif-badge {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        min-width: 16px;
+        height: 16px;
+        background: #ef4444;
+        color: #fff;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+        border: 2px solid #fff;
+        line-height: 1;
+    }
+
+    .notif-panel {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+        width: 320px;
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+        z-index: 9999;
+    }
+
+    .notif-dropdown:hover .notif-panel,
+    .notif-dropdown:focus-within .notif-panel {
+        display: block;
+    }
+
+    .notif-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px 8px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .notif-panel-header a {
+        font-size: 0.78rem;
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .notif-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #f8fafc;
+        text-decoration: none;
+        color: #334155;
+        font-size: 0.82rem;
+        transition: background 0.15s;
+        cursor: default;
+    }
+
+    .notif-item.unread {
+        background: #f0f4ff;
+    }
+
+    .notif-item:hover {
+        background: #f8fafc;
+    }
+
+    .notif-item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .notif-icon-return  { background: #d1fae5; color: #059669; }
+    .notif-icon-fine    { background: #fee2e2; color: #dc2626; }
+    .notif-icon-reservation { background: #fef3c7; color: #d97706; }
+    .notif-icon-general { background: #e0e7ff; color: #6366f1; }
+
+    .notif-item-body { flex: 1; min-width: 0; }
+
+    .notif-item-title {
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .notif-item-msg {
+        color: #64748b;
+        font-size: 0.78rem;
+        margin-top: 1px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .notif-item-time {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 3px;
+    }
+
+    .notif-panel-footer {
+        padding: 10px 16px;
+        text-align: center;
+    }
+
+    .notif-panel-footer a {
+        font-size: 0.82rem;
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .notif-empty {
+        padding: 24px 16px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.83rem;
+    }
+
     /* --- BOTTOM MENU BAR --- */
     .navbar-menu {
         background: #e5e7eb;
@@ -231,6 +383,52 @@
     }
 </style>
 
+<%
+    // Fine notification (Reader only) - computed here to show in navbar everywhere
+    int __unpaidFineCount = 0;
+    BigDecimal __unpaidFineTotal = BigDecimal.ZERO;
+    try {
+        Object __role = session != null ? session.getAttribute("userRole") : null;
+        Object __readerIdObj = session != null ? session.getAttribute("readerId") : null;
+        boolean __isReader = __role != null && ("Reader".equals(__role.toString()) || "User".equals(__role.toString()));
+        if (__isReader && __readerIdObj instanceof Integer) {
+            int __readerId = (Integer) __readerIdObj;
+            FineDAO __fineDao = new FineDAO();
+            List<FineView> __fines = __fineDao.getFinesByReader(__readerId);
+            for (FineView __f : __fines) {
+                if (__f != null && __f.getStatus() != null && !"paid".equalsIgnoreCase(__f.getStatus())) {
+                    __unpaidFineCount++;
+                    if (__f.getAmount() != null) {
+                        __unpaidFineTotal = __unpaidFineTotal.add(__f.getAmount());
+                    }
+                }
+            }
+        }
+    } catch (Exception ignore) {
+        // avoid breaking navbar rendering
+    }
+    request.setAttribute("unpaidFineCount", __unpaidFineCount);
+    request.setAttribute("unpaidFineTotal", __unpaidFineTotal);
+
+    // Load recent notifications for bell dropdown (Reader only)
+    List<Notification> __recentNotifs = new ArrayList<>();
+    int __notifUnreadCount = 0;
+    try {
+        Object __roleN = session != null ? session.getAttribute("userRole") : null;
+        Object __readerIdN = session != null ? session.getAttribute("readerId") : null;
+        boolean __isReaderN = __roleN != null && ("Reader".equals(__roleN.toString()) || "User".equals(__roleN.toString()));
+        if (__isReaderN && __readerIdN instanceof Integer) {
+            int __rid = (Integer) __readerIdN;
+            NotificationDAO __nDao = new NotificationDAO();
+            __recentNotifs = __nDao.getNotifications(__rid, 8);
+            __notifUnreadCount = __nDao.getUnreadCount(__rid);
+            __nDao.close();
+        }
+    } catch (Exception ignore) {}
+    request.setAttribute("recentNotifs", __recentNotifs);
+    request.setAttribute("notifUnreadCount", __notifUnreadCount);
+%>
+
 <header class="site-header">
     <!-- TOP BAR -->
     <div class="navbar-top">
@@ -254,11 +452,78 @@
         <div class="navbar-icons">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <!-- Notification -->
-                    <a href="${pageContext.request.contextPath}/notifications" class="icon-btn"
-                       title="Thông báo">
-                        <i class="fas fa-bell"></i>
-                    </a>
+                    <!-- Notification Dropdown -->
+                    <div class="notif-dropdown">
+                        <button class="icon-btn" title="Thông báo" style="position:relative;">
+                            <i class="fas fa-bell"></i>
+                            <c:if test="${notifUnreadCount gt 0 or unpaidFineCount gt 0}">
+                                <span class="notif-badge">${notifUnreadCount + unpaidFineCount}</span>
+                            </c:if>
+                        </button>
+                        <div class="notif-panel">
+                            <div class="notif-panel-header">
+                                <span>Thông báo</span>
+                                <c:if test="${notifUnreadCount gt 0}">
+                                    <form method="post" action="${pageContext.request.contextPath}/notifications/mark-read" style="display:inline;">
+                                        <input type="hidden" name="notificationId" value="all">
+                                        <button type="submit" style="background:none;border:none;padding:0;color:#6366f1;font-size:0.78rem;font-weight:500;cursor:pointer;">
+                                            Đánh dấu đã đọc
+                                        </button>
+                                    </form>
+                                </c:if>
+                                <c:if test="${notifUnreadCount == 0}">
+                                    <a href="${pageContext.request.contextPath}/notifications">Xem tất cả</a>
+                                </c:if>
+                            </div>
+
+                            <%-- Fine alert item nếu có phạt chưa thanh toán --%>
+                            <c:if test="${(sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User') and unpaidFineCount gt 0}">
+                                <a href="${pageContext.request.contextPath}/customer/fines" class="notif-item unread">
+                                    <div class="notif-item-icon notif-icon-fine"><i class="fas fa-exclamation"></i></div>
+                                    <div class="notif-item-body">
+                                        <div class="notif-item-title">Bạn có ${unpaidFineCount} khoản phạt chưa thanh toán</div>
+                                        <div class="notif-item-msg">Tổng: <fmt:formatNumber value="${unpaidFineTotal}" type="number" maxFractionDigits="0"/>đ — Nhấn để xem chi tiết</div>
+                                    </div>
+                                </a>
+                            </c:if>
+
+                            <%-- Recent notifications --%>
+                            <c:choose>
+                                <c:when test="${empty recentNotifs and unpaidFineCount == 0}">
+                                    <div class="notif-empty">
+                                        <i class="fas fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:6px;"></i>
+                                        Chưa có thông báo nào
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="n" items="${recentNotifs}">
+                                        <div class="notif-item ${n.read ? '' : 'unread'}">
+                                            <div class="notif-item-icon
+                                                ${n.notifType == 'return' ? 'notif-icon-return' :
+                                                  n.notifType == 'fine' ? 'notif-icon-fine' :
+                                                  n.notifType == 'reservation' ? 'notif-icon-reservation' :
+                                                  'notif-icon-general'}">
+                                                <i class="fas
+                                                    ${n.notifType == 'return' ? 'fa-check-circle' :
+                                                      n.notifType == 'fine' ? 'fa-exclamation-triangle' :
+                                                      n.notifType == 'reservation' ? 'fa-bookmark' :
+                                                      'fa-bell'}"></i>
+                                            </div>
+                                            <div class="notif-item-body">
+                                                <div class="notif-item-title">${n.title}</div>
+                                                <div class="notif-item-msg">${n.message}</div>
+                                                <div class="notif-item-time">${n.timeAgo}</div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+
+                            <div class="notif-panel-footer">
+                                <a href="${pageContext.request.contextPath}/notifications">Xem tất cả thông báo →</a>
+                            </div>
+                        </div>
+                    </div>
 
                     <c:if test="${sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
                         <!-- Cart -->
@@ -279,6 +544,20 @@
                             </c:choose>
                         </button>
                         <div class="user-dropdown-menu">
+                            <c:if test="${(sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User') and unpaidFineCount gt 0}">
+                                <a href="${pageContext.request.contextPath}/customer/fines">
+                                    <i class="fas fa-bell"></i>
+                                    🔔 Bạn có ${unpaidFineCount} khoản phạt cần thanh toán
+                                </a>
+                                <a href="${pageContext.request.contextPath}/customer/fines">
+                                    <i class="fas fa-coins"></i>
+                                    Tổng tiền phạt:
+                                    <strong>
+                                        <fmt:formatNumber value="${unpaidFineTotal}" type="number" maxFractionDigits="0" />đ
+                                    </strong>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            </c:if>
                             <a href="${pageContext.request.contextPath}/profile">
                                 <i class="fas fa-user"></i> Hồ sơ cá nhân
                             </a>
@@ -298,6 +577,9 @@
                                 </a>
                                 <a href="${pageContext.request.contextPath}/customer/fines">
                                     <i class="fas fa-check-circle"></i> Phạt
+                                </a>
+                                <a href="${pageContext.request.contextPath}/customer/fines-history">
+                                    <i class="fas fa-receipt"></i> Lịch sử trả tiền mượn
                                 </a>
                             </c:if>
                             <c:if test="${sessionScope.userRole == 'Admin'}">

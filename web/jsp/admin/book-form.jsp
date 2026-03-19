@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ page import="model.Employee, util.AuthUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Employee currentAdmin = (Employee) session.getAttribute(AuthUtil.SESSION_USER); %>
@@ -109,6 +109,126 @@
                     </div>
                 </div>
             </form>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var errors = [];
+        
+        var title = document.querySelector('input[name="title"]');
+        if (!title.value.trim()) {
+            errors.push('Tên sách không được để trống');
+            title.style.borderColor = '#dc3545';
+        } else if (title.value.trim().length > 500) {
+            errors.push('Tên sách không được quá 500 ký tự');
+            title.style.borderColor = '#dc3545';
+        } else {
+            title.style.borderColor = '#28a745';
+        }
+        
+        var price = document.querySelector('input[name="price"]');
+        if (!price.value || price.value.trim() === '' || price.value === '0.00' || price.value === '0') {
+            errors.push('Vui lòng nhập giá sách');
+            price.style.borderColor = '#dc3545';
+        } else if (parseFloat(price.value) < 0) {
+            errors.push('Giá tiền không được âm');
+            price.style.borderColor = '#dc3545';
+        } else {
+            price.style.borderColor = '#28a745';
+        }
+        
+        var totalPages = document.querySelector('input[name="totalPages"]');
+        if (!totalPages.value || totalPages.value.trim() === '') {
+            errors.push('Vui lòng nhập tổng số trang');
+            totalPages.style.borderColor = '#dc3545';
+        } else if (parseInt(totalPages.value) < 1) {
+            errors.push('Số trang phải lớn hơn 0');
+            totalPages.style.borderColor = '#dc3545';
+        } else {
+            totalPages.style.borderColor = '#28a745';
+        }
+        
+        var previewPages = document.querySelector('input[name="previewPages"]');
+        if (previewPages.value && totalPages.value) {
+            if (parseInt(previewPages.value) < 0) {
+                errors.push('Số trang xem trước không được âm');
+                previewPages.style.borderColor = '#dc3545';
+            } else if (parseInt(previewPages.value) > parseInt(totalPages.value)) {
+                errors.push('Số trang xem trước không được lớn hơn tổng số trang');
+                previewPages.style.borderColor = '#dc3545';
+            } else {
+                previewPages.style.borderColor = '#28a745';
+            }
+        }
+        
+        var authorId = document.querySelector('select[name="authorId"]');
+        if (!authorId.value) {
+            errors.push('Vui lòng chọn tác giả');
+            authorId.style.borderColor = '#dc3545';
+        } else {
+            authorId.style.borderColor = '#28a745';
+        }
+        
+        var categoryId = document.querySelector('select[name="categoryId"]');
+        if (!categoryId.value) {
+            errors.push('Vui lòng chọn danh mục');
+            categoryId.style.borderColor = '#dc3545';
+        } else {
+            categoryId.style.borderColor = '#28a745';
+        }
+        
+        var coverFile = document.querySelector('input[name="coverFile"]');
+        if (coverFile && coverFile.files.length > 0) {
+            var coverExt = coverFile.files[0].name.split('.').pop().toLowerCase();
+            if (!['jpg','jpeg','png','gif'].includes(coverExt)) {
+                errors.push('Ảnh bìa chỉ chấp nhận JPG, PNG, GIF');
+                coverFile.style.borderColor = '#dc3545';
+            } else if (coverFile.files[0].size > 5 * 1024 * 1024) {
+                errors.push('Ảnh bìa không được quá 5MB');
+                coverFile.style.borderColor = '#dc3545';
+            } else {
+                coverFile.style.borderColor = '#28a745';
+            }
+        }
+        
+        // Kiem tra file PDF (neu co chon)
+        var contentFile = document.querySelector('input[name="contentFile"]');
+        if (contentFile && contentFile.files.length > 0) {
+            var pdfExt = contentFile.files[0].name.split('.').pop().toLowerCase();
+            if (pdfExt !== 'pdf') {
+                errors.push('File nội dung chỉ chấp nhận PDF');
+                contentFile.style.borderColor = '#dc3545';
+            } else if (contentFile.files[0].size > 50 * 1024 * 1024) {
+                errors.push('File PDF không được quá 50MB');
+                contentFile.style.borderColor = '#dc3545';
+            } else {
+                contentFile.style.borderColor = '#28a745';
+            }
+        }
+        
+        if (errors.length > 0) {
+            e.preventDefault();
+            
+            var alertDiv = document.querySelector('.alert-danger.validation-errors');
+            if (!alertDiv) {
+                alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger validation-errors';
+                document.querySelector('.card-body').prepend(alertDiv);
+            }
+            alertDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Vui lòng sửa các lỗi sau:</strong><br>' + errors.join('<br>');
+            alertDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+    });
+    
+    // Xoa vien do khi nguoi dung bat dau nhap lai
+    document.querySelectorAll('input, select, textarea').forEach(function(el) {
+        el.addEventListener('input', function() {
+            this.style.borderColor = '#e0e0e0';
+        });
+        el.addEventListener('change', function() {
+            this.style.borderColor = '#e0e0e0';
+        });
+    });
+</script>
         </div>
     </div>
 </main>

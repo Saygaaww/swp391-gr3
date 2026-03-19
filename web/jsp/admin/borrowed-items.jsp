@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
 <style>
     .return-card {
@@ -14,7 +15,7 @@
     }
 </style>
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-list" style="color:#4f46e5;"></i> Lịch sử Mượn / Trả Sách
@@ -124,36 +125,10 @@
                                     </td>
                                     <td>
                                         <c:if test="${req.status == 'return_requested'}">
-                                            <form action="${pageContext.request.contextPath}/admin/return-process" method="POST" class="d-inline">
-                                                <input type="hidden" name="borrowItemId" value="${req.borrowItemId}" />
-                                                <input type="hidden" name="readerId" value="${req.readerId}" />
-                                                
-                                                <div class="mb-2">
-                                                    <select name="conditionStatus" class="form-select form-select-sm" style="width: 150px;">
-                                                        <option value="returned">Bình thường</option>
-                                                        <option value="damaged">Hư hỏng sách</option>
-                                                        <option value="lost">Làm mất sách</option>
-                                                    </select>
-                                                </div>
-                                                
-                                                <div class="mb-2">
-                                                    <select name="fineTypeId" class="form-select form-select-sm" style="width: 150px;">
-                                                        <option value="0">Không phạt</option>
-                                                        <option value="1">Quá hạn (5.000đ/ngày)</option>
-                                                        <option value="2">Mất sách (150% giá sách)</option>
-                                                        <option value="3">Hư hỏng (50% giá sách)</option>
-                                                    </select>
-                                                </div>
-                                                
-                                                <div class="mb-2">
-                                                    <input type="number" name="fineAmount" class="form-control form-control-sm" placeholder="Số tiền phạt" style="width: 150px;">
-                                                </div>
-
-                                                <button type="submit" class="btn btn-sm btn-success" 
-                                                        onclick="return confirm('Xác nhận cập nhật trạng thái sách này?');">
-                                                    <i class="fas fa-check"></i> Xác nhận
-                                                </button>
-                                            </form>
+                                            <a class="btn btn-sm btn-primary"
+                                               href="${pageContext.request.contextPath}/admin/borrow/return/${req.borrowItemId}">
+                                                <i class="fas fa-clipboard-check"></i> Xử lý trả
+                                            </a>
                                         </c:if>
                                     </td>
                                 </tr>
@@ -186,6 +161,7 @@
             </div>
         </c:if>
     </div>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />

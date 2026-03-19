@@ -3,6 +3,8 @@ package controller;
 import dao.LinkedAccountDAO;
 import dao.ReaderDAO;
 import model.Reader;
+import model.Employee;
+import dao.EmployeeDAO;
 import util.AuthUtil;
 import util.PasswordUtil;
 import util.StringUtil;
@@ -29,7 +31,7 @@ public class ProfileController extends HttpServlet {
             throws ServletException, IOException {
 
         // Phải đăng nhập mới vào được
-        if (!requireReaderLogin(request, response))
+        if (!requireLogin(request, response))
             return;
 
         String pathInfo = request.getPathInfo();
@@ -58,7 +60,7 @@ public class ProfileController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!requireReaderLogin(request, response))
+        if (!requireLogin(request, response))
             return;
         request.setCharacterEncoding("UTF-8");
 
@@ -92,7 +94,12 @@ public class ProfileController extends HttpServlet {
     private void handleUpdateProfile(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Reader sessionReader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        Object userAttr = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        if (!(userAttr instanceof Reader)) {
+            response.sendRedirect(request.getContextPath() + "/profile/view");
+            return;
+        }
+        Reader sessionReader = (Reader) userAttr;
         String fullName = StringUtil.cleanInput(request.getParameter("fullName"));
         String phone = StringUtil.cleanInput(request.getParameter("phone"));
         String avatarUrl = StringUtil.cleanInput(request.getParameter("avatarUrl"));
@@ -150,11 +157,31 @@ public class ProfileController extends HttpServlet {
     private void handleChangePassword(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Reader sessionReader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        Object userAttr = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        if (userAttr == null) {
+            response.sendRedirect(request.getContextPath() + "/auth/login");
+            return;
+        }
 
-        // Kiểm tra Reader có password không (phòng trường hợp chỉ dùng Social Login)
-        if (!sessionReader.hasPassword()) {
-            request.setAttribute("error", "Tài khoản của bạn không sử dụng mật khẩu (đăng nhập qua mạng xã hội).");
+        boolean isReader = userAttr instanceof model.Reader;
+        boolean hasPassword = false;
+        int userId = -1;
+        String currentHash = "";
+        
+        if (isReader) {
+            model.Reader r = (model.Reader) userAttr;
+            hasPassword = r.hasPassword();
+            userId = r.getReaderId();
+            currentHash = r.getPasswordHash();
+        } else if (userAttr instanceof model.Employee) {
+            model.Employee e = (model.Employee) userAttr;
+            hasPassword = e.hasPassword();
+            userId = e.getEmployeeId();
+            currentHash = e.getPasswordHash();
+        }
+
+        if (isReader && !hasPassword) {
+            request.setAttribute("error", "Tài kho?n c?a b?n dang nh?p qua m?ng xã h?i. Vui lòng thi?t l?p m?t kh?u.");
             request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
             return;
         }
@@ -163,44 +190,54 @@ public class ProfileController extends HttpServlet {
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
 
-        ReaderDAO readerDAO = null;
         try {
-            readerDAO = new ReaderDAO();
-            Reader reader = readerDAO.findById(sessionReader.getReaderId());
-
-            if (!PasswordUtil.verifyPassword(currentPassword, reader.getPasswordHash())) {
-                request.setAttribute("error", "Mật khẩu hiện tại không đúng.");
+            if (!util.PasswordUtil.verifyPassword(currentPassword, currentHash)) {
+                request.setAttribute("error", "M?t kh?u hi?n t?i không dúng.");
                 request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
-            if (!PasswordUtil.isStrongPassword(newPassword)) {
-                request.setAttribute("error", "Mật khẩu mới phải có ít nhất 8 ký tự, chữ hoa, chữ thường và số.");
+            if (!util.PasswordUtil.isStrongPassword(newPassword)) {
+                request.setAttribute("error", "M?t kh?u m?i ph?i có ít nh?t 8 ký t?, ch? hoa, ch? thu?ng và s?.");
                 request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
             if (!newPassword.equals(confirmPassword)) {
-                request.setAttribute("error", "Xác nhận mật khẩu mới không khớp.");
+                request.setAttribute("error", "Xác nh?n m?t kh?u m?i không kh?p.");
                 request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
                 return;
             }
 
-            if (readerDAO.updatePasswordHash(reader.getReaderId(), PasswordUtil.hashPassword(newPassword))) {
-                request.setAttribute("success", "Đổi mật khẩu thành công!");
+            boolean success = false;
+            if (isReader) {
+                dao.ReaderDAO readerDAO = new dao.ReaderDAO();
+                success = readerDAO.updatePasswordHash(userId, util.PasswordUtil.hashPassword(newPassword));
+                if (success) {
+                   model.Reader updatedReader = readerDAO.findById(userId);
+                   request.getSession().setAttribute(util.AuthUtil.SESSION_USER, updatedReader);
+                }
+                readerDAO.close();
             } else {
-                request.setAttribute("error", "Không thể đổi mật khẩu. Vui lòng thử lại.");
+                dao.EmployeeDAO empDAO = new dao.EmployeeDAO();
+                success = empDAO.updatePasswordHash(userId, util.PasswordUtil.hashPassword(newPassword));
+                if (success) {
+                   model.Employee updatedEmp = empDAO.findById(userId);
+                   request.getSession().setAttribute(util.AuthUtil.SESSION_USER, updatedEmp);
+                }
+                empDAO.close();
+            }
+
+            if (success) {
+                request.setAttribute("success", "Ð?i m?t kh?u thành công!");
+            } else {
+                request.setAttribute("error", "Không th? d?i m?t kh?u. Vui lòng th? l?i.");
             }
             request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Change password error", e);
-            request.setAttribute("error", "Có lỗi xảy ra.");
+            e.printStackTrace();
+            request.setAttribute("error", "Có l?i x?y ra.");
             request.getRequestDispatcher("/jsp/profile/change-password.jsp").forward(request, response);
-        } finally {
-            if (readerDAO != null)
-                readerDAO.close();
         }
     }
-
-    // ========================= LINKED ACCOUNTS =========================
 
     private void handleShowLinkedAccounts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -244,12 +281,9 @@ public class ProfileController extends HttpServlet {
 
     // ========================= Helpers =========================
 
-    private boolean requireReaderLogin(HttpServletRequest request, HttpServletResponse response)
+    private boolean requireLogin(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String role = AuthUtil.getUserRole(request);
-        boolean allowed = AuthUtil.isLoggedIn(request) &&
-                (AuthUtil.ROLE_READER.equals(role) || "User".equals(role));
-        if (!allowed) {
+        if (!AuthUtil.isLoggedIn(request)) {
             String currentPath = request.getRequestURI().replace(request.getContextPath(), "");
             response.sendRedirect(request.getContextPath() + "/auth/login?redirect=" + currentPath);
             return false;

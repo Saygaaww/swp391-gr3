@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ page import="model.Reader" %>
         <%@ page import="util.AuthUtil" %>
-            <% Reader currentReader=(Reader) session.getAttribute(AuthUtil.SESSION_USER); %>
+            <% Object su = session.getAttribute(AuthUtil.SESSION_USER); Reader currentReader = (su instanceof model.Reader) ? (model.Reader)su : null; %>
                 <!DOCTYPE html>
                 <html lang="vi">
 

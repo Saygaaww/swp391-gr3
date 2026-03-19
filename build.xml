@@ -10,6 +10,46 @@
 <project name="Library" default="default" basedir=".">
     <description>Builds, tests, and runs the project Library.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <target name="-pre-run-deploy">
+        <!--
+            NetBeans incremental run/deploy can occasionally leave stale class output
+            (for example missing dal/BorrowDAO.class), causing Tomcat startup failure.
+            Re-compile sources right before deployment to guarantee class completeness.
+        -->
+        <echo message="[pre-run-deploy] Ensuring Java classes are up to date before deployment..."/>
+        <mkdir dir="${build.classes.dir}"/>
+
+        <!--
+            Explicitly compile critical classes that have intermittently disappeared during NetBeans run/deploy.
+            Using wildcard classpath keeps command length manageable on Windows.
+        -->
+        <exec executable="${java.home}/bin/javac" failonerror="true">
+            <arg value="-encoding"/>
+            <arg value="${source.encoding}"/>
+            <arg value="-source"/>
+            <arg value="${javac.source}"/>
+            <arg value="-target"/>
+            <arg value="${javac.target}"/>
+            <arg value="-sourcepath"/>
+            <arg path="${src.dir}"/>
+            <arg value="-cp"/>
+            <arg value="${build.classes.dir};${build.web.dir}/WEB-INF/lib/*;${j2ee.server.home}/lib/*"/>
+            <arg value="-d"/>
+            <arg path="${build.classes.dir}"/>
+            <arg path="${src.dir}/dal/BorrowDAO.java"/>
+            <arg path="${src.dir}/dal/ReservationDAO.java"/>
+            <arg path="${src.dir}/controller/BookController.java"/>
+        </exec>
+
+        <available file="${build.classes.dir}/dal/BorrowDAO.class" property="borrow.dao.class.exists"/>
+        <available file="${build.classes.dir}/dal/ReservationDAO.class" property="reservation.dao.class.exists"/>
+        <available file="${build.classes.dir}/controller/BookController.class" property="book.controller.class.exists"/>
+        <fail unless="borrow.dao.class.exists">Missing class after pre-run-deploy compile: ${build.classes.dir}/dal/BorrowDAO.class</fail>
+        <fail unless="reservation.dao.class.exists">Missing class after pre-run-deploy compile: ${build.classes.dir}/dal/ReservationDAO.class</fail>
+        <fail unless="book.controller.class.exists">Missing class after pre-run-deploy compile: ${build.classes.dir}/controller/BookController.class</fail>
+
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

@@ -233,7 +233,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Tác giả</label>
-                                    <select name="authorId" class="form-control">
+                                    <select name="authorId" class="form-control" required>
                                         <option value="">-- Chọn tác giả --</option>
                                         <c:forEach var="author" items="${authors}">
                                             <option value="${author.authorId}" ${book.authorId==author.authorId
@@ -245,7 +245,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Thể loại</label>
-                                    <select name="categoryId" class="form-control">
+                                    <select name="categoryId" class="form-control" required>
                                         <option value="">-- Chọn thể loại --</option>
                                         <c:forEach var="cat" items="${categories}">
                                             <option value="${cat.categoryId}" ${book.categoryId==cat.categoryId
@@ -272,7 +272,7 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label class="form-label">Ngôn ngữ</label>
-                                    <select name="language" class="form-control">
+                                    <select name="language" class="form-control" required>
                                         <option value="">-- Chọn ngôn ngữ --</option>
                                         <option value="Tiếng Việt" ${book.language=='Tiếng Việt' ? 'selected' : '' }>
                                             Tiếng Việt</option>
@@ -286,12 +286,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Năm xuất bản</label>
-                                    <input type="number" name="publicationYear" class="form-control"
+                                    <input type="number" name="publicationYear" class="form-control" required
                                         value="${book.publicationYear}" placeholder="VD: 2024" min="1900" max="2030">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Tổng số trang</label>
-                                    <input type="number" name="totalPages" class="form-control"
+                                    <input type="number" name="totalPages" class="form-control" required
                                         value="${book.totalPages}" placeholder="VD: 300" min="1">
                                 </div>
                                 <div class="form-group">

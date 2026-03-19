@@ -3,6 +3,8 @@ package controller;
 import dao.BookDAO;
 import dao.AuthorDAO;
 import dao.CategoryDAO;
+import dal.BorrowDAO;
+import dal.FineDAO;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Book;
 import model.Author;
+import model.BorrowRequest;
+import model.BorrowedItemView;
 import model.Category;
+import model.FineView;
 import util.StringUtil;
 import util.PaginatedResult;
 import util.AuthUtil;
@@ -691,11 +696,7 @@ public class BookController extends HttpServlet {
 
         String formPath = pathInfo.startsWith("/update/") ? pathInfo.replace("/update/", "/edit/") : null;
 
-        if (StringUtil.isBlank(title)) {
-            request.setAttribute("error", "Tửa sách không được để trống.");
-            handleBookForm(request, response, formPath);
-            return;
-        }
+        if (StringUtil.isBlank(title)) { request.setAttribute("error", "Tá»±a sÃ¡ch khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng."); handleBookForm(request, response, formPath); return; }
 
         // Validate createdAt: nếu có nhập thì phải đúng định dạng dd-MM-yyyy
         java.time.LocalDateTime createdAt = null;
@@ -796,17 +797,51 @@ public class BookController extends HttpServlet {
         BookDAO bookDAO = new BookDAO();
         AuthorDAO authorDAO = new AuthorDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
+        BorrowDAO borrowDAO = new BorrowDAO();
+        FineDAO fineDAO = new FineDAO();
         try {
             int totalBooks = bookDAO.getTotalBookCount();
             int totalAuthors = authorDAO.getAllAuthors().size();
             int totalCategories = categoryDAO.getAllCategories().size();
             List<Book> recentBooks = bookDAO.getLatestBooks(8);
 
+            // Notifications for librarian: new borrow requests, return requests, and paid fines.
+            int pendingBorrowCount = borrowDAO.countByStatus("pending");
+            List<BorrowRequest> pendingBorrowNotifications = borrowDAO.getRequestsFiltered(null, "pending", 1, 5);
+
+            List<BorrowedItemView> allReturnRequests = borrowDAO.getReturnRequests();
+            int returnRequestCount = allReturnRequests.size();
+            List<BorrowedItemView> returnRequestNotifications =
+                    allReturnRequests.size() > 5 ? allReturnRequests.subList(0, 5) : allReturnRequests;
+
+            List<FineView> allFines = fineDAO.getAllFines();
+            List<FineView> paidFineNotifications = new ArrayList<>();
+            int paidFineCount = 0;
+            java.time.LocalDateTime recentThreshold = java.time.LocalDateTime.now().minusDays(2);
+            for (FineView fine : allFines) {
+                if (fine == null || fine.getStatus() == null || fine.getPaidAt() == null) {
+                    continue;
+                }
+                if ("paid".equalsIgnoreCase(fine.getStatus()) && fine.getPaidAt().isAfter(recentThreshold)) {
+                    paidFineCount++;
+                    if (paidFineNotifications.size() < 5) {
+                        paidFineNotifications.add(fine);
+                    }
+                }
+            }
+
             request.setAttribute("totalBooks", totalBooks);
             request.setAttribute("totalAuthors", totalAuthors);
             request.setAttribute("totalCategories", totalCategories);
             request.setAttribute("recentBooks", recentBooks);
             request.setAttribute("canManageBooks", true);
+            request.setAttribute("pendingBorrowCount", pendingBorrowCount);
+            request.setAttribute("pendingBorrowNotifications", pendingBorrowNotifications);
+            request.setAttribute("returnRequestCount", returnRequestCount);
+            request.setAttribute("returnRequestNotifications", returnRequestNotifications);
+            request.setAttribute("paidFineCount", paidFineCount);
+            request.setAttribute("paidFineNotifications", paidFineNotifications);
+            request.setAttribute("adminNotifCount", pendingBorrowCount + returnRequestCount + paidFineCount);
 
             String role = (String) request.getSession().getAttribute(AuthUtil.SESSION_USER_ROLE);
             String jspPath = "/jsp/librarian/dashboard.jsp";

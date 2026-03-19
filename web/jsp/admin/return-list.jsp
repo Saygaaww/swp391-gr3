@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
 <style>
     .return-card {
@@ -14,7 +15,7 @@
     }
 </style>
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-undo" style="color:#4f46e5;"></i> Duyệt trả sách
@@ -113,13 +114,10 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <form action="${pageContext.request.contextPath}/admin/return-process" method="POST" class="d-inline">
-                                            <input type="hidden" name="borrowItemId" value="${req.borrowItemId}" />
-                                            <button type="submit" class="btn btn-sm btn-success" 
-                                                    onclick="return confirm('Xác nhận đọc giả ${req.readerName} đã trả sách này?');">
-                                                <i class="fas fa-check"></i> Xác nhận đã trả
-                                            </button>
-                                        </form>
+                                        <a class="btn btn-sm btn-primary"
+                                           href="${pageContext.request.contextPath}/admin/borrow/return/${req.borrowItemId}">
+                                            <i class="fas fa-clipboard-check"></i> Xử lý trả sách
+                                        </a>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -151,6 +149,7 @@
             </div>
         </c:if>
     </div>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />

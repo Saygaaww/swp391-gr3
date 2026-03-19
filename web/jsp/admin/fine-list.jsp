@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <jsp:include page="/includes/header.jsp" />
+<jsp:include page="/includes/admin-shell-start.jsp" />
 
 <style>
     .return-card {
@@ -14,7 +15,7 @@
     }
 </style>
 
-<main class="container py-5 my-5" style="min-height: 70vh;">
+<div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0" style="font-weight: 700;">
             <i class="fas fa-file-invoice-dollar" style="color:#ef4444;"></i> Quản lý Tiền phạt
@@ -51,6 +52,21 @@
         </form>
     </div>
 
+    <c:if test="${not empty sessionScope.successMessage}">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> ${sessionScope.successMessage}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <c:remove var="successMessage" scope="session" />
+    </c:if>
+    <c:if test="${not empty sessionScope.errorMessage}">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> ${sessionScope.errorMessage}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <c:remove var="errorMessage" scope="session" />
+    </c:if>
+
     <!-- Table of Fines -->
     <div class="return-card">
         <div class="table-responsive">
@@ -70,10 +86,12 @@
                                 <th>Tên sách</th>
                                 <th>Mã copy</th>
                                 <th>Loại phạt</th>
+                                <th>Mô tả</th>
                                 <th class="text-end">Số tiền</th>
                                 <th>Trạng thái</th>
                                 <th>Ngày tạo</th>
                                 <th>Ngày trả</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,13 +105,19 @@
                                     <td>${f.bookTitle}</td>
                                     <td><span class="badge bg-secondary">${f.copyCode}</span></td>
                                     <td>${f.fineTypeName}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty f.reason}">${f.reason}</c:when>
+                                            <c:otherwise>—</c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td class="text-end fw-bold text-danger">
                                         <fmt:formatNumber value="${f.amount}" type="number" maxFractionDigits="0" /> VNĐ
                                     </td>
                                     <td>
                                         <span class="badge 
-                                        ${f.status == 'unpaid' ? 'bg-warning text-dark' : 'bg-success'}">
-                                            ${f.status}
+                                        ${(f.status == 'unpaid' || f.status == 'UNPAID') ? 'bg-warning text-dark' : 'bg-success'}">
+                                            ${(f.status == 'unpaid' || f.status == 'UNPAID') ? 'UNPAID' : 'PAID'}
                                         </span>
                                     </td>
                                     <td>
@@ -107,6 +131,21 @@
                                         </c:if>
                                         <c:if test="${empty f.paidAt}">
                                             —
+                                        </c:if>
+                                    </td>
+                                    <td>
+                                        <c:if test="${f.status == 'unpaid' || f.status == 'UNPAID'}">
+                                            <form method="post" action="${pageContext.request.contextPath}/admin/fines" class="d-inline">
+                                                <input type="hidden" name="action" value="mark_paid">
+                                                <input type="hidden" name="fineId" value="${f.fineId}">
+                                                <button type="submit" class="btn btn-sm btn-outline-success"
+                                                        onclick="return confirm('Xác nhận đánh dấu khoản phạt này đã thanh toán?');">
+                                                    Mark Paid
+                                                </button>
+                                            </form>
+                                        </c:if>
+                                        <c:if test="${f.status != 'unpaid' && f.status != 'UNPAID'}">
+                                            <span class="text-muted">View</span>
                                         </c:if>
                                     </td>
                                 </tr>
@@ -139,6 +178,7 @@
             </div>
         </c:if>
     </div>
-</main>
+</div>
 
+<jsp:include page="/includes/admin-shell-end.jsp" />
 <jsp:include page="/includes/footer.jsp" />
