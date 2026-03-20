@@ -519,9 +519,11 @@
                 <a href="<%= request.getContextPath()%>/profile/change-password" class="sub-tab">
                     <i class="fas fa-lock"></i> Mật khẩu
                 </a>
+                <% if (isReader) { %>
                 <a href="<%= request.getContextPath()%>/profile/linked-accounts" class="sub-tab">
                     <i class="fas fa-link"></i> Tài khoản liên kết
                 </a>
+                <% } %>
             </div>
 
             <!-- Alert messages -->

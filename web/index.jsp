@@ -1,5 +1,8 @@
-﻿<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
-    <%@ page import="util.AuthUtil" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@ page import="util.AuthUtil" %>
+<%@ page import="dao.BookDAO" %>
+<%@ page import="model.Book" %>
+<%@ page import="java.util.List" %>
         <% boolean isLoggedIn=AuthUtil.isLoggedIn(request);
             boolean isAdmin=AuthUtil.isAdmin(request);
             String userRole=AuthUtil.getUserRole(request);
@@ -416,10 +419,7 @@
                                             style="padding: 16px 36px; font-size: 1.1rem;">
                                             <i class="fas fa-sign-in-alt"></i> Đăng nhập để Khám phá
                                         </a>
-                                        <a href="<%= contextPath %>/auth/register" class="btn btn-outline"
-                                            style="padding: 16px 36px; font-size: 1.1rem;">
-                                            Tìm hiểu thêm
-                                        </a>
+                                        <a href="#discover" class="btn btn-outline" style="padding: 16px 36px; font-size: 1.1rem;">Tìm hiểu thêm</a>
                                         <% } %>
                         </div>
                     </div>
@@ -442,7 +442,7 @@
                 </section>
 
                 <!-- FEATURES -->
-                <section class="features">
+                <section class="features" id="about">
                     <div class="section-header">
                         <div class="badge" style="margin-bottom: 16px;">Về chúng tôi</div>
                         <h2 class="hero-title" style="font-size: 3rem; margin-bottom: 0;">Tại sao chọn hệ thống của
@@ -468,8 +468,41 @@
                                 vấn cùng một thời điểm.</p>
                         </div>
                     </div>
-                </section>
+                                </section>
 
+                <%
+                    BookDAO homeBookDAO = new BookDAO();
+                    List<Book> latestBooks = homeBookDAO.getLatestBooks(8);
+                    homeBookDAO.close();
+                %>
+                <section class="features" id="discover" style="background:var(--light);">
+                    <div class="section-header">
+                        <div class="badge" style="margin-bottom: 16px;">Khám phá ngay</div>
+                        <h2 class="hero-title" style="font-size: 3rem; margin-bottom: 0;">Sách mới xuất bản</h2>
+                    </div>
+                    <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                        <% if(latestBooks != null) { for(Book b : latestBooks) { 
+                            String cover = (b.getCoverUrl() != null && !b.getCoverUrl().isEmpty()) ? b.getCoverUrl() : "";
+                            if (!cover.isEmpty() && !cover.startsWith("http") && !cover.startsWith(contextPath)) {
+                                cover = contextPath + (cover.startsWith("/") ? "" : "/") + cover;
+                            }
+                            if (cover.isEmpty()) {
+                                cover = "https://via.placeholder.com/300x400/667eea/ffffff?text=" + java.net.URLEncoder.encode(b.getTitle(), "UTF-8");
+                            }
+                        %>
+                            <div class="feature-box" style="padding:20px; display:flex; flex-direction:column; align-items:center; text-align:center; background: white;">
+                                <img src="<%= cover %>" alt="<%= b.getTitle().replace("\"", "&quot;") %>" style="width:100%; height:320px; object-fit:cover; border-radius:12px; margin-bottom:15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                                <h3 style="font-size:1.1rem; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"><%= b.getTitle() %></h3>
+                                <p style="color:var(--gray); font-size:0.9rem; margin-bottom:15px;"><%= b.getAuthorName() != null ? b.getAuthorName() : "Nhiều tác giả" %></p>
+                                <a href="<%= contextPath %>/books/detail/<%= b.getBookId() %>" class="btn btn-outline" style="width:100%; justify-content:center; margin-top:auto;">Xem chi tiết</a>
+                            </div>
+                        <% } }%>
+                    </div>
+                    <div style="text-align: center; margin-top: 40px;">
+                        <a href="<%= contextPath %>/books" class="btn btn-primary" style="padding: 16px 36px; font-size: 1.1rem;"><i class="fas fa-arrow-right"></i> Xem tất cả kho sách</a>
+                    </div>
+                </section>
             </body>
 
             </html>
+

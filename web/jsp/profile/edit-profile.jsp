@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ page import="model.Reader" %>
         <%@ page import="util.AuthUtil" %>
-            <% Object su = session.getAttribute(AuthUtil.SESSION_USER); Reader currentReader = (su instanceof model.Reader) ? (model.Reader)su : null; %>
+            <% Object su = session.getAttribute(AuthUtil.SESSION_USER); Reader currentReader = (su instanceof model.Reader) ? (model.Reader)su : null; boolean isReader = (currentReader != null); %>
                 <!DOCTYPE html>
                 <html lang="vi">
 
@@ -300,9 +300,11 @@
                             <a href="<%= request.getContextPath() %>/profile/change-password" class="nav-tab">
                                 <i class="fas fa-lock"></i> Mật khẩu
                             </a>
+                            <% if (isReader) { %>
                             <a href="<%= request.getContextPath() %>/profile/linked-accounts" class="nav-tab">
                                 <i class="fas fa-link"></i> Tài khoản liên kết
                             </a>
+                            <% } %>
                         </div>
 
                         <% if (request.getAttribute("error") !=null) { %>

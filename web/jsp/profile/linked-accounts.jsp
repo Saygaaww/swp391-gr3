@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <%@ page import="model.Reader, model.LinkedAccount, util.AuthUtil, java.util.List" %>
-        <% Reader currentReader=(Reader) session.getAttribute(AuthUtil.SESSION_USER); List<LinkedAccount> linkedAccounts
+    <%@ page import="model.LinkedAccount, java.util.List" %>
+        <% List<LinkedAccount> linkedAccounts
             = (List<LinkedAccount>) request.getAttribute("linkedAccounts");
                 Boolean isGoogleLinked = (Boolean) request.getAttribute("isGoogleLinked");
                 Boolean isFacebookLinked = (Boolean) request.getAttribute("isFacebookLinked");
@@ -192,6 +192,12 @@
                             color: #16a34a;
                         }
 
+                        .alert-error {
+                            background: #fef2f2;
+                            border: 1px solid #fecaca;
+                            color: #b91c1c;
+                        }
+
                         .nav-tabs {
                             display: flex;
                             gap: 4px;
@@ -250,6 +256,40 @@
                         <% if ("1".equals(request.getParameter("unlinked"))) { %>
                             <div class="alert alert-success"><i class="fas fa-check-circle"></i>Đã gỡ liên kết tài khoản
                                 thành công.</div>
+                            <% } %>
+
+                            <% if ("facebook".equals(request.getParameter("linked"))) { %>
+                                <div class="alert alert-success"><i class="fas fa-check-circle"></i>Đã liên kết Facebook thành công.</div>
+                            <% } %>
+
+                            <% if ("google".equals(request.getParameter("linked"))) { %>
+                                <div class="alert alert-success"><i class="fas fa-check-circle"></i>Đã liên kết Google thành công.</div>
+                            <% } %>
+
+                            <% String googleErr = request.getParameter("error");
+                               if ("google_not_configured".equals(googleErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Chưa cấu hình Google OAuth. Vui lòng thêm google.client.id và google.client.secret.</div>
+                            <% } else if ("google_auth_cancelled".equals(googleErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Bạn đã hủy xác thực Google.</div>
+                            <% } else if ("google_state_invalid".equals(googleErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Phiên xác thực Google không hợp lệ. Vui lòng thử lại.</div>
+                            <% } else if ("google_already_linked_other".equals(googleErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Tài khoản Google này đã liên kết với người dùng khác.</div>
+                            <% } else if ("google_link_failed".equals(googleErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Liên kết Google thất bại. Vui lòng thử lại.</div>
+                            <% } %>
+
+                            <% String fbErr = request.getParameter("error");
+                               if ("facebook_not_configured".equals(fbErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Chưa cấu hình Facebook OAuth. Vui lòng thêm `facebook.client.id` và `facebook.client.secret`.</div>
+                            <% } else if ("facebook_auth_cancelled".equals(fbErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Bạn đã hủy xác thực Facebook.</div>
+                            <% } else if ("facebook_state_invalid".equals(fbErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Phiên xác thực Facebook không hợp lệ. Vui lòng thử lại.</div>
+                            <% } else if ("facebook_already_linked_other".equals(fbErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Tài khoản Facebook này đã liên kết với người dùng khác.</div>
+                            <% } else if ("facebook_link_failed".equals(fbErr)) { %>
+                                <div class="alert alert-error"><i class="fas fa-triangle-exclamation"></i>Liên kết Facebook thất bại. Vui lòng thử lại.</div>
                             <% } %>
 
                                 <div class="card">
@@ -345,6 +385,7 @@
                                             </div>
                                 </div>
                     </div>
-                <% } %></body>
+
+                </body>
 
                 </html>

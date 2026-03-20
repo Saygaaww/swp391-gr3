@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+﻿<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -512,65 +512,72 @@
 
                             <!-- Actions -->
                             <div class="bd-actions">
-                               <c:choose>
-                                   <c:when test="${empty sessionScope.user}">
-                                        <a href="${pageContext.request.contextPath}/auth/login" class="bd-btn bd-btn-green">
-                                            <i class="fas fa-sign-in-alt"></i> Đăng nhập để sử dụng tính năng
-                                        </a>
-                                   </c:when>
-                                   <c:otherwise>
-                                        <c:if test="${sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
-                                            <a href="${pageContext.request.contextPath}/customer/add-to-cart?bookId=${book.bookId}&quantity=1"
-                                               class="bd-btn bd-btn-green">
-                                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
-                                            </a>
-                                        </c:if>
+                                <a href="${pageContext.request.contextPath}/customer/add-to-cart?bookId=${book.bookId}&quantity=1"
+                                   class="bd-btn bd-btn-green">
+                                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                </a>
 
-                                        <c:if test="${sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
-                                            <c:choose>
-                                                <c:when test="${not empty availableStock and availableStock > 0}">
-                                                    <a href="${pageContext.request.contextPath}/customer/borrow-request?bookId=${book.bookId}"
-                                                       class="bd-btn bd-btn-teal">
-                                                        <i class="fas fa-hand-holding"></i> Mượn sách
-                                                    </a>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <button disabled class="bd-btn bd-btn-outline" style="cursor: not-allowed; opacity: 0.6;">
-                                                        <i class="fas fa-hand-holding"></i> Hết sách (Tạm hết)
-                                                    </button>
-                                                    <form action="${pageContext.request.contextPath}/customer/reservations" method="post" style="display:inline;">
-                                                        <input type="hidden" name="action" value="create" />
-                                                        <input type="hidden" name="bookId" value="${book.bookId}" />
-                                                        <button type="submit" class="bd-btn bd-btn-outline">
-                                                            <i class="fas fa-clock-rotate-left"></i> Đặt sách
-                                                        </button>
-                                                    </form>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </c:if>
-
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.user and sessionScope.userRole == 'Reader'}">
                                         <c:choose>
-                                            <c:when test="${empty book.price or book.price == 0}">
-                                                <a href="${pageContext.request.contextPath}/customer/read?bookId=${book.bookId}"
+                                            <c:when test="${not empty availableStock and availableStock > 0}">
+                                                <a href="${pageContext.request.contextPath}/customer/borrow-request?bookId=${book.bookId}"
                                                    class="bd-btn bd-btn-teal">
-                                                    <i class="fas fa-book-open"></i> Đọc ngay
+                                                    <i class="fas fa-hand-holding"></i> Mượn sách
                                                 </a>
                                             </c:when>
                                             <c:otherwise>
-                                                <a href="${pageContext.request.contextPath}/books/preview/${book.bookId}"
-                                                   class="bd-btn bd-btn-teal">
-                                                    <i class="fas fa-eye"></i> Xem trước (${book.previewPages} trang)
-                                                </a>
+                                                <button disabled class="bd-btn bd-btn-outline" style="cursor: not-allowed; opacity: 0.6;">
+                                                    <i class="fas fa-hand-holding"></i> Hết sách (Tạm hết)
+                                                </button>
                                             </c:otherwise>
                                         </c:choose>
-
-                                        <c:if test="${sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
-                                            <a href="#" class="bd-btn bd-btn-outline" onclick="addToFavorites()">
-                                                <i class="fas fa-heart"></i> Yêu thích
-                                            </a>
+                                        <c:if test="${empty availableStock or availableStock <= 0}">
+                                            <form action="${pageContext.request.contextPath}/customer/reservations" method="post" style="display:inline;">
+                                                <input type="hidden" name="action" value="create" />
+                                                <input type="hidden" name="bookId" value="${book.bookId}" />
+                                                <button type="submit" class="bd-btn bd-btn-outline">
+                                                    <i class="fas fa-clock-rotate-left"></i> Đặt sách
+                                                </button>
+                                            </form>
                                         </c:if>
-                                   </c:otherwise>
-                               </c:choose>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:choose>
+                                            <c:when test="${not empty availableStock and availableStock > 0}">
+                                                <a href="${pageContext.request.contextPath}/auth/login"
+                                                   class="bd-btn bd-btn-teal">
+                                                    <i class="fas fa-hand-holding"></i> Mượn sách
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button disabled class="bd-btn bd-btn-outline" style="cursor: not-allowed; opacity: 0.6;">
+                                                    <i class="fas fa-hand-holding"></i> Hết sách (Tạm hết)
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:otherwise>
+                                </c:choose>
+
+                                <c:choose>
+                                    <c:when test="${empty book.price or book.price == 0}">
+                                        <a href="${pageContext.request.contextPath}/customer/read?bookId=${book.bookId}"
+                                           class="bd-btn bd-btn-teal">
+                                            <i class="fas fa-book-open"></i> Đọc ngay
+                                        </a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/books/preview/${book.bookId}"
+                                           class="bd-btn bd-btn-teal">
+                                            <i class="fas fa-eye"></i>
+                                            Xem trước (${book.previewPages} trang)
+                                        </a>
+                                    </c:otherwise>
+                                </c:choose>
+
+                                <a href="#" class="bd-btn bd-btn-outline" onclick="addToFavorites()">
+                                    <i class="fas fa-heart"></i> Yêu thích
+                                </a>
 
                                 <a href="${pageContext.request.contextPath}/books" class="bd-btn bd-btn-outline">
                                     <i class="fas fa-arrow-left"></i> Quay lại
@@ -581,14 +588,6 @@
                                        class="bd-btn bd-btn-outline">
                                         <i class="fas fa-upload"></i> Cập nhật file
                                     </a>
-                                    <c:if test="${sessionScope.userRole == 'Admin'}">
-                                       <form action="${pageContext.request.contextPath}/admin/book-delete" method="POST" style="display:inline;" onsubmit="return confirm('Chắc chắn vô hiệu hóa sách này?');">
-                                           <input type="hidden" name="id" value="${book.bookId}" />
-                                           <button type="submit" class="bd-btn bd-btn-outline" style="color:var(--red); border-color:var(--red);">
-                                               <i class="fas fa-trash-alt"></i> Xóa (Ẩn)
-                                           </button>
-                                       </form>
-                                    </c:if>
                                 </c:if>
                             </div>
 
@@ -722,4 +721,3 @@
         </script>
     </body>
 </html>
-

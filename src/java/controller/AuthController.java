@@ -4,12 +4,14 @@ import dao.EmployeeDAO;
 import dao.ReaderDAO;
 import dao.NotificationDAO;
 import model.Employee;
+import model.FacebookAccount;
 import model.GoogleAccount;
 import model.LinkedAccount;
 import model.Notification;
 import model.Reader;
 import util.AuthUtil;
 import util.EmailUtil;
+import util.FacebookUtils;
 import util.GoogleUtils;
 import util.PasswordUtil;
 import util.StringUtil;
@@ -69,8 +71,14 @@ public class AuthController extends HttpServlet {
             case "/oauth/google":
                 handleGoogleOAuthRedirect(request, response);
                 break;
+            case "/oauth/facebook":
+                handleFacebookOAuthRedirect(request, response);
+                break;
             case "/google-callback":
                 handleGoogleCallback(request, response);
+                break;
+            case "/facebook-callback":
+                handleFacebookCallback(request, response);
                 break;
             case "/verify-google-otp":
                 if (request.getSession().getAttribute("pendingGoogleEmail") == null) {
@@ -277,67 +285,324 @@ public class AuthController extends HttpServlet {
 
     private void handleGoogleOAuthRedirect(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String clientId = "427012296318-vp0ktmvucmettvj9ejttj6oo9uqtcqqg.apps.googleusercontent.com";
+        String action = request.getParameter("action");
+        boolean linkMode = "link".equalsIgnoreCase(action);
+
+        if (linkMode) {
+            Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+            if (!(userObj instanceof Reader)) {
+                response.sendRedirect(request.getContextPath() + "/profile/view");
+                return;
+            }
+        }
+
+        if (!GoogleUtils.isConfigured()) {
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=google_not_configured");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/auth/login?error=google_not_configured");
+            }
+            return;
+        }
+
+        String state = TokenUtil.generateToken();
+        HttpSession session = request.getSession(true);
+        session.setAttribute("googleOAuthState", state);
+        session.setAttribute("googleOAuthMode", linkMode ? "link" : "login");
+
         String redirectUri = request.getScheme() + "://" + request.getServerName()
                 + ":" + request.getServerPort()
                 + request.getContextPath() + "/auth/google-callback";
-        String scope = "openid%20email%20profile";
-        String authUrl = "https://accounts.google.com/o/oauth2/v2/auth"
-                + "?client_id=" + clientId
-                + "&redirect_uri=" + java.net.URLEncoder.encode(redirectUri, "UTF-8")
-                + "&response_type=code"
-                + "&scope=" + scope
-                + "&access_type=offline"
-                + "&prompt=select_account";
+
+        String authUrl = GoogleUtils.buildAuthUrl(redirectUri, state);
         response.sendRedirect(authUrl);
+    }
+
+    // ========================= FACEBOOK OAUTH =========================
+
+    private void handleFacebookOAuthRedirect(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        String action = request.getParameter("action");
+        boolean linkMode = "link".equalsIgnoreCase(action);
+
+        if (linkMode) {
+            Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+            if (!(userObj instanceof Reader)) {
+                response.sendRedirect(request.getContextPath() + "/profile/view");
+                return;
+            }
+        }
+
+        if (!FacebookUtils.isConfigured()) {
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=facebook_not_configured");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/auth/login?error=facebook_not_configured");
+            }
+            return;
+        }
+
+        String state = TokenUtil.generateToken();
+        HttpSession session = request.getSession(true);
+        session.setAttribute("fbOAuthState", state);
+        session.setAttribute("fbOAuthMode", linkMode ? "link" : "login");
+
+        String redirectUri = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort()
+                + request.getContextPath() + "/auth/facebook-callback";
+
+        String authUrl = FacebookUtils.buildAuthUrl(redirectUri, state);
+        response.sendRedirect(authUrl);
+    }
+
+    private void handleFacebookCallback(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String code = request.getParameter("code");
+        String error = request.getParameter("error");
+        String state = request.getParameter("state");
+
+        HttpSession session = request.getSession(false);
+        String expectedState = session != null ? (String) session.getAttribute("fbOAuthState") : null;
+        String mode = session != null ? (String) session.getAttribute("fbOAuthMode") : "login";
+        boolean linkMode = "link".equalsIgnoreCase(mode);
+
+        if (session != null) {
+            session.removeAttribute("fbOAuthState");
+            session.removeAttribute("fbOAuthMode");
+        }
+
+        if (error != null || code == null || code.isBlank()) {
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=facebook_auth_cancelled");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/auth/login?error=facebook_auth_cancelled");
+            }
+            return;
+        }
+
+        if (expectedState == null || state == null || !expectedState.equals(state)) {
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=facebook_state_invalid");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/auth/login?error=facebook_state_invalid");
+            }
+            return;
+        }
+
+        ReaderDAO readerDAO = null;
+        LinkedAccountDAO linkedAccountDAO = null;
+        try {
+            String redirectUri = request.getScheme() + "://" + request.getServerName()
+                    + ":" + request.getServerPort()
+                    + request.getContextPath() + "/auth/facebook-callback";
+
+            String accessToken = FacebookUtils.getTokenWithRedirect(code, redirectUri);
+            FacebookAccount fbAccount = FacebookUtils.getUserInfo(accessToken);
+
+            if (fbAccount == null || fbAccount.getId() == null || fbAccount.getId().isBlank()) {
+                throw new IOException("Không lấy được thông tin tài khoản Facebook.");
+            }
+
+            readerDAO = new ReaderDAO();
+            linkedAccountDAO = new LinkedAccountDAO();
+
+            if (linkMode) {
+                Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+                if (!(userObj instanceof Reader)) {
+                    response.sendRedirect(request.getContextPath() + "/profile/view");
+                    return;
+                }
+
+                Reader currentReader = (Reader) userObj;
+                int existingReaderId = linkedAccountDAO.findReaderIdByProvider("facebook", fbAccount.getId());
+                if (existingReaderId > 0 && existingReaderId != currentReader.getReaderId()) {
+                    response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=facebook_already_linked_other");
+                    return;
+                }
+
+                if (!linkedAccountDAO.isLinked(currentReader.getReaderId(), "facebook")) {
+                    LinkedAccount account = new LinkedAccount();
+                    account.setReaderId(currentReader.getReaderId());
+                    account.setProvider("facebook");
+                    account.setProviderUserId(fbAccount.getId());
+                    account.setProviderEmail(fbAccount.getEmail());
+                    linkedAccountDAO.linkAccount(account);
+                }
+
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?linked=facebook");
+                return;
+            }
+
+            Reader reader = null;
+            int readerIdByProvider = linkedAccountDAO.findReaderIdByProvider("facebook", fbAccount.getId());
+            if (readerIdByProvider > 0) {
+                reader = readerDAO.findById(readerIdByProvider);
+            }
+
+            if (reader == null && fbAccount.getEmail() != null && !fbAccount.getEmail().isBlank()) {
+                reader = readerDAO.findByEmail(fbAccount.getEmail());
+            }
+
+            if (reader == null) {
+                String displayName = (fbAccount.getName() != null && !fbAccount.getName().isBlank())
+                        ? fbAccount.getName()
+                        : "Facebook User";
+                String email = (fbAccount.getEmail() != null && !fbAccount.getEmail().isBlank())
+                        ? fbAccount.getEmail()
+                        : "fb_" + fbAccount.getId() + "@facebook.local";
+
+                Reader newReader = new Reader(displayName, email, PasswordUtil.hashPassword(TokenUtil.generateToken()));
+                newReader.setStatus("active");
+                readerDAO.createReader(newReader);
+                reader = readerDAO.findByEmail(email);
+            }
+
+            if (reader == null) {
+                throw new IOException("Không thể tạo/tìm tài khoản người dùng từ Facebook.");
+            }
+
+            if (reader.isBanned() || (reader.getStatus() != null && !"active".equalsIgnoreCase(reader.getStatus()))) {
+                response.sendRedirect(request.getContextPath() + "/auth/login?error=account_disabled");
+                return;
+            }
+
+            if (!linkedAccountDAO.isLinked(reader.getReaderId(), "facebook")) {
+                LinkedAccount account = new LinkedAccount();
+                account.setReaderId(reader.getReaderId());
+                account.setProvider("facebook");
+                account.setProviderUserId(fbAccount.getId());
+                account.setProviderEmail(fbAccount.getEmail());
+                linkedAccountDAO.linkAccount(account);
+            }
+
+            loginSession(request, reader);
+            response.sendRedirect(request.getContextPath() + "/");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Facebook OAuth callback error", e);
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=facebook_link_failed");
+            } else {
+                setErrorAndForward(request, response, "Đăng nhập Facebook thất bại: " + e.getMessage(),
+                        "/jsp/auth/login.jsp");
+            }
+        } finally {
+            if (linkedAccountDAO != null)
+                linkedAccountDAO.close();
+            if (readerDAO != null)
+                readerDAO.close();
+        }
     }
 
     private void handleGoogleCallback(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String code = request.getParameter("code");
         String error = request.getParameter("error");
+        String state = request.getParameter("state");
+
+        HttpSession session = request.getSession(false);
+        String expectedState = session != null ? (String) session.getAttribute("googleOAuthState") : null;
+        String mode = session != null ? (String) session.getAttribute("googleOAuthMode") : "login";
+        boolean linkMode = "link".equalsIgnoreCase(mode);
+
+        if (session != null) {
+            session.removeAttribute("googleOAuthState");
+            session.removeAttribute("googleOAuthMode");
+        }
 
         if (error != null || code == null || code.isBlank()) {
-            setErrorAndForward(request, response, "Đăng nhập Google bị hủy hoặc thất bại.",
-                    "/jsp/auth/login.jsp");
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=google_auth_cancelled");
+            } else {
+                setErrorAndForward(request, response, "Đăng nhập Google bị hủy hoặc thất bại.",
+                        "/jsp/auth/login.jsp");
+            }
             return;
         }
 
+        if (expectedState == null || state == null || !expectedState.equals(state)) {
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=google_state_invalid");
+            } else {
+                setErrorAndForward(request, response, "Phiên xác thực Google không hợp lệ. Vui lòng thử lại.",
+                        "/jsp/auth/login.jsp");
+            }
+            return;
+        }
+
+        ReaderDAO readerDAO = null;
+        LinkedAccountDAO linkedAccountDAO = null;
         try {
-            // Override redirect_uri to match what Google sends back to
             String redirectUri = request.getScheme() + "://" + request.getServerName()
                     + ":" + request.getServerPort()
                     + request.getContextPath() + "/auth/google-callback";
 
-            // Temporarily set system property so GoogleUtils can use dynamic URI
-            // We call getToken with dynamic redirect uri by constructing ourselves
             String accessToken = GoogleUtils.getTokenWithRedirect(code, redirectUri);
             GoogleAccount googleAccount = GoogleUtils.getUserInfo(accessToken);
 
-            if (googleAccount == null || googleAccount.getEmail() == null) {
-                setErrorAndForward(request, response, "Không lấy được thông tin tài khoản Google.",
-                        "/jsp/auth/login.jsp");
-                return;
+            if (googleAccount == null || googleAccount.getId() == null || googleAccount.getId().isBlank()) {
+                throw new IOException("Không lấy được thông tin tài khoản Google.");
             }
 
             String googleEmail = googleAccount.getEmail();
-            String googleName = googleAccount.getName() != null ? googleAccount.getName() : googleEmail;
+            String googleName = googleAccount.getName() != null
+                    ? googleAccount.getName()
+                    : (googleEmail != null ? googleEmail : "Google User");
 
-            // Tìm hoặc tạo Reader
-            ReaderDAO readerDAO = null;
-            try {
-                readerDAO = new ReaderDAO();
-                Reader reader = readerDAO.findByEmail(googleEmail);
+            readerDAO = new ReaderDAO();
+            linkedAccountDAO = new LinkedAccountDAO();
+
+            if (linkMode) {
+                Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+                if (!(userObj instanceof Reader)) {
+                    response.sendRedirect(request.getContextPath() + "/profile/view");
+                    return;
+                }
+
+                Reader currentReader = (Reader) userObj;
+                int existingReaderId = linkedAccountDAO.findReaderIdByProvider("google", googleAccount.getId());
+                if (existingReaderId > 0 && existingReaderId != currentReader.getReaderId()) {
+                    response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=google_already_linked_other");
+                    return;
+                }
+
+                if (!linkedAccountDAO.isLinked(currentReader.getReaderId(), "google")) {
+                    LinkedAccount la = new LinkedAccount();
+                    la.setReaderId(currentReader.getReaderId());
+                    la.setProvider("google");
+                    la.setProviderUserId(googleAccount.getId());
+                    la.setProviderEmail(googleAccount.getEmail());
+                    linkedAccountDAO.linkAccount(la);
+                }
+
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?linked=google");
+                return;
+            }
+
+                Reader reader = (googleEmail != null && !googleEmail.isBlank())
+                    ? readerDAO.findByEmail(googleEmail)
+                    : null;
+
+                int readerIdByProvider = linkedAccountDAO.findReaderIdByProvider("google", googleAccount.getId());
+                if (readerIdByProvider > 0) {
+                    Reader byProvider = readerDAO.findById(readerIdByProvider);
+                    if (byProvider != null) {
+                        reader = byProvider;
+                    }
+                }
 
                 if (reader == null) {
-                    // Tạo tài khoản mới cho Google user
-                    // Cột password_hash trong DB là NOT NULL nên phải set một mật khẩu ngẫu nhiên
+                    if (googleEmail == null || googleEmail.isBlank()) {
+                        setErrorAndForward(request, response,
+                                "Tài khoản Google không cung cấp email. Vui lòng dùng phương thức đăng nhập khác.",
+                                "/jsp/auth/login.jsp");
+                        return;
+                    }
+
                     String randomPassword = TokenUtil.generateToken();
                     String randomHash = PasswordUtil.hashPassword(randomPassword);
 
                     reader = new Reader(googleName, googleEmail, randomHash);
                     reader.setStatus("active");
-                    // role_id được mặc định = 4 (USER) trong ReaderDAO.createReader
                     readerDAO.createReader(reader);
                     reader = readerDAO.findByEmail(googleEmail);
                 }
@@ -355,44 +620,42 @@ public class AuthController extends HttpServlet {
                     return;
                 }
 
-                LinkedAccountDAO linkedAccountDAO = new LinkedAccountDAO();
-                try {
-                    // Chuẩn hóa provider = "google" (lowercase) để đồng nhất với ProfileController/LinkedAccountDAO
-                    if (!linkedAccountDAO.isLinked(reader.getReaderId(), "google")) {
-                        LinkedAccount la = new LinkedAccount();
-                        la.setReaderId(reader.getReaderId());
-                        la.setProvider("google");
-                        la.setProviderUserId(googleAccount.getId());
-                        la.setProviderEmail(googleAccount.getEmail());
-                        linkedAccountDAO.linkAccount(la);
-                    }
-                } finally {
-                    linkedAccountDAO.close();
+                if (!linkedAccountDAO.isLinked(reader.getReaderId(), "google")) {
+                    LinkedAccount la = new LinkedAccount();
+                    la.setReaderId(reader.getReaderId());
+                    la.setProvider("google");
+                    la.setProviderUserId(googleAccount.getId());
+                    la.setProviderEmail(googleAccount.getEmail());
+                    linkedAccountDAO.linkAccount(la);
                 }
 
-                // ==== Gửi OTP xác nhận qua email ====
                 String otp = TokenUtil.generateOTP();
                 long expiry = System.currentTimeMillis() + 5 * 60 * 1000; // 5 phút
+                String otpEmail = reader.getEmail();
 
                 HttpSession otpSession = request.getSession(true);
-                otpSession.setAttribute("pendingGoogleEmail", googleEmail);
+                otpSession.setAttribute("pendingGoogleEmail", otpEmail);
                 otpSession.setAttribute("pendingGoogleName", googleName);
                 otpSession.setAttribute("pendingGoogleReaderId", reader.getReaderId());
                 otpSession.setAttribute("googleOtp", otp);
                 otpSession.setAttribute("googleOtpExpiry", expiry);
 
-                EmailUtil.sendGoogleLoginOtp(googleEmail, googleName, otp);
-                response.sendRedirect(request.getContextPath() + "/auth/verify-google-otp");
-
-            } finally {
-                if (readerDAO != null)
-                    readerDAO.close();
-            }
+            EmailUtil.sendGoogleLoginOtp(otpEmail, googleName, otp);
+            response.sendRedirect(request.getContextPath() + "/auth/verify-google-otp");
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Google OAuth callback error", e);
-            setErrorAndForward(request, response, "Lỗi đăng nhập Google: " + e.getMessage(),
-                    "/jsp/auth/login.jsp");
+            if (linkMode) {
+                response.sendRedirect(request.getContextPath() + "/profile/linked-accounts?error=google_link_failed");
+            } else {
+                setErrorAndForward(request, response, "Lỗi đăng nhập Google: " + e.getMessage(),
+                        "/jsp/auth/login.jsp");
+            }
+        } finally {
+            if (linkedAccountDAO != null)
+                linkedAccountDAO.close();
+            if (readerDAO != null)
+                readerDAO.close();
         }
     }
 

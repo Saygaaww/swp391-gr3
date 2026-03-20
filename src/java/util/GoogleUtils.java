@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URLEncoder;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import model.GoogleAccount;
@@ -16,22 +17,37 @@ import model.GoogleAccount;
  */
 public class GoogleUtils {
 
-    // [TODO/IMPORTANT] USER MỞ GOOGLE CLOUD CONSOLE VÀ COPY VÀO ??ÂY:
-    private static final String GOOGLE_CLIENT_ID = "427012296318-vp0ktmvucmettvj9ejttj6oo9uqtcqqg.apps.googleusercontent.com";
-    private static final String GOOGLE_CLIENT_SECRET = "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";
-
+    // Legacy fallback to avoid breaking existing environments if not configured yet.
+    private static final String LEGACY_GOOGLE_CLIENT_ID = "427012296318-vp0ktmvucmettvj9ejttj6oo9uqtcqqg.apps.googleusercontent.com";
+    private static final String LEGACY_GOOGLE_CLIENT_SECRET = "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";
     private static final String GOOGLE_REDIRECT_URI = "http://localhost:8080/Library/auth/google-callback";
     private static final String GOOGLE_GRANT_TYPE = "authorization_code";
+    private static final String GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
     private static final String GOOGLE_LINK_GET_TOKEN = "https://oauth2.googleapis.com/token";
     private static final String GOOGLE_LINK_GET_USER_INFO = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=";
+
+    public static boolean isConfigured() {
+        return isNonBlank(getClientId()) && isNonBlank(getClientSecret());
+    }
+
+    public static String buildAuthUrl(String redirectUri, String state) throws IOException {
+        return GOOGLE_AUTH_URL
+                + "?client_id=" + encode(getClientId())
+                + "&redirect_uri=" + encode(redirectUri)
+                + "&response_type=code"
+                + "&scope=" + encode("openid email profile")
+                + "&access_type=offline"
+                + "&prompt=select_account"
+                + "&state=" + encode(state);
+    }
 
     public static String getToken(String code) throws IOException {
         return getTokenWithRedirect(code, GOOGLE_REDIRECT_URI);
     }
 
     public static String getTokenWithRedirect(String code, String redirectUri) throws IOException {
-        String urlParameters = "client_id=" + GOOGLE_CLIENT_ID
-                + "&client_secret=" + GOOGLE_CLIENT_SECRET
+        String urlParameters = "client_id=" + encode(getClientId())
+                + "&client_secret=" + encode(getClientSecret())
                 + "&redirect_uri=" + redirectUri
                 + "&code=" + code
                 + "&grant_type=" + GOOGLE_GRANT_TYPE;
@@ -77,5 +93,23 @@ public class GoogleUtils {
         }
 
         return new Gson().fromJson(response.toString(), GoogleAccount.class);
+    }
+
+    private static String getClientId() {
+        String configured = OAuthConfig.get("oauth.google.client.id", "google.client.id", "GOOGLE_CLIENT_ID");
+        return configured != null ? configured : LEGACY_GOOGLE_CLIENT_ID;
+    }
+
+    private static String getClientSecret() {
+        String configured = OAuthConfig.get("oauth.google.client.secret", "google.client.secret", "GOOGLE_CLIENT_SECRET");
+        return configured != null ? configured : LEGACY_GOOGLE_CLIENT_SECRET;
+    }
+
+    private static boolean isNonBlank(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    private static String encode(String value) throws IOException {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
     }
 }

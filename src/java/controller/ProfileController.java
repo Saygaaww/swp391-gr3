@@ -34,9 +34,7 @@ public class ProfileController extends HttpServlet {
         if (!requireLogin(request, response))
             return;
 
-        String pathInfo = request.getPathInfo();
-        if (pathInfo == null)
-            pathInfo = "/view";
+        String pathInfo = resolveProfilePath(request, "/view");
 
         switch (pathInfo) {
             case "/view":
@@ -64,9 +62,7 @@ public class ProfileController extends HttpServlet {
             return;
         request.setCharacterEncoding("UTF-8");
 
-        String pathInfo = request.getPathInfo();
-        if (pathInfo == null)
-            pathInfo = "";
+        String pathInfo = resolveProfilePath(request, "");
 
         switch (pathInfo) {
             case "/edit":
@@ -242,7 +238,14 @@ public class ProfileController extends HttpServlet {
     private void handleShowLinkedAccounts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Reader reader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        if (!(userObj instanceof Reader)) {
+            request.setAttribute("error", "Chức năng liên kết tài khoản chỉ dành cho độc giả.");
+            request.getRequestDispatcher("/jsp/profile/view-profile.jsp").forward(request, response);
+            return;
+        }
+
+        Reader reader = (Reader) userObj;
         LinkedAccountDAO dao = null;
         try {
             dao = new LinkedAccountDAO();
@@ -263,7 +266,12 @@ public class ProfileController extends HttpServlet {
     private void handleUnlinkAccount(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
-        Reader reader = (Reader) request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        Object userObj = request.getSession().getAttribute(AuthUtil.SESSION_USER);
+        if (!(userObj instanceof Reader)) {
+            response.sendRedirect(request.getContextPath() + "/profile/view");
+            return;
+        }
+        Reader reader = (Reader) userObj;
         String linkIdStr = request.getParameter("linkId");
         try {
             int linkId = Integer.parseInt(linkIdStr);
@@ -290,4 +298,21 @@ public class ProfileController extends HttpServlet {
         }
         return true;
     }
+
+    private String resolveProfilePath(HttpServletRequest request, String defaultPath) {
+        String pathInfo = request.getPathInfo();
+        if (pathInfo != null) {
+            return pathInfo;
+        }
+
+        String servletPath = request.getServletPath();
+        if (servletPath != null && servletPath.startsWith("/profile")) {
+            String suffix = servletPath.substring("/profile".length());
+            return suffix.isEmpty() ? defaultPath : suffix;
+        }
+
+        return defaultPath;
+    }
 }
+
+
