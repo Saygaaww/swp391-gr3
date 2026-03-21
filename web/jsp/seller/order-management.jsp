@@ -1,14 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <jsp:include page="/includes/header.jsp" />
 <jsp:include page="/includes/navbar.jsp" />
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h2 class="mb-1">Quản lý Order COD</h2>
-            <div class="text-muted">Seller chỉ xem đơn có sách do mình tạo và thanh toán COD</div>
+            <h2 class="mb-1">Quản lý Order</h2>
+            <div class="text-muted">Seller xem đơn có sách do mình tạo (nút xác nhận chỉ áp dụng cho COD)</div>
         </div>
         <a href="${pageContext.request.contextPath}/books/dashboard" class="btn btn-outline-secondary">Về dashboard</a>
     </div>
@@ -64,7 +65,7 @@
                     <c:choose>
                         <c:when test="${empty orders}">
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Không có đơn COD phù hợp.</td>
+                                <td colspan="7" class="text-center text-muted py-4">Không có đơn phù hợp.</td>
                             </tr>
                         </c:when>
                         <c:otherwise>
@@ -79,14 +80,23 @@
                                     <td>${order.createdAt}</td>
                                     <td><fmt:formatNumber value="${order.totalAmount}" type="currency" currencySymbol="₫" /></td>
                                     <td>
-                                        <span class="badge bg-${order.status == 'paid' ? 'success' : order.status == 'pending' ? 'warning text-dark' : 'secondary'}">
+                                        <c:set var="orderStatus" value="${fn:toLowerCase(order.status)}" />
+                                        <span class="badge bg-${orderStatus == 'paid' ? 'success' : orderStatus == 'pending' ? 'warning text-dark' : 'secondary'}">
                                             ${order.status}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-${payment.paymentStatus == 'success' ? 'success' : payment.paymentStatus == 'pending' ? 'warning text-dark' : 'secondary'}">
-                                            ${payment.paymentStatus}
-                                        </span>
+                                        <c:choose>
+                                            <c:when test="${not empty payment}">
+                                                <c:set var="payStatus" value="${fn:toLowerCase(payment.paymentStatus)}" />
+                                                <span class="badge bg-${payStatus == 'success' ? 'success' : payStatus == 'pending' ? 'warning text-dark' : 'secondary'}">
+                                                    ${payment.paymentStatus}
+                                                </span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-secondary">N/A</span>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
                                     <td>
                                         <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/seller/order-management?view=details&orderId=${order.orderId}">

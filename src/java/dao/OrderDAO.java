@@ -228,6 +228,10 @@ public class OrderDAO {
     }
 
     public List<Order> getSellerOrders(int employeeId, String status, Date fromDate, Date toDate) {
+        return getSellerOrders(employeeId, null, status, fromDate, toDate);
+    }
+
+    public List<Order> getSellerOrders(int employeeId, Integer fallbackCreatorId, String status, Date fromDate, Date toDate) {
         List<Order> orders = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
                 SELECT DISTINCT o.*, r.full_name, r.email
@@ -236,7 +240,7 @@ public class OrderDAO {
                 JOIN Order_Book ob ON ob.order_id = o.order_id
                 JOIN Book b ON b.BookID = ob.book_id
                 LEFT JOIN Payment p ON p.order_id = o.order_id
-                WHERE b.CreatedByEmployeeID = ?
+                WHERE (b.CreatedByEmployeeID = ? OR (? IS NOT NULL AND b.CreatedByEmployeeID = ?))
                 """);
 
         if (status != null && !status.isBlank()) {
@@ -255,6 +259,8 @@ public class OrderDAO {
 
             int idx = 1;
             ps.setInt(idx++, employeeId);
+            ps.setObject(idx++, fallbackCreatorId);
+            ps.setObject(idx++, fallbackCreatorId);
             if (status != null && !status.isBlank()) {
                 ps.setString(idx++, status);
             }
@@ -268,7 +274,7 @@ public class OrderDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Order order = mapOrder(rs);
-                order.setOrderBooks(getOrderBooksBySeller(order.getOrderId(), employeeId));
+                order.setOrderBooks(getOrderBooksBySeller(order.getOrderId(), employeeId, fallbackCreatorId));
                 orders.add(order);
             }
 
@@ -279,6 +285,10 @@ public class OrderDAO {
     }
 
     public Order getSellerOrderById(int orderId, int employeeId) {
+        return getSellerOrderById(orderId, employeeId, null);
+    }
+
+    public Order getSellerOrderById(int orderId, int employeeId, Integer fallbackCreatorId) {
         String sql = """
                 SELECT o.*, r.full_name, r.email
                 FROM [Order] o
@@ -289,7 +299,7 @@ public class OrderDAO {
                       FROM Order_Book ob
                       JOIN Book b ON b.BookID = ob.book_id
                       WHERE ob.order_id = o.order_id
-                        AND b.CreatedByEmployeeID = ?
+                        AND (b.CreatedByEmployeeID = ? OR (? IS NOT NULL AND b.CreatedByEmployeeID = ?))
                   )
                 """;
 
@@ -298,10 +308,12 @@ public class OrderDAO {
 
             ps.setInt(1, orderId);
             ps.setInt(2, employeeId);
+            ps.setObject(3, fallbackCreatorId);
+            ps.setObject(4, fallbackCreatorId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Order order = mapOrder(rs);
-                order.setOrderBooks(getOrderBooksBySeller(orderId, employeeId));
+                order.setOrderBooks(getOrderBooksBySeller(orderId, employeeId, fallbackCreatorId));
                 return order;
             }
         } catch (Exception e) {
@@ -311,17 +323,23 @@ public class OrderDAO {
     }
 
     public boolean sellerOwnsOrder(int orderId, int employeeId) {
+        return sellerOwnsOrder(orderId, employeeId, null);
+    }
+
+    public boolean sellerOwnsOrder(int orderId, int employeeId, Integer fallbackCreatorId) {
         String sql = """
                 SELECT TOP 1 1
                 FROM Order_Book ob
                 JOIN Book b ON b.BookID = ob.book_id
                 WHERE ob.order_id = ?
-                  AND b.CreatedByEmployeeID = ?
+                  AND (b.CreatedByEmployeeID = ? OR (? IS NOT NULL AND b.CreatedByEmployeeID = ?))
                 """;
         try (Connection con = DBUtil.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setInt(2, employeeId);
+            ps.setObject(3, fallbackCreatorId);
+            ps.setObject(4, fallbackCreatorId);
             ResultSet rs = ps.executeQuery();
             return rs.next();
         } catch (Exception e) {
@@ -513,6 +531,10 @@ public class OrderDAO {
     }
 
     private List<OrderBook> getOrderBooksBySeller(int orderId, int employeeId) {
+        return getOrderBooksBySeller(orderId, employeeId, null);
+    }
+
+    private List<OrderBook> getOrderBooksBySeller(int orderId, int employeeId, Integer fallbackCreatorId) {
         List<OrderBook> orderBooks = new ArrayList<>();
         String sql = """
                     SELECT ob.*, b.Title AS title, b.CoverURL AS cover_url, a.AuthorName AS author_name
@@ -520,7 +542,7 @@ public class OrderDAO {
                     JOIN Book b ON ob.book_id = b.BookID
                     LEFT JOIN Author a ON b.AuthorID = a.AuthorID
                     WHERE ob.order_id = ?
-                      AND b.CreatedByEmployeeID = ?
+                      AND (b.CreatedByEmployeeID = ? OR (? IS NOT NULL AND b.CreatedByEmployeeID = ?))
                 """;
 
         try (Connection con = DBUtil.getConnection();
@@ -528,6 +550,8 @@ public class OrderDAO {
 
             ps.setInt(1, orderId);
             ps.setInt(2, employeeId);
+            ps.setObject(3, fallbackCreatorId);
+            ps.setObject(4, fallbackCreatorId);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

@@ -731,6 +731,10 @@ public class BookController extends HttpServlet {
         book.setPublicationYear(pubYear);
         book.setPrice(price);
         book.setCurrency("VND");
+        Integer currentEmployeeId = AuthUtil.getEmployeeId(request);
+        if (currentEmployeeId != null && currentEmployeeId > 0) {
+            book.setCreatedByEmployeeId(currentEmployeeId);
+        }
         if (createdAt != null) {
             book.setCreatedAt(createdAt);
         }

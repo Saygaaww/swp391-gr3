@@ -18,8 +18,8 @@ public class PaymentDAO {
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, orderId);
             ps.setBigDecimal(2, amount);
-            ps.setString(3, paymentMethod);
-            ps.setString(4, transactionCode);
+            ps.setString(3, paymentMethod == null ? null : paymentMethod.trim());
+            ps.setString(4, transactionCode == null ? null : transactionCode.trim());
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) return rs.getInt(1);
@@ -31,7 +31,7 @@ public class PaymentDAO {
 
     /** Lấy payment theo order (1 order có thể có 1 payment). */
     public Payment getByOrderId(int orderId) {
-        String sql = "SELECT * FROM Payment WHERE order_id = ?";
+        String sql = "SELECT TOP 1 * FROM Payment WHERE order_id = ? ORDER BY payment_id DESC";
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, orderId);
@@ -48,9 +48,9 @@ public class PaymentDAO {
         p.setPaymentId(rs.getInt("payment_id"));
         p.setOrderId(rs.getInt("order_id"));
         p.setAmount(rs.getBigDecimal("amount"));
-        p.setPaymentMethod(rs.getString("payment_method"));
-        p.setPaymentStatus(rs.getString("payment_status"));
-        p.setTransactionCode(rs.getString("transaction_code"));
+        p.setPaymentMethod(trim(rs.getString("payment_method")));
+        p.setPaymentStatus(trim(rs.getString("payment_status")));
+        p.setTransactionCode(trim(rs.getString("transaction_code")));
         Timestamp paidAt = rs.getTimestamp("paid_at");
         p.setPaidAt(paidAt != null ? paidAt.toLocalDateTime() : null);
         Timestamp createdAt = rs.getTimestamp("created_at");
@@ -72,4 +72,9 @@ public class PaymentDAO {
         }
         return false;
     }
+
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
 }
+

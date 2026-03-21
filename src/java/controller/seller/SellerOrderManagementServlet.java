@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import model.Order;
 import model.Payment;
 import util.AuthUtil;
 
 public class SellerOrderManagementServlet extends HttpServlet {
 
+    private static final Logger LOGGER = Logger.getLogger(SellerOrderManagementServlet.class.getName());
     private final OrderDAO orderDAO = new OrderDAO();
     private final PaymentDAO paymentDAO = new PaymentDAO();
 
@@ -36,10 +38,11 @@ public class SellerOrderManagementServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
+        Integer userId = getSessionUserId(request);
 
         String view = request.getParameter("view");
         if ("details".equalsIgnoreCase(view)) {
-            handleOrderDetails(request, response, employeeId);
+            handleOrderDetails(request, response, employeeId, userId);
             return;
         }
 
@@ -47,20 +50,26 @@ public class SellerOrderManagementServlet extends HttpServlet {
         Date fromDate = parseDate(request.getParameter("fromDate"));
         Date toDate = parseDate(request.getParameter("toDate"));
 
-        List<Order> rawOrders = orderDAO.getSellerOrders(employeeId, status, fromDate, toDate);
-        List<Order> codOrders = new ArrayList<>();
+        List<Order> rawOrders = orderDAO.getSellerOrders(employeeId, userId, status, fromDate, toDate);
+        LOGGER.info("[SellerOrderMgmt] GET list: employeeId=" + employeeId
+                + ", userId=" + userId
+                + ", status=" + status
+                + ", fromDate=" + fromDate
+                + ", toDate=" + toDate
+                + ", rawOrders=" + rawOrders.size());
         Map<Integer, Payment> paymentMap = new HashMap<>();
 
         for (Order order : rawOrders) {
             Payment payment = paymentDAO.getByOrderId(order.getOrderId());
-            if (payment != null && payment.getPaymentMethod() != null
-                    && "COD".equalsIgnoreCase(payment.getPaymentMethod())) {
-                codOrders.add(order);
-                paymentMap.put(order.getOrderId(), payment);
-            }
+            LOGGER.info("[SellerOrderMgmt] Order #" + order.getOrderId()
+                    + " paymentMethod=" + (payment == null ? "null" : payment.getPaymentMethod())
+                    + ", paymentStatus=" + (payment == null ? "null" : payment.getPaymentStatus())
+                    + ", orderStatus=" + order.getStatus());
+            paymentMap.put(order.getOrderId(), payment);
         }
+        LOGGER.info("[SellerOrderMgmt] Final list count=" + rawOrders.size());
 
-        request.setAttribute("orders", codOrders);
+        request.setAttribute("orders", rawOrders);
         request.setAttribute("paymentMap", paymentMap);
         request.setAttribute("selectedStatus", status == null ? "" : status);
         request.setAttribute("fromDate", request.getParameter("fromDate"));
@@ -84,24 +93,28 @@ public class SellerOrderManagementServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/auth/login");
             return;
         }
+        Integer userId = getSessionUserId(request);
 
         String action = request.getParameter("action");
         int orderId = parseInt(request.getParameter("orderId"));
+        LOGGER.info("[SellerOrderMgmt] POST action=" + action
+                + ", orderId=" + orderId
+                + ", employeeId=" + employeeId
+                + ", userId=" + userId);
         if (orderId <= 0) {
             setFlash(request, "error", "Order ID khong hop le.");
             response.sendRedirect(request.getContextPath() + "/seller/order-management");
             return;
         }
 
-        if (!orderDAO.sellerOwnsOrder(orderId, employeeId)) {
+        if (!orderDAO.sellerOwnsOrder(orderId, employeeId, userId)) {
             setFlash(request, "error", "Ban khong co quyen xu ly don hang nay.");
             response.sendRedirect(request.getContextPath() + "/seller/order-management");
             return;
         }
 
         Payment payment = paymentDAO.getByOrderId(orderId);
-        if (payment == null || payment.getPaymentMethod() == null
-                || !"COD".equalsIgnoreCase(payment.getPaymentMethod())) {
+        if (!isCodPayment(payment)) {
             setFlash(request, "error", "Don nay khong phai COD.");
             response.sendRedirect(request.getContextPath() + "/seller/order-management");
             return;
@@ -124,7 +137,7 @@ public class SellerOrderManagementServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/seller/order-management");
     }
 
-    private void handleOrderDetails(HttpServletRequest request, HttpServletResponse response, int employeeId)
+    private void handleOrderDetails(HttpServletRequest request, HttpServletResponse response, int employeeId, Integer userId)
             throws ServletException, IOException {
         int orderId = parseInt(request.getParameter("orderId"));
         if (orderId <= 0) {
@@ -132,7 +145,11 @@ public class SellerOrderManagementServlet extends HttpServlet {
             return;
         }
 
-        Order order = orderDAO.getSellerOrderById(orderId, employeeId);
+        Order order = orderDAO.getSellerOrderById(orderId, employeeId, userId);
+        LOGGER.info("[SellerOrderMgmt] VIEW details orderId=" + orderId
+                + ", employeeId=" + employeeId
+                + ", userId=" + userId
+                + ", found=" + (order != null));
         if (order == null) {
             setFlash(request, "error", "Khong tim thay don hang hoac ban khong co quyen xem.");
             response.sendRedirect(request.getContextPath() + "/seller/order-management");
@@ -144,6 +161,16 @@ public class SellerOrderManagementServlet extends HttpServlet {
         request.setAttribute("payment", payment);
         forwardFlash(request);
         request.getRequestDispatcher("/jsp/seller/order-details.jsp").forward(request, response);
+    }
+
+    private boolean isCodPayment(Payment payment) {
+        if (payment == null || payment.getPaymentMethod() == null) {
+            return false;
+        }
+        String normalizedMethod = payment.getPaymentMethod().trim().toLowerCase();
+        return "cod".equals(normalizedMethod)
+                || "cash on delivery".equals(normalizedMethod)
+                || "thanh toan khi nhan hang".equals(normalizedMethod);
     }
 
     private String normalizeStatus(String rawStatus) {
@@ -174,6 +201,25 @@ public class SellerOrderManagementServlet extends HttpServlet {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    private Integer getSessionUserId(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        Object raw = session.getAttribute(AuthUtil.SESSION_USER_ID);
+        if (raw instanceof Integer) {
+            return (Integer) raw;
+        }
+        if (raw != null) {
+            try {
+                return Integer.parseInt(raw.toString());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private void setFlash(HttpServletRequest request, String type, String message) {
