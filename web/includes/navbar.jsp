@@ -594,6 +594,15 @@
                                 <a href="${pageContext.request.contextPath}/books/dashboard">
                                     <i class="fas fa-tachometer-alt"></i> Bảng Thống Kê
                                 </a>
+                                <a href="${pageContext.request.contextPath}/seller/order-management">
+                                    <i class="fas fa-shopping-cart"></i> Quản lý Order
+                                </a>
+                                <a href="${pageContext.request.contextPath}/seller/sales-report">
+                                    <i class="fas fa-file-invoice-dollar"></i> Sales Report
+                                </a>
+                                <a href="${pageContext.request.contextPath}/seller/sales-analytics">
+                                    <i class="fas fa-chart-line"></i> Analytics
+                                </a>
                             </c:if>
                             <div class="dropdown-divider"></div>
                             <a href="${pageContext.request.contextPath}/auth/logout" class="logout-link">

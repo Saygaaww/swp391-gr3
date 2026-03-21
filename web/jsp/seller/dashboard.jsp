@@ -518,6 +518,17 @@
                             <i class="fas fa-tags"></i> Thể loại
                         </a>
 
+                        <div class="sidebar-section">Bán hàng</div>
+                        <a href="${pageContext.request.contextPath}/seller/order-management" class="sidebar-link">
+                            <i class="fas fa-shopping-cart"></i> Quản lý Order
+                        </a>
+                        <a href="${pageContext.request.contextPath}/seller/sales-report" class="sidebar-link">
+                            <i class="fas fa-file-invoice-dollar"></i> Sales Report
+                        </a>
+                        <a href="${pageContext.request.contextPath}/seller/sales-analytics" class="sidebar-link">
+                            <i class="fas fa-chart-line"></i> Analytics
+                        </a>
+
                         <div class="sidebar-section">Tài khoản</div>
                         <a href="${pageContext.request.contextPath}/notifications" class="sidebar-link">
                             <i class="fas fa-bell"></i> Thông báo

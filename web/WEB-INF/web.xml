@@ -149,6 +149,36 @@
         <url-pattern>/customer/*</url-pattern>
     </servlet-mapping>
 
+    <!-- Seller Order Management -->
+    <servlet>
+        <servlet-name>SellerOrderManagementServlet</servlet-name>
+        <servlet-class>controller.seller.SellerOrderManagementServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SellerOrderManagementServlet</servlet-name>
+        <url-pattern>/seller/order-management</url-pattern>
+    </servlet-mapping>
+
+    <!-- Seller Sales Report -->
+    <servlet>
+        <servlet-name>SellerSalesReportServlet</servlet-name>
+        <servlet-class>controller.seller.SalesReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SellerSalesReportServlet</servlet-name>
+        <url-pattern>/seller/sales-report</url-pattern>
+    </servlet-mapping>
+
+    <!-- Seller Sales Analytics -->
+    <servlet>
+        <servlet-name>SellerSalesAnalyticsServlet</servlet-name>
+        <servlet-class>controller.seller.SalesAnalyticsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SellerSalesAnalyticsServlet</servlet-name>
+        <url-pattern>/seller/sales-analytics</url-pattern>
+    </servlet-mapping>
+
     <!-- Error Pages (JSP đã được chuyển ra thư mục /jsp) -->
     <error-page>
         <error-code>404</error-code>

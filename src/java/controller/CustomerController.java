@@ -422,6 +422,11 @@ public class CustomerController extends HttpServlet {
                 ownershipDAO.grant(readerId, item.getBookId(), "order");
             }
         }
+
+        // Create a pending COD payment so Seller can confirm cash received later.
+        PaymentDAO paymentDAO = new PaymentDAO();
+        paymentDAO.createPayment(orderId, cartTotal, "COD", null);
+
         cartDAO.clearCart(cart.getCartId());
         cartDAO.updateCartStatus(cart.getCartId(), "checked_out");
         session.setAttribute("successMessage", "??ặt hàng thành công. Mã ?ơn: " + orderId);
