@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+    
+    <!-- ============================================ -->
+    <!-- FILTER: Character Encoding (UTF-8) - must run first -->
+    <!-- ============================================ -->
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>controller.common.CharacterEncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- ============================================ -->
+    <!-- FILTER: Authorization Filter                  -->
+    <!-- ============================================ -->
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>controller.common.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <!-- ============================================ -->
+    <!-- SERVLETS: Authentication                      -->
+    <!-- ============================================ -->
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>controller.auth.LoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EmployeeLoginServlet</servlet-name>
+        <servlet-class>controller.auth.EmployeeLoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>controller.auth.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>controller.auth.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GoogleLoginServlet</servlet-name>
+        <servlet-class>controller.auth.GoogleLoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GoogleCallbackServlet</servlet-name>
+        <servlet-class>controller.auth.GoogleCallbackServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <servlet-class>controller.auth.ResetPasswordServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HomeServlet</servlet-name>
+        <servlet-class>controller.common.HomeServlet</servlet-class>
+    </servlet>
+    
+    <!-- ============================================ -->
+    <!-- SERVLETS: Customer/Reader Features            -->
+    <!-- ============================================ -->
+    <servlet>
+        <servlet-name>BrowseBooksServlet</servlet-name>
+        <servlet-class>controller.customer.BrowseBooksServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddToCartServlet</servlet-name>
+        <servlet-class>controller.customer.AddToCartServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>controller.customer.CartServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>controller.customer.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderHistoryServlet</servlet-name>
+        <servlet-class>controller.customer.OrderHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>VNPayReturnServlet</servlet-name>
+        <servlet-class>controller.customer.VNPayReturnServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomerHomeServlet</servlet-name>
+        <servlet-class>controller.customer.CustomerHomeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MyLibraryServlet</servlet-name>
+        <servlet-class>controller.customer.MyLibraryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BorrowedItemsServlet</servlet-name>
+        <servlet-class>controller.customer.BorrowedItemsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BorrowRequestServlet</servlet-name>
+        <servlet-class>controller.customer.BorrowRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomerBorrowRequestsServlet</servlet-name>
+        <servlet-class>controller.customer.BorrowRequestsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReservationsServlet</servlet-name>
+        <servlet-class>controller.customer.ReservationsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReadingHistoryServlet</servlet-name>
+        <servlet-class>controller.customer.ReadingHistoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BookmarksServlet</servlet-name>
+        <servlet-class>controller.customer.BookmarksServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReviewsServlet</servlet-name>
+        <servlet-class>controller.customer.ReviewsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ProfileServlet</servlet-name>
+        <servlet-class>controller.customer.ProfileServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <servlet-class>controller.customer.ChangePasswordServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LinkedAccountsServlet</servlet-name>
+        <servlet-class>controller.customer.LinkedAccountsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <servlet-class>controller.customer.NotificationsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FinesServlet</servlet-name>
+        <servlet-class>controller.customer.FinesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExtendRequestsServlet</servlet-name>
+        <servlet-class>controller.customer.ExtendRequestsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReadBookServlet</servlet-name>
+        <servlet-class>controller.customer.ReadBookServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderDetailServlet</servlet-name>
+        <servlet-class>controller.customer.OrderDetailServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BookDetailServlet</servlet-name>
+        <servlet-class>controller.customer.BookDetailServlet</servlet-class>
+    </servlet>
+
+    <!-- ============================================ -->
+    <!-- SERVLETS: Librarian Features                  -->
+    <!-- ============================================ -->
+    <servlet>
+        <servlet-name>LibrarianDashboardServlet</servlet-name>
+        <servlet-class>controller.librarian.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BorrowRequestsServlet</servlet-name>
+        <servlet-class>controller.librarian.BorrowRequestsServlet</servlet-class>
+    </servlet>
+    
+    <!-- ============================================ -->
+    <!-- SERVLETS: Seller Features                     -->
+    <!-- ============================================ -->
+    <servlet>
+        <servlet-name>SellerDashboardServlet</servlet-name>
+        <servlet-class>controller.seller.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OrderManagementServlet</servlet-name>
+        <servlet-class>controller.seller.OrderManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SalesReportServlet</servlet-name>
+        <servlet-class>controller.seller.SalesReportServlet</servlet-class>
+    </servlet>
+    
+    <!-- ============================================ -->
+    <!-- SERVLETS: Admin Features                      -->
+    <!-- ============================================ -->
+    <servlet>
+        <servlet-name>AdminDashboardServlet</servlet-name>
+        <servlet-class>controller.admin.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UserManagementServlet</servlet-name>
+        <servlet-class>controller.admin.UserManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BookManagementServlet</servlet-name>
+        <servlet-class>controller.admin.BookManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentManagementServlet</servlet-name>
+        <servlet-class>controller.admin.PaymentManagementServlet</servlet-class>
+    </servlet>
+    
+    <!-- ============================================ -->
+    <!-- SERVLET MAPPINGS: Authentication              -->
+    <!-- ============================================ -->
+    <!-- LoginServlet - support both /login and /LoginServlet -->
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/LoginServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- EmployeeLoginServlet -->
+    <servlet-mapping>
+        <servlet-name>EmployeeLoginServlet</servlet-name>
+        <url-pattern>/employee/login</url-pattern>
+    </servlet-mapping>
+    
+    <!-- LogoutServlet - support both /logout and /LogoutServlet -->
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/LogoutServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- RegisterServlet - support both /register and /RegisterServlet -->
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/RegisterServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- GoogleLoginServlet - support both URL patterns -->
+    <servlet-mapping>
+        <servlet-name>GoogleLoginServlet</servlet-name>
+        <url-pattern>/google-login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GoogleLoginServlet</servlet-name>
+        <url-pattern>/GoogleLoginServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- GoogleCallbackServlet - support both URL patterns -->
+    <servlet-mapping>
+        <servlet-name>GoogleCallbackServlet</servlet-name>
+        <url-pattern>/google-callback</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GoogleCallbackServlet</servlet-name>
+        <url-pattern>/GoogleCallbackServlet</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ResetPasswordServlet - support both URL patterns -->
+    <servlet-mapping>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <url-pattern>/reset-password</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <url-pattern>/ResetPasswordServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordServlet</servlet-name>
+        <url-pattern>/ForgotPasswordServlet</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>HomeServlet</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ============================================ -->
+    <!-- SERVLET MAPPINGS: Customer/Reader             -->
+    <!-- ============================================ -->
+    <servlet-mapping>
+        <servlet-name>BrowseBooksServlet</servlet-name>
+        <url-pattern>/customer/browse-books</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddToCartServlet</servlet-name>
+        <url-pattern>/customer/add-to-cart</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/customer/cart</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/customer/checkout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderHistoryServlet</servlet-name>
+        <url-pattern>/customer/orders</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>VNPayReturnServlet</servlet-name>
+        <url-pattern>/vnpay-return</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerHomeServlet</servlet-name>
+        <url-pattern>/customer/home</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MyLibraryServlet</servlet-name>
+        <url-pattern>/customer/my-library</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BorrowedItemsServlet</servlet-name>
+        <url-pattern>/customer/borrowed-items</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BorrowRequestServlet</servlet-name>
+        <url-pattern>/customer/borrow-request</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerBorrowRequestsServlet</servlet-name>
+        <url-pattern>/customer/borrow-requests</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReservationsServlet</servlet-name>
+        <url-pattern>/customer/reservations</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReadingHistoryServlet</servlet-name>
+        <url-pattern>/customer/reading-history</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookmarksServlet</servlet-name>
+        <url-pattern>/customer/bookmarks</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReviewsServlet</servlet-name>
+        <url-pattern>/customer/reviews</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProfileServlet</servlet-name>
+        <url-pattern>/customer/profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <url-pattern>/customer/change-password</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LinkedAccountsServlet</servlet-name>
+        <url-pattern>/customer/linked-accounts</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <url-pattern>/customer/notifications</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FinesServlet</servlet-name>
+        <url-pattern>/customer/fines</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExtendRequestsServlet</servlet-name>
+        <url-pattern>/customer/extend-requests</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReadBookServlet</servlet-name>
+        <url-pattern>/customer/read</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderDetailServlet</servlet-name>
+        <url-pattern>/customer/order-detail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookDetailServlet</servlet-name>
+        <url-pattern>/customer/book-detail</url-pattern>
+    </servlet-mapping>
+
+    <!-- ============================================ -->
+    <!-- SERVLET MAPPINGS: Librarian                   -->
+    <!-- ============================================ -->
+    <servlet-mapping>
+        <servlet-name>LibrarianDashboardServlet</servlet-name>
+        <url-pattern>/librarian/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BorrowRequestsServlet</servlet-name>
+        <url-pattern>/librarian/borrow-requests</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ============================================ -->
+    <!-- SERVLET MAPPINGS: Seller                      -->
+    <!-- ============================================ -->
+    <servlet-mapping>
+        <servlet-name>SellerDashboardServlet</servlet-name>
+        <url-pattern>/seller/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderManagementServlet</servlet-name>
+        <url-pattern>/seller/orders</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SalesReportServlet</servlet-name>
+        <url-pattern>/seller/sales-report</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ============================================ -->
+    <!-- SERVLET MAPPINGS: Admin                       -->
+    <!-- ============================================ -->
+    <servlet-mapping>
+        <servlet-name>AdminDashboardServlet</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserManagementServlet</servlet-name>
+        <url-pattern>/admin/users</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BookManagementServlet</servlet-name>
+        <url-pattern>/admin/books</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentManagementServlet</servlet-name>
+        <url-pattern>/admin/payments</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ============================================ -->
+    <!-- SESSION CONFIG (giữ session khi chuyển trang) -->
+    <!-- ============================================ -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <!-- ============================================ -->
+    <!-- WELCOME FILES                                 -->
+    <!-- ============================================ -->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+</web-app>

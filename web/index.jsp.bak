@@ -1,0 +1,1086 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@ page import="util.AuthUtil, model.Book, model.Category, java.util.List, java.util.ArrayList" %>
+<%@ page import="dao.BookDAO, dao.CategoryDAO, util.PaginatedResult" %>
+<%
+    boolean isLoggedIn = AuthUtil.isLoggedIn(request);
+    boolean isAdmin = AuthUtil.isAdmin(request);
+    String userRole = AuthUtil.getUserRole(request);
+    boolean isLibrarian = AuthUtil.ROLE_LIBRARIAN.equals(userRole);
+    boolean isSeller = AuthUtil.ROLE_SELLER.equals(userRole);
+    String contextPath = request.getContextPath();
+
+    String keyword = request.getParameter("keyword");
+    if (keyword == null) keyword = "";
+
+    // Fetch data directly from DB
+    List<Book> latestBooks = new ArrayList<>();
+    List<Book> freeBooks = new ArrayList<>();
+    List<Category> categories = new ArrayList<>();
+    int totalBooksCount = 0;
+
+    BookDAO bookDAO = null;
+    CategoryDAO categoryDAO = null;
+    try {
+        bookDAO = new BookDAO();
+        categoryDAO = new CategoryDAO();
+
+        PaginatedResult<Book> latestResult = bookDAO.searchBooksWithPagination(
+                null, null, null, null, null, null, null, null, "newest", 1, 8);
+        latestBooks = latestResult.getItems();
+        totalBooksCount = latestResult.getTotalCount();
+
+        PaginatedResult<Book> freeResult = bookDAO.searchBooksWithPagination(
+                null, null, null, null, null, null, null, "free", "newest", 1, 6);
+        freeBooks = freeResult.getItems();
+
+        categories = categoryDAO.getCategoriesWithBooks();
+    } catch (Exception ex) {
+        // silently continue with empty lists if DB unavailable
+    } finally {
+        if (bookDAO != null) bookDAO.close();
+        if (categoryDAO != null) categoryDAO.close();
+    }
+%>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư viện Số FPT | Khám Phá Tri Thức</title>
+    <meta name="description" content="Thư viện số FPT - Khám phá hàng nghìn sách điện tử, tài liệu học thuật dành cho sinh viên và giảng viên FPT University.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --dark2: #1e293b;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --card-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            --card-hover: 0 12px 40px rgba(99,102,241,0.15);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 16px 5%;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+
+        .brand {
+            font-size: 1.4rem; font-weight: 800;
+            color: var(--dark); text-decoration: none;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .brand-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.1rem;
+        }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px; border-radius: 8px;
+            text-decoration: none; font-weight: 500; font-size: 0.9rem;
+            color: var(--gray); transition: all 0.2s;
+        }
+
+        .nav-link:hover { color: var(--primary); background: rgba(99,102,241,0.07); }
+
+        .btn {
+            padding: 10px 22px; border-radius: 50px; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+            transition: all 0.3s; font-size: 0.9rem; cursor: pointer; border: none;
+        }
+
+        .btn-outline {
+            background: transparent; color: var(--dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+            color: white;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            display: flex; align-items: center;
+            padding: 110px 5% 80px;
+            background:
+                radial-gradient(circle at 70% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+                var(--light);
+            position: relative; overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute; top: -200px; right: -200px;
+            width: 700px; height: 700px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,102,241,0.06), transparent 70%);
+        }
+
+        .hero-inner {
+            max-width: 1200px; margin: 0 auto; width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 14px; border-radius: 50px;
+            background: rgba(99,102,241,0.1); color: var(--primary);
+            font-size: 0.82rem; font-weight: 600; margin-bottom: 20px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.8rem; line-height: 1.15;
+            margin-bottom: 20px; color: var(--dark);
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 1.05rem; color: var(--gray);
+            margin-bottom: 36px; line-height: 1.8; max-width: 480px;
+        }
+
+        /* ── SEARCH BAR ── */
+        .search-wrap {
+            background: white;
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+
+        .search-form {
+            display: flex; gap: 0;
+        }
+
+        .search-select {
+            padding: 12px 14px;
+            border: none; border-right: 1px solid var(--border);
+            border-radius: 8px 0 0 8px;
+            background: var(--light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem; color: var(--dark);
+            cursor: pointer; outline: none;
+            min-width: 150px;
+        }
+
+        .search-input {
+            flex: 1; padding: 12px 16px;
+            border: none; outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; color: var(--dark);
+            background: transparent;
+        }
+
+        .search-input::placeholder { color: #94a3b8; }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border: none; border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .hero-stats {
+            display: flex; gap: 28px;
+        }
+
+        .hero-stat { text-align: left; }
+        .hero-stat-num {
+            font-size: 1.6rem; font-weight: 800; color: var(--dark);
+            line-height: 1;
+        }
+        .hero-stat-label { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+
+        .hero-visual {
+            position: relative; display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        .books-stack {
+            position: relative; width: 320px; height: 380px;
+        }
+
+        .book-card-float {
+            position: absolute;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .book-card-float:hover { transform: translateY(-5px); }
+
+        .bcf-1 {
+            width: 180px; height: 240px;
+            top: 0; left: 0;
+            animation: floatA 6s ease-in-out infinite;
+        }
+
+        .bcf-2 {
+            width: 160px; height: 200px;
+            top: 60px; right: 0;
+            animation: floatB 7s ease-in-out infinite 1s;
+        }
+
+        .bcf-3 {
+            width: 140px; height: 180px;
+            bottom: 0; left: 60px;
+            animation: floatA 5s ease-in-out infinite 0.5s;
+        }
+
+        .bcf-cover {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+        }
+
+        .bcf-default {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 8px; color: var(--primary);
+        }
+
+        .bcf-default i { font-size: 2.5rem; opacity: 0.5; }
+        .bcf-default span { font-size: 0.7rem; font-weight: 600; opacity: 0.6; text-align: center; padding: 0 8px; }
+
+        @keyframes floatA {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes floatB {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-18px); }
+        }
+
+        /* ── SECTION COMMONS ── */
+        .section { padding: 80px 5%; }
+        .section-inner { max-width: 1200px; margin: 0 auto; }
+
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; color: var(--dark);
+        }
+
+        .section-title span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-link {
+            color: var(--primary); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 5px;
+            transition: gap 0.2s;
+        }
+
+        .section-link:hover { gap: 10px; }
+
+        /* ── CATEGORY PILLS ── */
+        .category-pills {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .cat-pill {
+            padding: 8px 18px; border-radius: 50px;
+            text-decoration: none; font-size: 0.85rem; font-weight: 600;
+            background: white; color: var(--gray);
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .cat-pill:hover, .cat-pill.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+            transform: translateY(-1px);
+        }
+
+        /* ── BOOK GRID ── */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 24px;
+        }
+
+        .book-card {
+            background: white; border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden; transition: all 0.3s;
+            text-decoration: none; color: inherit;
+            display: flex; flex-direction: column;
+            border: 1px solid transparent;
+        }
+
+        .book-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--card-hover);
+            border-color: rgba(99,102,241,0.15);
+        }
+
+        .book-cover {
+            width: 100%; aspect-ratio: 3/4;
+            object-fit: cover;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+        }
+
+        .book-cover-default {
+            width: 100%; aspect-ratio: 3/4;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 10px; color: var(--primary);
+        }
+
+        .book-cover-default i { font-size: 3rem; opacity: 0.4; }
+
+        .book-info { padding: 14px; flex: 1; display: flex; flex-direction: column; }
+
+        .book-cat {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--primary); margin-bottom: 6px;
+        }
+
+        .book-title {
+            font-size: 0.9rem; font-weight: 700; line-height: 1.3;
+            margin-bottom: 6px; color: var(--dark);
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-author {
+            font-size: 0.78rem; color: var(--gray); margin-bottom: 10px;
+        }
+
+        .book-price {
+            font-size: 0.88rem; font-weight: 700;
+            margin-top: auto;
+        }
+
+        .price-free { color: #16a34a; }
+        .price-paid { color: var(--primary); }
+
+        .book-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 50px;
+            font-size: 0.7rem; font-weight: 700;
+        }
+
+        .badge-free { background: #dcfce7; color: #16a34a; }
+        .badge-new { background: #fef3c7; color: #d97706; }
+
+        /* ── CATEGORIES GRID ── */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .cat-card {
+            background: white; border-radius: 16px;
+            padding: 24px 16px; text-align: center;
+            text-decoration: none; color: var(--dark);
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+
+        .cat-card:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(99,102,241,0.12);
+        }
+
+        .cat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: var(--primary);
+        }
+
+        .cat-name {
+            font-size: 0.85rem; font-weight: 700; line-height: 1.3;
+            text-align: center;
+        }
+
+        /* ── CTA REGISTER ── */
+        .cta-section {
+            padding: 80px 5%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), #06b6d4);
+            position: relative; overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .cta-inner {
+            max-width: 700px; margin: 0 auto;
+            text-align: center; position: relative;
+        }
+
+        .cta-inner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem; color: white; margin-bottom: 16px;
+        }
+
+        .cta-inner p {
+            color: rgba(255,255,255,0.85); font-size: 1.05rem;
+            margin-bottom: 36px; line-height: 1.7;
+        }
+
+        .cta-buttons {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--primary); font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            color: var(--primary);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        /* ── FEATURES ── */
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: white; border-radius: 20px; padding: 32px;
+            border: 1px solid var(--border); transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover);
+            border-color: rgba(99,102,241,0.2);
+        }
+
+        .feature-icon {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: var(--primary); margin-bottom: 20px;
+        }
+
+        .feature-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+        .feature-card p { color: var(--gray); font-size: 0.9rem; line-height: 1.7; }
+
+        /* ── REVIEWS ── */
+        .reviews-wrap {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .review-card {
+            background: white; border-radius: 20px; padding: 28px;
+            border: 1px solid var(--border); transition: all 0.3s;
+        }
+
+        .review-card:hover { box-shadow: var(--card-shadow); }
+
+        .review-stars { color: #f59e0b; font-size: 0.85rem; margin-bottom: 12px; }
+
+        .review-text {
+            font-size: 0.92rem; color: var(--dark); line-height: 1.7;
+            margin-bottom: 20px; font-style: italic;
+        }
+
+        .reviewer {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .reviewer-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.9rem;
+        }
+
+        .reviewer-name { font-size: 0.88rem; font-weight: 700; }
+        .reviewer-role { font-size: 0.75rem; color: var(--gray); }
+
+        /* ── FOOTER ── */
+        .footer {
+            background: var(--dark2); color: rgba(255,255,255,0.7);
+            padding: 60px 5% 30px;
+        }
+
+        .footer-inner {
+            max-width: 1200px; margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+            margin-bottom: 40px; padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .footer-brand {
+            font-size: 1.3rem; font-weight: 800; color: white;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+        }
+
+        .footer-brand-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.9rem;
+        }
+
+        .footer-desc { font-size: 0.88rem; line-height: 1.7; }
+
+        .footer-col h4 {
+            color: white; font-size: 0.9rem; font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .footer-links a {
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            font-size: 0.88rem; transition: color 0.2s;
+        }
+        .footer-links a:hover { color: white; }
+
+        .footer-bottom {
+            text-align: center; font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center; padding: 48px; color: var(--gray);
+        }
+
+        .empty-state i { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .hero-inner { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+            .hero-title { font-size: 2.8rem; }
+            .hero-desc { max-width: 100%; }
+            .hero-stats { justify-content: center; }
+            .hero-visual { display: none; }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+            .nav-links > .nav-link { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .hero { padding: 90px 5% 60px; }
+            .hero-title { font-size: 2.2rem; }
+            .section { padding: 60px 5%; }
+            .book-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-top { grid-template-columns: 1fr; }
+            .search-select { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar" id="navbar">
+        <a href="<%= contextPath %>/" class="brand">
+            <div class="brand-icon"><i class="fas fa-book-reader"></i></div>
+            DigitalLibrary
+        </a>
+        <div class="nav-links">
+            <a href="<%= contextPath %>/books" class="nav-link"><i class="fas fa-books"></i> Kho sách</a>
+            <a href="<%= contextPath %>/categories" class="nav-link"><i class="fas fa-tags"></i> Thể loại</a>
+            <% if (isAdmin) { %>
+                <a href="<%= contextPath %>/admin/book-list" class="btn btn-primary">Quản trị <i class="fas fa-arrow-right"></i></a>
+                <a href="<%= contextPath %>/auth/logout" class="nav-link">Đăng xuất</a>
+            <% } else if (isLibrarian || isSeller) { %>
+                <a href="<%= contextPath %>/books/dashboard" class="btn btn-primary">Quản lý <i class="fas fa-arrow-right"></i></a>
+                <a href="<%= contextPath %>/auth/logout" class="nav-link">Đăng xuất</a>
+            <% } else if (isLoggedIn) { %>
+                <a href="<%= contextPath %>/profile/view" class="btn btn-outline"><i class="fas fa-user"></i> Tài khoản</a>
+                <a href="<%= contextPath %>/books" class="btn btn-primary">Khám phá <i class="fas fa-arrow-right"></i></a>
+            <% } else { %>
+                <a href="<%= contextPath %>/auth/login" class="btn btn-outline">Đăng nhập</a>
+                <a href="<%= contextPath %>/auth/register" class="btn btn-primary">Đăng ký miễn phí <i class="fas fa-arrow-right"></i></a>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-star"></i>
+                    Nền tảng tri thức Đại học FPT
+                </div>
+                <h1 class="hero-title">Khám phá tri thức<br><span>không giới hạn</span></h1>
+                <p class="hero-desc">
+                    Trải nghiệm kho sách điện tử khổng lồ dành riêng cho cộng đồng FPT.
+                    Đọc sách, tìm kiếm tài liệu học thuật mọi lúc mọi nơi.
+                </p>
+
+                <!-- Search Bar -->
+                <div class="search-wrap">
+                    <form class="search-form" action="<%= contextPath %>/books" method="get">
+                        <select class="search-select" name="categoryId" id="searchCategory">
+                            <option value="">Tất cả thể loại</option>
+                            <% if (categories != null) {
+                                for (Category cat : categories) { %>
+                            <option value="<%= cat.getCategoryId() %>"><%= cat.getCategoryName() %></option>
+                            <% } } %>
+                        </select>
+                        <input type="text" class="search-input" name="keyword"
+                               placeholder="Tìm kiếm theo tên sách, tác giả, thể loại..."
+                               value="<%= keyword %>" id="searchInput">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                    </form>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-num"><%= totalBooksCount != null ? totalBooksCount : "1000" %>+</div>
+                        <div class="hero-stat-label">Đầu sách</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num"><%= categories != null ? categories.size() : "20" %>+</div>
+                        <div class="hero-stat-label">Thể loại</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">Free</div>
+                        <div class="hero-stat-label">Sách miễn phí</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="books-stack">
+                    <% if (latestBooks != null && latestBooks.size() >= 1) {
+                        Book b1 = latestBooks.get(0); %>
+                    <a href="<%= contextPath %>/books/detail/<%= b1.getBookId() %>" class="book-card-float bcf-1">
+                        <% if (b1.getCoverUrl() != null && !b1.getCoverUrl().isBlank()) { %>
+                            <img src="<%= b1.getCoverUrl() %>" alt="<%= b1.getTitle() %>" class="bcf-cover">
+                        <% } else { %>
+                            <div class="bcf-default">
+                                <i class="fas fa-book"></i>
+                                <span><%= b1.getTitle() %></span>
+                            </div>
+                        <% } %>
+                    </a>
+                    <% } %>
+
+                    <% if (latestBooks != null && latestBooks.size() >= 2) {
+                        Book b2 = latestBooks.get(1); %>
+                    <a href="<%= contextPath %>/books/detail/<%= b2.getBookId() %>" class="book-card-float bcf-2">
+                        <% if (b2.getCoverUrl() != null && !b2.getCoverUrl().isBlank()) { %>
+                            <img src="<%= b2.getCoverUrl() %>" alt="<%= b2.getTitle() %>" class="bcf-cover">
+                        <% } else { %>
+                            <div class="bcf-default">
+                                <i class="fas fa-book"></i>
+                                <span><%= b2.getTitle() %></span>
+                            </div>
+                        <% } %>
+                    </a>
+                    <% } %>
+
+                    <% if (latestBooks != null && latestBooks.size() >= 3) {
+                        Book b3 = latestBooks.get(2); %>
+                    <a href="<%= contextPath %>/books/detail/<%= b3.getBookId() %>" class="book-card-float bcf-3">
+                        <% if (b3.getCoverUrl() != null && !b3.getCoverUrl().isBlank()) { %>
+                            <img src="<%= b3.getCoverUrl() %>" alt="<%= b3.getTitle() %>" class="bcf-cover">
+                        <% } else { %>
+                            <div class="bcf-default">
+                                <i class="fas fa-book"></i>
+                                <span><%= b3.getTitle() %></span>
+                            </div>
+                        <% } %>
+                    </a>
+                    <% } %>
+
+                    <% if (latestBooks == null || latestBooks.size() < 1) { %>
+                    <div class="book-card-float bcf-1">
+                        <div class="bcf-default"><i class="fas fa-book"></i><span>Sách mới nhất</span></div>
+                    </div>
+                    <div class="book-card-float bcf-2">
+                        <div class="bcf-default"><i class="fas fa-book-open"></i><span>Tài liệu học thuật</span></div>
+                    </div>
+                    <div class="book-card-float bcf-3">
+                        <div class="bcf-default"><i class="fas fa-graduation-cap"></i><span>Tri thức số</span></div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CATEGORIES ── -->
+    <section class="section" style="background: white;">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title">Khám phá theo <span>thể loại</span></h2>
+                <a href="<%= contextPath %>/categories" class="section-link">
+                    Xem tất cả <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <% if (categories != null && !categories.isEmpty()) { %>
+            <div class="cat-grid">
+                <% String[] catIcons = {"fas fa-laptop-code", "fas fa-flask", "fas fa-briefcase",
+                    "fas fa-brain", "fas fa-book-open", "fas fa-chart-line",
+                    "fas fa-language", "fas fa-paint-brush", "fas fa-heartbeat",
+                    "fas fa-globe", "fas fa-music", "fas fa-camera"};
+                   int ci = 0;
+                   for (Category cat : categories) {
+                       if (ci >= 12) break;
+                       String icon = catIcons[ci % catIcons.length];
+                       ci++;
+                %>
+                <a href="<%= contextPath %>/books?categoryId=<%= cat.getCategoryId() %>" class="cat-card">
+                    <div class="cat-icon"><i class="<%= icon %>"></i></div>
+                    <div class="cat-name"><%= cat.getCategoryName() %></div>
+                </a>
+                <% } %>
+            </div>
+            <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-tags"></i>
+                <p>Chưa có thể loại nào</p>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- ── LATEST BOOKS ── -->
+    <section class="section">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title">Sách <span>mới nhất</span></h2>
+                <a href="<%= contextPath %>/books/latest" class="section-link">
+                    Xem thêm <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <% if (latestBooks != null && !latestBooks.isEmpty()) { %>
+            <div class="book-grid">
+                <% for (Book book : latestBooks) { %>
+                <a href="<%= contextPath %>/books/detail/<%= book.getBookId() %>" class="book-card">
+                    <% if (book.getCoverUrl() != null && !book.getCoverUrl().isBlank()) { %>
+                        <img src="<%= book.getCoverUrl() %>" alt="<%= book.getTitle() %>" class="book-cover" loading="lazy">
+                    <% } else { %>
+                        <div class="book-cover-default">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    <% } %>
+                    <div class="book-info">
+                        <div class="book-cat">
+                            <%= book.getCategoryId() != null ? "Sách" : "Tài liệu" %>
+                            <% if (book.getCreatedAt() != null &&
+                                   book.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusDays(30))) { %>
+                                &nbsp;<span class="book-badge badge-new">Mới</span>
+                            <% } %>
+                        </div>
+                        <div class="book-title"><%= book.getTitle() %></div>
+                        <% if (book.getAuthorId() != null) { %>
+                        <div class="book-author"><i class="fas fa-user" style="font-size:0.7rem;"></i>
+                            <%= book.getAuthorId() %>
+                        </div>
+                        <% } %>
+                        <div class="book-price">
+                            <% if (book.getPrice() == null || book.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) { %>
+                                <span class="badge-free book-badge">Miễn phí</span>
+                            <% } else { %>
+                                <span class="price-paid">
+                                    <%= String.format("%,.0f", book.getPrice()) %> ₫
+                                </span>
+                            <% } %>
+                        </div>
+                    </div>
+                </a>
+                <% } %>
+            </div>
+            <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <p>Chưa có sách nào. <a href="<%= contextPath %>/books" style="color:var(--primary);">Xem kho sách</a></p>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- ── FREE BOOKS ── -->
+    <% if (freeBooks != null && !freeBooks.isEmpty()) { %>
+    <section class="section" style="background: white;">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title"><span>Miễn phí</span> 100%</h2>
+                <a href="<%= contextPath %>/books/free" class="section-link">
+                    Xem thêm <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="book-grid">
+                <% for (Book book : freeBooks) { %>
+                <a href="<%= contextPath %>/books/detail/<%= book.getBookId() %>" class="book-card">
+                    <% if (book.getCoverUrl() != null && !book.getCoverUrl().isBlank()) { %>
+                        <img src="<%= book.getCoverUrl() %>" alt="<%= book.getTitle() %>" class="book-cover" loading="lazy">
+                    <% } else { %>
+                        <div class="book-cover-default">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    <% } %>
+                    <div class="book-info">
+                        <div class="book-cat">Miễn phí</div>
+                        <div class="book-title"><%= book.getTitle() %></div>
+                        <div class="book-price">
+                            <span class="badge-free book-badge"><i class="fas fa-gift"></i> Miễn phí</span>
+                        </div>
+                    </div>
+                </a>
+                <% } %>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ── REVIEWS ── -->
+    <section class="section">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title">Đánh giá từ <span>độc giả</span></h2>
+            </div>
+            <div class="reviews-wrap">
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"Hệ thống thư viện số tuyệt vời! Mình tìm được hàng trăm tài liệu chuyên ngành CNTT phục vụ cho luận văn tốt nghiệp. Giao diện thân thiện, tìm kiếm nhanh chóng."</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar">NT</div>
+                        <div>
+                            <div class="reviewer-name">Nguyễn Tuấn</div>
+                            <div class="reviewer-role">Sinh viên K18 - FPT Hà Nội</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">"Kho tài liệu phong phú, đặc biệt là mảng kinh doanh và quản trị. Mình đọc được rất nhiều cuốn sách quý mà ngoài thị trường rất khó tìm. Highly recommend!"</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar">LM</div>
+                        <div>
+                            <div class="reviewer-name">Lê Minh</div>
+                            <div class="reviewer-role">Sinh viên K19 - FPT Đà Nẵng</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-card">
+                    <div class="review-stars">★★★★☆</div>
+                    <p class="review-text">"Tính năng đọc thử preview rất hay, giúp mình chọn được sách phù hợp trước khi mượn. Giao diện đẹp, dễ dùng, mong có thêm nhiều sách mới hơn nữa!"</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar">PH</div>
+                        <div>
+                            <div class="reviewer-name">Phạm Hoa</div>
+                            <div class="reviewer-role">Giảng viên - FPT Education</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA REGISTER ── -->
+    <% if (!isLoggedIn) { %>
+    <section class="cta-section">
+        <div class="cta-inner">
+            <h2>Bắt đầu khám phá ngay hôm nay!</h2>
+            <p>Tạo tài khoản miễn phí để truy cập toàn bộ kho sách, mượn tài liệu và theo dõi lịch sử đọc sách của bạn.</p>
+            <div class="cta-buttons">
+                <a href="<%= contextPath %>/auth/register" class="btn btn-white btn-lg">
+                    <i class="fas fa-user-plus"></i> Đăng ký miễn phí
+                </a>
+                <a href="<%= contextPath %>/auth/login" class="btn btn-ghost btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Đã có tài khoản
+                </a>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+    <!-- ── FEATURES ── -->
+    <section class="section" style="background: white;">
+        <div class="section-inner">
+            <div class="section-header">
+                <h2 class="section-title">Tại sao chọn <span>chúng tôi?</span></h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-search"></i></div>
+                    <h3>Tìm kiếm thông minh</h3>
+                    <p>Tìm sách theo tên, tác giả, thể loại. Bộ lọc nâng cao giúp bạn nhanh chóng tìm đúng tài liệu cần thiết.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-book-open"></i></div>
+                    <h3>Đọc thử trước khi mượn</h3>
+                    <p>Tính năng xem trước (preview) cho phép đọc thử một số trang để đảm bảo sách phù hợp với nhu cầu của bạn.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h3>Bản quyền được bảo vệ</h3>
+                    <p>Mọi tài liệu trên hệ thống đều được kiểm duyệt và phân phối đúng bản quyền số, an toàn và hợp pháp.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-screen-button"></i></div>
+                    <h3>Đa nền tảng</h3>
+                    <p>Đọc sách mọi lúc mọi nơi trên Desktop, Tablet, hay Smartphone. Trải nghiệm mượt mà trên mọi thiết bị.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-gift"></i></div>
+                    <h3>Nhiều sách miễn phí</h3>
+                    <p>Hàng trăm đầu sách miễn phí, không cần đăng ký hay trả phí, truy cập được ngay khi có tài khoản.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-star"></i></div>
+                    <h3>Đánh giá & Nhận xét</h3>
+                    <p>Đọc review từ cộng đồng sinh viên, giảng viên FPT trước khi chọn sách. Chia sẻ trải nghiệm của bạn.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div>
+                    <div class="footer-brand">
+                        <div class="footer-brand-icon"><i class="fas fa-book-reader"></i></div>
+                        DigitalLibrary
+                    </div>
+                    <p class="footer-desc">Thư viện số FPT University — Nền tảng tri thức dành cho cộng đồng sinh viên, giảng viên và nhân viên FPT toàn quốc.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Khám phá</h4>
+                    <ul class="footer-links">
+                        <li><a href="<%= contextPath %>/books"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Kho sách</a></li>
+                        <li><a href="<%= contextPath %>/books/latest"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Sách mới</a></li>
+                        <li><a href="<%= contextPath %>/books/free"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Sách miễn phí</a></li>
+                        <li><a href="<%= contextPath %>/categories"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Thể loại</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Tài khoản</h4>
+                    <ul class="footer-links">
+                        <li><a href="<%= contextPath %>/auth/login"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Đăng nhập</a></li>
+                        <li><a href="<%= contextPath %>/auth/register"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Đăng ký</a></li>
+                        <% if (isLoggedIn) { %>
+                        <li><a href="<%= contextPath %>/profile/view"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Hồ sơ</a></li>
+                        <% } %>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Liên hệ</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-envelope" style="font-size:0.7rem;"></i> library@fpt.edu.vn</a></li>
+                        <li><a href="#"><i class="fab fa-facebook" style="font-size:0.7rem;"></i> FPT Library</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                © 2024 Digital Library FPT University. Built with ❤️ by SWP391 Group 3.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.style.boxShadow = '0 4px 30px rgba(0,0,0,0.08)';
+            } else {
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

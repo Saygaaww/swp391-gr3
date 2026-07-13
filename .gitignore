@@ -1,0 +1,10 @@
+build/
+dist/
+nbproject/private/
+*.war
+*.jar
+*.class
+target/
+node_modules/
+cypress/videos/
+cypress/screenshots/

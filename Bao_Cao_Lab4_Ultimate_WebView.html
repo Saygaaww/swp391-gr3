@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo Cáo Lab 4 (Web View - BẢN MỞ RỘNG)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f3f2f1; }
+        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #d0d7de; padding: 10px; text-align: left; font-size: 14px; white-space: pre-wrap; }
+        th { background-color: #203764; font-weight: bold; color: #FFFFFF; text-align: center; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #eef1f5; }
+        h2 { color: #203764; margin-top: 0; border-bottom: 2px solid #203764; padding-bottom: 5px; }
+        .pass { background-color: #C6EFCE; color: #006100; font-weight: bold; text-align: center; }
+        .fail { background-color: #FFC7CE; color: #9C0006; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>0. Mô tả chức năng</h2>
+        <table>
+            <tr><th>STT</th><th>Module</th><th>Actor</th><th>Mô tả</th><th>Quy tắc (Business Rules)</th></tr>
+            <tr><td>1</td><td>F01 - Đăng ký</td><td>Guest</td><td>Tạo tài khoản mới</td><td>- Họ tên: 5-50 ký tự.<br>- SĐT: Đúng 10 số.<br>- Pass: >= 6 ký tự.<br>- Email chuẩn format.</td></tr>
+            <tr><td>2</td><td>F02 - Sách</td><td>Admin</td><td>Quản lý sách</td><td>- Tên sách không rỗng.<br>- Giá tiền: 10,000 -> 5M.<br>- Ngày XB: <= Hiện tại.</td></tr>
+            <tr><td>3</td><td>F03 - Độc giả</td><td>Admin</td><td>Tạo thẻ</td><td>- CCCD: Đủ 12 số.<br>- Tiền cọc: 50,000 -> 10M.</td></tr>
+            <tr><td>4</td><td>F04 - Hồ sơ</td><td>Reader</td><td>Cập nhật thông tin</td><td>- Tuổi: >= 15.<br>- SĐT: Unique.</td></tr>
+            <tr><td>5</td><td>F05 - Mượn</td><td>Reader</td><td>Mượn sách</td><td>- S.L: 1-5 quyển.<br>- Hạn: <= 5 ngày.<br>- BR: Không nợ sách.</td></tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>1. Test Analysis</h2>
+        <table>
+            <tr><th>Module</th><th>Field / Rule</th><th>Technique</th><th>Valid Partitions (Pass)</th><th>Invalid Partitions (Fail)</th></tr>
+            <tr><td>F01</td><td>Họ và tên (5-50)</td><td>BVA</td><td>5, 25, 50 ký tự</td><td>4, 51 ký tự</td></tr>
+            <tr><td>F01</td><td>Số điện thoại (10)</td><td>EP</td><td>Đúng 10 chữ số</td><td>Chứa chữ cái, 9 số, 11 số</td></tr>
+            <tr><td>F01</td><td>Mật khẩu (>=6)</td><td>BVA</td><td>6, 15 ký tự</td><td>5 ký tự, Rỗng</td></tr>
+            <tr><td>F02</td><td>Giá tiền (10k-5M)</td><td>BVA</td><td>10k, 1M, 5M</td><td>9999, 5M+1</td></tr>
+            <tr><td>F02</td><td>Ngày XB</td><td>EP</td><td><= Ngày hiện tại</td><td>> Ngày hiện tại</td></tr>
+            <tr><td>F03</td><td>Tiền cọc (50k-10M)</td><td>BVA</td><td>50k, 1M, 10M</td><td>49999, 10M+1</td></tr>
+            <tr><td>F03</td><td>CCCD (12 số)</td><td>BVA</td><td>Đúng 12 số</td><td>11 số, 13 số, Chữ</td></tr>
+            <tr><td>F04</td><td>Tuổi (>=15)</td><td>BVA</td><td>15, 20 tuổi</td><td>14 tuổi, Ngày HT</td></tr>
+            <tr><td>F05</td><td>Số lượng (1-5)</td><td>BVA</td><td>1, 3, 5</td><td>0, 6</td></tr>
+            <tr><td>F05</td><td>Đang nợ sách</td><td>EP</td><td>Không nợ</td><td>Đang nợ quá hạn</td></tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>2. Test Case Design (28 Test Cases)</h2>
+        <table>
+            <tr><th>TC ID</th><th>Module</th><th>Test Scenario</th><th>Preconditions</th><th>Test Steps</th><th>Test Data</th><th>Expected Result</th></tr>
+            <!-- F01: Đăng ký (8 TC) -->
+            <tr><td>TC_REG_01</td><td>F01</td><td>Đăng ký thành công (Happy path)</td><td>Chưa login</td><td>1. Nhập đủ thông tin<br>2. Submit</td><td>Tên: Nguyen Van A<br>SĐT: 0123456789<br>Pass: 123456</td><td>Chuyển trang Login thành công</td></tr>
+            <tr><td>TC_REG_02</td><td>F01</td><td>Lỗi tên ngắn (BVA - 4 ký tự)</td><td>Chưa login</td><td>Nhập form, Submit</td><td>Tên: Nguy</td><td>Báo lỗi "Tên 5-50 ký tự"</td></tr>
+            <tr><td>TC_REG_03</td><td>F01</td><td>Lỗi tên dài (BVA - 51 ký tự)</td><td>Chưa login</td><td>Nhập form, Submit</td><td>Tên: Chuỗi 51 ký tự 'A'</td><td>Báo lỗi "Tên 5-50 ký tự"</td></tr>
+            <tr><td>TC_REG_04</td><td>F01</td><td>Lỗi SĐT ngắn (9 số)</td><td>Chưa login</td><td>Nhập form, Submit</td><td>SĐT: 012345678</td><td>Báo lỗi "SĐT 10 số"</td></tr>
+            <tr><td>TC_REG_05</td><td>F01</td><td>Lỗi SĐT có chứa chữ</td><td>Chưa login</td><td>Nhập form, Submit</td><td>SĐT: 01234abc89</td><td>Báo lỗi "SĐT không hợp lệ"</td></tr>
+            <tr><td>TC_REG_06</td><td>F01</td><td>Email sai định dạng</td><td>Chưa login</td><td>Nhập form, Submit</td><td>Email: admin@.com</td><td>Báo lỗi "Email sai định dạng"</td></tr>
+            <tr><td>TC_REG_07</td><td>F01</td><td>Mật khẩu quá ngắn (5 ký tự)</td><td>Chưa login</td><td>Nhập form, Submit</td><td>Pass: 12345</td><td>Báo lỗi "Mật khẩu >= 6"</td></tr>
+            <tr><td>TC_REG_08</td><td>F01</td><td>Mật khẩu xác nhận không khớp</td><td>Chưa login</td><td>Nhập form, Submit</td><td>Pass: 123456<br>Confirm: abcdef</td><td>Báo lỗi "Mật khẩu không khớp"</td></tr>
+
+            <!-- F02: Sách (6 TC) -->
+            <tr><td>TC_BOK_01</td><td>F02</td><td>Thêm sách thành công</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Tên: Sách Mới<br>Giá: 150000</td><td>Lưu sách thành công</td></tr>
+            <tr><td>TC_BOK_02</td><td>F02</td><td>Tên sách rỗng</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Tên: [Để trống]</td><td>Báo lỗi "Vui lòng nhập tên"</td></tr>
+            <tr><td>TC_BOK_03</td><td>F02</td><td>Giá tiền dưới biên độ (< 10000)</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Giá: 9999</td><td>Báo lỗi "Giá >= 10000"</td></tr>
+            <tr><td>TC_BOK_04</td><td>F02</td><td>Giá tiền vượt mức (> 5M)</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Giá: 5000001</td><td>Báo lỗi "Giá <= 5M"</td></tr>
+            <tr><td>TC_BOK_05</td><td>F02</td><td>Ngày xuất bản ở tương lai</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Ngày: Tương lai</td><td>Báo lỗi "Ngày XB không hợp lệ"</td></tr>
+            <tr><td>TC_BOK_06</td><td>F02</td><td>Bỏ trống chọn Thể loại</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Thể loại: Không chọn</td><td>Báo lỗi "Chọn ít nhất 1 thể loại"</td></tr>
+
+            <!-- F03: Độc giả (5 TC) -->
+            <tr><td>TC_RDR_01</td><td>F03</td><td>Tạo thẻ hợp lệ</td><td>Admin login</td><td>Nhập form, Lưu</td><td>CCCD: 012345678901<br>Cọc: 100k</td><td>Tạo thẻ thành công</td></tr>
+            <tr><td>TC_RDR_02</td><td>F03</td><td>CCCD thiếu số (11 số)</td><td>Admin login</td><td>Nhập form, Lưu</td><td>CCCD: 12345678901</td><td>Báo lỗi "CCCD đủ 12 số"</td></tr>
+            <tr><td>TC_RDR_03</td><td>F03</td><td>Tiền cọc dưới tối thiểu</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Cọc: 49999</td><td>Báo lỗi "Cọc >= 50k"</td></tr>
+            <tr><td>TC_RDR_04</td><td>F03</td><td>Tiền cọc vượt tối đa</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Cọc: 10000001</td><td>Báo lỗi "Cọc <= 10M"</td></tr>
+            <tr><td>TC_RDR_05</td><td>F03</td><td>Ngày hết hạn ở quá khứ</td><td>Admin login</td><td>Nhập form, Lưu</td><td>Ngày HH: Hôm qua</td><td>Báo lỗi "Hạn phải ở tương lai"</td></tr>
+
+            <!-- F04: Hồ sơ (4 TC) -->
+            <tr><td>TC_PRO_01</td><td>F04</td><td>Cập nhật thành công</td><td>Reader login</td><td>Cập nhật, Lưu</td><td>Tuổi: 20</td><td>Cập nhật DB thành công</td></tr>
+            <tr><td>TC_PRO_02</td><td>F04</td><td>Lỗi chưa đủ 15 tuổi (14 tuổi)</td><td>Reader login</td><td>Cập nhật, Lưu</td><td>Tuổi: 14</td><td>Báo lỗi "Bạn chưa đủ 15 tuổi"</td></tr>
+            <tr><td>TC_PRO_03</td><td>F04</td><td>Tuổi bị âm (Tương lai)</td><td>Reader login</td><td>Cập nhật, Lưu</td><td>Ngày sinh: 2099</td><td>Báo lỗi "Ngày sinh không hợp lệ"</td></tr>
+            <tr><td>TC_PRO_04</td><td>F04</td><td>SĐT bị trùng lặp user khác</td><td>Reader login</td><td>Cập nhật, Lưu</td><td>SĐT: [SĐT của Admin]</td><td>Báo lỗi "SĐT đã tồn tại"</td></tr>
+
+            <!-- F05: Mượn sách (5 TC) -->
+            <tr><td>TC_BRW_01</td><td>F05</td><td>Mượn 2 cuốn hợp lệ</td><td>Reader ko nợ</td><td>Tạo phiếu, Gửi</td><td>SL: 2, Hạn: 3 ngày</td><td>Tạo phiếu mượn thành công</td></tr>
+            <tr><td>TC_BRW_02</td><td>F05</td><td>Mượn 0 cuốn (BVA)</td><td>Reader ko nợ</td><td>Tạo phiếu, Gửi</td><td>SL: 0</td><td>Báo lỗi "Số lượng >= 1"</td></tr>
+            <tr><td>TC_BRW_03</td><td>F05</td><td>Mượn quá 5 cuốn (BVA)</td><td>Reader ko nợ</td><td>Tạo phiếu, Gửi</td><td>SL: 6</td><td>Báo lỗi "Chỉ mượn tối đa 5"</td></tr>
+            <tr><td>TC_BRW_04</td><td>F05</td><td>Hạn mượn vượt 5 ngày (BVA)</td><td>Reader ko nợ</td><td>Tạo phiếu, Gửi</td><td>Hạn: 6 ngày</td><td>Báo lỗi "Hạn tối đa 5 ngày"</td></tr>
+            <tr><td>TC_BRW_05</td><td>F05</td><td>Mượn khi ĐANG nợ sách (BR)</td><td>Đang nợ sách</td><td>Tạo phiếu, Gửi</td><td>SL: 1</td><td>Báo lỗi "Phải trả sách nợ trước"</td></tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>3. Test Execution</h2>
+        <table>
+            <tr><th>TC ID</th><th>Expected Result</th><th>Actual Result</th><th>Status</th><th>Executed By</th><th>Date</th><th>Defect ID</th></tr>
+            <!-- F01 -->
+            <tr><td>TC_REG_01</td><td>Thành công</td><td>Thành công</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_02</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_03</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_04</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_05</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_06</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_07</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_REG_08</td><td>Báo lỗi không khớp</td><td>Sập server lỗi 500</td><td class="fail">Fail</td><td>Tester</td><td>Hôm nay</td><td>BUG_001</td></tr>
+            <!-- F02 -->
+            <tr><td>TC_BOK_01</td><td>Thành công</td><td>Thành công</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BOK_02</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BOK_03</td><td>Báo lỗi</td><td>Hệ thống cho lưu 9999</td><td class="fail">Fail</td><td>Tester</td><td>Hôm nay</td><td>BUG_002</td></tr>
+            <tr><td>TC_BOK_04</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BOK_05</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BOK_06</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <!-- F03 -->
+            <tr><td>TC_RDR_01</td><td>Thành công</td><td>Thành công</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_RDR_02</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_RDR_03</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_RDR_04</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_RDR_05</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <!-- F04 -->
+            <tr><td>TC_PRO_01</td><td>Thành công</td><td>Thành công</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_PRO_02</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_PRO_03</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_PRO_04</td><td>Báo lỗi</td><td>Crash DB Unique Constraint</td><td class="fail">Fail</td><td>Tester</td><td>Hôm nay</td><td>BUG_003</td></tr>
+            <!-- F05 -->
+            <tr><td>TC_BRW_01</td><td>Thành công</td><td>Thành công</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BRW_02</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BRW_03</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BRW_04</td><td>Báo lỗi</td><td>Báo lỗi</td><td class="pass">Pass</td><td>Tester</td><td>Hôm nay</td><td></td></tr>
+            <tr><td>TC_BRW_05</td><td>Báo lỗi</td><td>Văng NullPointerException</td><td class="fail">Fail</td><td>Tester</td><td>Hôm nay</td><td>BUG_004</td></tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>4. Defect Report (4 Bugs)</h2>
+        <table>
+            <tr><th>Defect ID</th><th>TC ID</th><th>Module</th><th>Bug Summary</th><th>Severity</th><th>Status</th><th>Steps to Reproduce</th><th>Expected</th><th>Actual</th><th>Assignee</th></tr>
+            <tr><td>BUG_001</td><td>TC_REG_08</td><td>F01</td><td>Lỗi 500 Server khi Pass không khớp (Thiếu Validate)</td><td>High</td><td>Open</td><td>1. Đăng ký<br>2. Nhập Pass sai</td><td>Báo lỗi Text</td><td>500 Error Crash</td><td>Dev_A</td></tr>
+            <tr><td>BUG_002</td><td>TC_BOK_03</td><td>F02</td><td>Bỏ qua Validate biên giá tiền thấp, cho lưu 9999</td><td>Medium</td><td>Open</td><td>1. Nhập giá 9999<br>2. Lưu</td><td>Báo lỗi UI</td><td>Lưu thành công</td><td>Dev_B</td></tr>
+            <tr><td>BUG_003</td><td>TC_PRO_04</td><td>F04</td><td>Crash UI do dính DB Constraint Unique khi đổi SĐT trùng</td><td>High</td><td>Open</td><td>1. Nhập SĐT đã tồn tại<br>2. Lưu</td><td>Báo lỗi "SĐT tồn tại"</td><td>Lỗi SQL Trace</td><td>Dev_A</td></tr>
+            <tr><td>BUG_004</td><td>TC_BRW_05</td><td>F05</td><td>NullPointerException khi user nợ sách cố tình mượn thêm</td><td>High</td><td>Open</td><td>1. User nợ sách<br>2. Tạo mượn</td><td>Báo lỗi chặn</td><td>NullPointer</td><td>Dev_C</td></tr>
+        </table>
+    </div>
+
+</body>
+</html>

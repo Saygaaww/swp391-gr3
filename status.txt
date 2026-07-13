@@ -1,0 +1,97 @@
+﻿On branch vu
+Your branch is up to date with 'origin/vu'.
+
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	new file:   Library.zip
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   build/web/WEB-INF/classes/controller/AdminController.class
+	modified:   build/web/WEB-INF/classes/controller/AuthController.class
+	modified:   build/web/WEB-INF/classes/controller/BookController.class
+	modified:   build/web/WEB-INF/classes/dao/EmployeeDAO.class
+	modified:   build/web/WEB-INF/classes/dao/ReaderDAO.class
+	modified:   build/web/WEB-INF/classes/util/EmailUtil.class
+	modified:   build/web/WEB-INF/classes/util/TokenUtil.class
+	modified:   build/web/WEB-INF/jsp/admin/dashboard.jsp
+	modified:   build/web/WEB-INF/jsp/auth/forgot-password.jsp
+	modified:   build/web/WEB-INF/jsp/auth/login.jsp
+	modified:   build/web/WEB-INF/jsp/auth/register.jsp
+	modified:   build/web/WEB-INF/jsp/auth/reset-password.jsp
+	modified:   build/web/WEB-INF/jsp/authors/detail.jsp
+	modified:   build/web/WEB-INF/jsp/authors/list.jsp
+	modified:   build/web/WEB-INF/jsp/books/detail.jsp
+	modified:   build/web/WEB-INF/jsp/books/form.jsp
+	modified:   build/web/WEB-INF/jsp/books/list.jsp
+	modified:   build/web/WEB-INF/jsp/books/upload.jsp
+	modified:   build/web/WEB-INF/jsp/categories/list.jsp
+	modified:   build/web/WEB-INF/jsp/librarian/dashboard.jsp
+	modified:   build/web/WEB-INF/jsp/notifications/inbox.jsp
+	modified:   build/web/WEB-INF/jsp/profile/change-password.jsp
+	modified:   build/web/WEB-INF/jsp/profile/edit-profile.jsp
+	modified:   build/web/WEB-INF/jsp/profile/linked-accounts.jsp
+	modified:   build/web/WEB-INF/jsp/profile/view-profile.jsp
+	deleted:    build/web/WEB-INF/lib/javax.mail-1.6.1.jar
+	modified:   build/web/WEB-INF/web.xml
+	modified:   build/web/css/additional-styles.css
+	modified:   build/web/css/author-category-styles.css
+	modified:   build/web/css/style.css
+	deleted:    build/web/index.html
+	modified:   build/web/index.jsp
+	modified:   db_schema_reader.sql
+	modified:   dist/Library.war
+	modified:   nbproject/private/private.xml
+	modified:   nbproject/project.properties
+	modified:   src/java/controller/AdminController.java
+	modified:   src/java/controller/AuthController.java
+	modified:   src/java/controller/BookController.java
+	modified:   src/java/dao/EmployeeDAO.java
+	modified:   src/java/dao/ReaderDAO.java
+	modified:   src/java/util/EmailUtil.java
+	modified:   src/java/util/TokenUtil.java
+	modified:   web/WEB-INF/jsp/admin/dashboard.jsp
+	modified:   web/WEB-INF/jsp/auth/forgot-password.jsp
+	modified:   web/WEB-INF/jsp/auth/login.jsp
+	modified:   web/WEB-INF/jsp/auth/register.jsp
+	modified:   web/WEB-INF/jsp/auth/reset-password.jsp
+	modified:   web/WEB-INF/jsp/authors/detail.jsp
+	modified:   web/WEB-INF/jsp/authors/list.jsp
+	modified:   web/WEB-INF/jsp/books/detail.jsp
+	modified:   web/WEB-INF/jsp/books/form.jsp
+	modified:   web/WEB-INF/jsp/books/list.jsp
+	modified:   web/WEB-INF/jsp/books/upload.jsp
+	modified:   web/WEB-INF/jsp/categories/list.jsp
+	modified:   web/WEB-INF/jsp/librarian/dashboard.jsp
+	modified:   web/WEB-INF/jsp/notifications/inbox.jsp
+	modified:   web/WEB-INF/jsp/profile/change-password.jsp
+	modified:   web/WEB-INF/jsp/profile/edit-profile.jsp
+	modified:   web/WEB-INF/jsp/profile/linked-accounts.jsp
+	modified:   web/WEB-INF/jsp/profile/view-profile.jsp
+	modified:   web/WEB-INF/web.xml
+	modified:   web/css/additional-styles.css
+	modified:   web/css/author-category-styles.css
+	modified:   web/css/style.css
+	deleted:    web/index.html
+	modified:   web/index.jsp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	branch.txt
+	build/web/WEB-INF/classes/model/GoogleAccount.class
+	build/web/WEB-INF/classes/util/EmailUtil$1.class
+	build/web/WEB-INF/classes/util/GoogleUtils.class
+	build/web/WEB-INF/jsp/auth/verify-google-otp.jsp
+	build/web/WEB-INF/jsp/auth/verify-otp.jsp
+	build/web/WEB-INF/lib/gson-2.10.1.jar
+	build/web/WEB-INF/lib/javax.mail-1.6.2.jar
+	src/java/model/GoogleAccount.java
+	src/java/util/GoogleUtils.java
+	status.txt
+	web/WEB-INF/jsp/auth/verify-google-otp.jsp
+	web/WEB-INF/jsp/auth/verify-otp.jsp
+	web/WEB-INF/lib/
+

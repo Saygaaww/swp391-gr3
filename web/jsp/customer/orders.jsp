@@ -1,0 +1,93 @@
+<%-- Order History - Lịch sử đơn hàng theo theme đen/trắng --%>
+<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@include file="/includes/header.jsp" %>
+<% String ctx = request.getContextPath();%>
+<style>
+    .user-home {
+        background: #fff;
+        min-height: 100vh;
+        color: #333;
+    }
+
+    .user-home .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .user-home .btn-card {
+        border: 2px solid #000;
+        color: #000;
+        background: #fff;
+        font-weight: 500;
+    }
+
+    .user-home .btn-card:hover {
+        background: #000;
+        color: #fff;
+    }
+</style>
+<%@include file="/includes/navbar.jsp" %>
+
+<div class="user-home">
+    <div class="container py-5">
+        <h2 class="fw-bold mb-4">Order History</h2>
+
+        <c:choose>
+            <c:when test="${empty orders}">
+                <p class="text-muted">Bạn chưa có đơn hàng nào.</p>
+                <!-- Nút xem giỏ hàng -->
+                <a href="<%= ctx%>/customer/cart" class="btn btn-card me-2">Xem giỏ hàng</a>
+                <!-- Nút quay lại trang mua sách -->
+                <a href="<%= ctx%>/books" class="btn btn-outline-secondary">Mua sách</a>
+            </c:when>
+            <c:otherwise>
+                <div class="list-group">
+                    <c:forEach items="${orders}" var="o">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>#${o.orderId}</strong> - ${o.createdAt}
+                                    <c:choose>
+                                        <c:when test="${o.status == 'pending'}">
+                                            <span class="badge bg-warning text-dark ms-2">Pending</span>
+                                        </c:when>
+                                        <c:when test="${o.status == 'paid'}">
+                                            <span class="badge bg-success ms-2">Paid</span>
+                                        </c:when>
+                                        <c:when test="${o.status == 'cancelled'}">
+                                            <span class="badge bg-danger ms-2">Cancelled</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge bg-secondary ms-2">${o.status}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <a href="<%= ctx%>/customer/order-detail?orderId=${o.orderId}"
+                                       class="btn btn-link btn-sm ms-2 p-0">Xem chi
+                                        tiết</a>
+                                </div>
+                                <strong>
+                                    <fmt:formatNumber value="${o.totalAmount}"
+                                                      type="currency" currencySymbol="₫" />
+                                </strong>
+                            </div>
+                            <c:if test="${not empty o.orderBooks}">
+                                <ul class="mb-0 mt-2 text-muted small">
+                                    <c:forEach items="${o.orderBooks}" var="ob">
+                                        <li>${ob.bookTitle} x ${ob.quantity}</li>
+                                        </c:forEach>
+                                </ul>
+                            </c:if>
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:otherwise>
+        </c:choose>
+
+                                    <!-- <a href="<%= ctx%>/customer/home_1.jsp" class="btn btn-outline-dark mt-3">Về Trang
+                                        chủ</a> -->
+    </div>
+</div>
+<%@include file="/includes/footer.jsp" %>

@@ -1,0 +1,256 @@
+﻿<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#0070C0" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s63">
+   <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Cover">
+  <Table>
+   <Row><Cell><Data ss:Type="String">PROJECT NAME: DIGITAL LIBRARY (SWP391)</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">LAB 4: BLACKBOX TESTING (FORMATTED AS LAB 1)</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="FunctionList">
+  <Table>
+   <Row><Cell><Data ss:Type="String">Function Code</Data></Cell><Cell><Data ss:Type="String">Function Name</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">TC_REG</Data></Cell><Cell><Data ss:Type="String">Register Account</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">TC_BOK</Data></Cell><Cell><Data ss:Type="String">Book Management</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">TC_RDR</Data></Cell><Cell><Data ss:Type="String">Reader Management</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">TC_PRO</Data></Cell><Cell><Data ss:Type="String">Edit Profile</Data></Cell></Row>
+   <Row><Cell><Data ss:Type="String">TC_BRW</Data></Cell><Cell><Data ss:Type="String">Borrow Request</Data></Cell></Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Register">
+  <Table ss:ExpandedColumnCount="6" ss:ExpandedRowCount="10" x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="120">
+   <Column ss:Width="30"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="60"/>
+   <Row ss:Height="30">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">No.</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Type of test cases</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Precondition)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Values of inputs)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Confirmation (Expected result)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Result (OK/NG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Normal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Trạng thái chưa đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Họ tên: Nguyen Van A; Email: test1@gmail.com; SĐT: 0123456789; Vai trò: Độc giả; Pass: 123456; Confirm: 123456</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Chuyển hướng thành công sang trang Đăng nhập.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Boundary</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Trạng thái chưa đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Họ tên: Nguy (4 ký tự)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Hiển thị lỗi: Họ tên phải từ 5-50 ký tự.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Abnormal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Trạng thái chưa đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">SĐT: 012345678 (9 số)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Hiển thị lỗi: Số điện thoại phải đủ 10 số.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Abnormal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Trạng thái chưa đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Pass: 123456; Confirm: 1234567</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Hiển thị thông báo lỗi: Mật khẩu xác nhận không khớp.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">NG</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Book_Form">
+  <Table ss:ExpandedColumnCount="6" ss:ExpandedRowCount="10" x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="120">
+   <Column ss:Width="30"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="60"/>
+   <Row ss:Height="30">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">No.</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Type of test cases</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Precondition)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Values of inputs)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Confirmation (Expected result)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Result (OK/NG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Normal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Admin đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Tên: Sách KTPM; Giá: 150000; Ngày XB: 01/01/2023; Thể loại: CNTT</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Sách mới trên danh sách quản lý.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Boundary</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Admin đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Giá: 9999</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Giá tiền phải từ 10000 VNĐ trở lên.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">NG</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Abnormal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Admin đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Ngày XB: 01/01/2099</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Ngày xuất bản không được lớn hơn ngày hiện tại.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Reader_Form">
+  <Table ss:ExpandedColumnCount="6" ss:ExpandedRowCount="10" x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="120">
+   <Column ss:Width="30"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="60"/>
+   <Row ss:Height="30">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">No.</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Type of test cases</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Precondition)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Values of inputs)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Confirmation (Expected result)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Result (OK/NG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Normal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Admin đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">CCCD: 001234567890; Tiền cọc: 100000; Hết hạn: Ngày mai; Loại: VIP</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Thông báo tạo thẻ độc giả thành công.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Boundary</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Admin đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Tiền cọc: 10000001 (Vượt tối đa)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Số tiền cọc không vượt quá 10.000.000 VNĐ.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Edit_Profile">
+  <Table ss:ExpandedColumnCount="6" ss:ExpandedRowCount="10" x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="120">
+   <Column ss:Width="30"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="60"/>
+   <Row ss:Height="30">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">No.</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Type of test cases</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Precondition)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Values of inputs)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Confirmation (Expected result)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Result (OK/NG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Normal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Reader đã đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Địa chỉ: 123 Đường A; Ngày sinh: 01/01/2000; Giới tính: Nam</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Hồ sơ được lưu thành công.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Abnormal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Reader đã đăng nhập</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Ngày sinh: 01/01/2015 (Mới 11 tuổi)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Bạn phải đủ 15 tuổi.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+ <Worksheet ss:Name="Borrow_Request">
+  <Table ss:ExpandedColumnCount="6" ss:ExpandedRowCount="10" x:FullColumns="1" x:FullRows="1" ss:DefaultColumnWidth="120">
+   <Column ss:Width="30"/>
+   <Column ss:Width="80"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="60"/>
+   <Row ss:Height="30">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">No.</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Type of test cases</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Precondition)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Condition (Values of inputs)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Confirmation (Expected result)</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Result (OK/NG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Normal</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Reader không nợ sách</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Start: Hôm nay; Return: Hôm nay + 3 ngày; Số lượng: 2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Chuyển hướng trang Trạng thái mượn thành công.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Boundary</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Reader không nợ sách</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Số lượng: 6 (Quá 5)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Chỉ được mượn tối đa 5 quyển.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">OK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s63"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Boundary</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Reader không nợ sách</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Return: Hôm nay + 6 ngày</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">Báo lỗi: Thời gian mượn không vượt quá 5 ngày.</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">NG</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

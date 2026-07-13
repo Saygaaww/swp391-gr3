@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab 4 Test Cases (Formatted)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f3f2f1; }
+        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #d0d7de; padding: 12px; text-align: left; font-size: 14px; }
+        th { background-color: #f6f8fa; font-weight: bold; color: #24292f; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #eef1f5; }
+        h2 { color: #106ebe; margin-top: 0; }
+        .instruction { font-size: 15px; color: #555; margin-bottom: 20px; }
+        .ok { color: #107c10; font-weight: bold; }
+        .ng { color: #d13438; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bảng Test Cases Lab 4 (Chuẩn định dạng Lab 1)</h2>
+        <p class="instruction">💡 <b>Mẹo:</b> Bạn chỉ cần dùng chuột bôi đen toàn bộ bảng dưới đây, nhấn <b>Ctrl + C</b>, sau đó mở file Excel của nhóm lên và nhấn <b>Ctrl + V</b>. Bảng sẽ giữ nguyên chia cột cực kỳ đẹp mắt!</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Function Code</th>
+                    <th>Type of test cases</th>
+                    <th>Condition (Precondition)</th>
+                    <th>Condition (Values of inputs)</th>
+                    <th>Confirmation (Expected result)</th>
+                    <th>Test case result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>TC_REG_01</td><td>Normal</td><td>Trạng thái chưa đăng nhập. Database hoạt động bình thường</td><td>Họ tên: Nguyen Van A; Email: test1@gmail.com; SĐT: 0123456789; Vai trò: Độc giả; Pass: 123456; Confirm: 123456</td><td>Chuyển hướng thành công sang trang Đăng nhập.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_REG_02</td><td>Boundary</td><td>Trạng thái chưa đăng nhập</td><td>Họ tên: Nguy (4 ký tự); Các trường khác hợp lệ</td><td>Hiển thị lỗi: Họ tên phải từ 5-50 ký tự.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_REG_03</td><td>Abnormal</td><td>Trạng thái chưa đăng nhập</td><td>SĐT: 012345678 (9 số); Các trường khác hợp lệ</td><td>Hiển thị lỗi: Số điện thoại phải đủ 10 số.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_REG_04</td><td>Abnormal</td><td>Trạng thái chưa đăng nhập</td><td>Pass: 123456; Confirm: 1234567</td><td>Hiển thị thông báo lỗi: Mật khẩu xác nhận không khớp.</td><td class="ng">NG</td></tr>
+                
+                <tr><td>TC_BOK_01</td><td>Normal</td><td>Tài khoản Admin đã đăng nhập</td><td>Tên: Sách KTPM; Giá: 150000; Ngày XB: 01/01/2023; Thể loại: CNTT</td><td>Hệ thống hiển thị Sách mới trên danh sách quản lý.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_BOK_02</td><td>Boundary</td><td>Tài khoản Admin đã đăng nhập</td><td>Giá: 9999; Các trường khác hợp lệ</td><td>Báo lỗi: Giá tiền phải từ 10000 VNĐ trở lên.</td><td class="ng">NG</td></tr>
+                <tr><td>TC_BOK_03</td><td>Abnormal</td><td>Tài khoản Admin đã đăng nhập</td><td>Ngày XB: 01/01/2099 (Ngày tương lai)</td><td>Báo lỗi: Ngày xuất bản không được lớn hơn ngày hiện tại.</td><td class="ok">OK</td></tr>
+                
+                <tr><td>TC_RDR_01</td><td>Normal</td><td>Tài khoản Admin đã đăng nhập</td><td>CCCD: 001234567890; Tiền cọc: 100000; Hết hạn: Ngày mai; Loại: VIP</td><td>Thông báo tạo thẻ độc giả thành công.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_RDR_02</td><td>Boundary</td><td>Tài khoản Admin đã đăng nhập</td><td>Tiền cọc: 10000001 (Vượt tối đa)</td><td>Báo lỗi: Số tiền cọc không vượt quá 10.000.000 VNĐ.</td><td class="ok">OK</td></tr>
+                
+                <tr><td>TC_PRO_01</td><td>Normal</td><td>Reader đã đăng nhập</td><td>Địa chỉ: 123 Đường A; Ngày sinh: 01/01/2000; Giới tính: Nam</td><td>Hồ sơ được lưu thành công.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_PRO_02</td><td>Abnormal</td><td>Reader đã đăng nhập</td><td>Ngày sinh: 01/01/2015 (Mới 11 tuổi)</td><td>Báo lỗi: Bạn phải đủ 15 tuổi.</td><td class="ok">OK</td></tr>
+                
+                <tr><td>TC_BRW_01</td><td>Normal</td><td>Reader không nợ sách</td><td>Start: Hôm nay; Return: Hôm nay + 3 ngày; Số lượng: 2</td><td>Chuyển hướng trang Trạng thái mượn thành công.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_BRW_02</td><td>Boundary</td><td>Reader không nợ sách</td><td>Số lượng: 6 (Quá 5)</td><td>Báo lỗi: Chỉ được mượn tối đa 5 quyển.</td><td class="ok">OK</td></tr>
+                <tr><td>TC_BRW_03</td><td>Boundary</td><td>Reader không nợ sách</td><td>Return: Hôm nay + 6 ngày</td><td>Báo lỗi: Thời gian mượn không vượt quá 5 ngày.</td><td class="ng">NG</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

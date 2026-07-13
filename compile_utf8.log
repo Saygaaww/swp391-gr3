@@ -1,0 +1,171 @@
+﻿Buildfile: C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\build.xml
+
+-pre-init:
+
+-init-private:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-macrodef-junit-single:
+
+-init-test-properties:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug:
+
+-init-macrodef-junit-debug-batch:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-macrodef-java:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-nbjsdebug:
+
+-init-macrodef-debug:
+
+-init-taskdefs:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+deps-module-jar:
+
+deps-ear-jar:
+
+deps-jar:
+
+-pre-pre-compile:
+
+-pre-compile:
+
+-copy-manifest:
+
+-copy-persistence-xml:
+
+-copy-webdir:
+
+library-inclusion-in-archive:
+
+library-inclusion-in-manifest:
+
+-do-compile:
+    [javac] Compiling 73 source files to C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\build\web\WEB-INF\classes
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\CustomerController.java:174: error: cannot find symbol
+    [javac]         int available = bookDAO.getAvailableStock(bookId);
+    [javac]                                ^
+    [javac]   symbol:   method getAvailableStock(int)
+    [javac]   location: variable bookDAO of type BookDAO
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\CustomerController.java:310: error: cannot find symbol
+    [javac]             int available = bookDAO.getAvailableStock(item.getBookId());
+    [javac]                                    ^
+    [javac]   symbol:   method getAvailableStock(int)
+    [javac]   location: variable bookDAO of type BookDAO
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\CustomerController.java:355: error: cannot find symbol
+    [javac]             bookDAO.reduceStock(item.getBookId(), item.getQuantity());
+    [javac]                    ^
+    [javac]   symbol:   method reduceStock(int,int)
+    [javac]   location: variable bookDAO of type BookDAO
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\CustomerController.java:433: error: cannot find symbol
+    [javac]                 int available = bookDAO.getAvailableStock(item.getBookId());
+    [javac]                                        ^
+    [javac]   symbol:   method getAvailableStock(int)
+    [javac]   location: variable bookDAO of type BookDAO
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\CustomerController.java:458: error: cannot find symbol
+    [javac]                 bookDAO.reduceStock(item.getBookId(), item.getQuantity());
+    [javac]                        ^
+    [javac]   symbol:   method reduceStock(int,int)
+    [javac]   location: variable bookDAO of type BookDAO
+    [javac] C:\Users\tenma\OneDrive\Documents\NetBeansProjects\Library\src\java\controller\admin\AdminRoleListServlet.java:86: error: incompatible types: String cannot be converted to int
+    [javac]                     roleDAO.addRole(new Role(roleName.trim().toUpperCase(), description));
+    [javac]                                                                         ^
+    [javac] Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+    [javac] 6 errors
+ant.bat : 
+At line:1 char:1
++ & "C:\Program File
+s\NetBeans-17\netbea
+ns\extide\ant\bin\an
+t.bat" comp ...
++ ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo  
+            : NotS  
+  pecified: (:Str   
+ ing) [], Remote    
+Exception
+    + FullyQualifie 
+   dErrorId : Nati  
+  veCommandError
+ 
+BUILD FAILED
+C:\Users\tenma\OneDr
+ive\Documents\NetBea
+nsProjects\Library\n
+bproject\build-impl.
+xml:859: The 
+following error 
+occurred while 
+executing this line:
+C:\Users\tenma\OneDr
+ive\Documents\NetBea
+nsProjects\Library\n
+bproject\build-impl.
+xml:296: Compile 
+failed; see the 
+compiler error 
+output for details.
+
+Total time: 4 
+seconds

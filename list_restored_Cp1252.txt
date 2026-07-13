@@ -1,0 +1,946 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<!DOCTYPE html>
+<html lang="vi">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tìm kiếm sách - Thư viện Số FPT</title>
+
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css?v=2">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/additional-styles.css?v=2">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+            rel="stylesheet">
+
+        <style>
+            /* Apply Inter font globally */
+            body,
+            input,
+            select,
+            button,
+            textarea {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            }
+
+            /* ===== COMPACT FILTER BAR ===== */
+            .compact-filter-bar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 10px 14px;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            }
+
+            .compact-filter-bar .filter-input {
+                flex: 1;
+                min-width: 180px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-size: 0.875rem;
+                color: #334155;
+                background: #f8fafc;
+                transition: border-color 0.2s;
+                outline: none;
+            }
+
+            .compact-filter-bar .filter-input:focus {
+                border-color: #667eea;
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
+            }
+
+            .compact-filter-bar .filter-select {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 6px 10px;
+                font-size: 0.875rem;
+                color: #334155;
+                background: #f8fafc;
+                cursor: pointer;
+                transition: border-color 0.2s;
+                outline: none;
+            }
+
+            .compact-filter-bar .filter-select:focus {
+                border-color: #667eea;
+                background: #fff;
+            }
+
+            .compact-filter-bar .btn-search {
+                background: #667eea;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 6px 16px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                white-space: nowrap;
+                transition: background 0.2s;
+            }
+
+            .compact-filter-bar .btn-search:hover {
+                background: #5a67d8;
+            }
+
+            .compact-filter-bar .btn-clear {
+                background: transparent;
+                color: #64748b;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-size: 0.875rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                white-space: nowrap;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+
+            .compact-filter-bar .btn-clear:hover {
+                background: #f1f5f9;
+                border-color: #cbd5e0;
+                color: #334155;
+            }
+
+            .compact-filter-bar .filter-divider {
+                width: 1px;
+                height: 24px;
+                background: #e2e8f0;
+                flex-shrink: 0;
+            }
+
+            /* page-header compact */
+            .page-header h1 {
+                font-size: 1.4rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .page-header p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin-top: 0;
+                margin-bottom: 1rem;
+            }
+
+            /* Keep the old .filter-section {
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border-radius: 16px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+
+            .filter-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+
+            .filter-toggle {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .filter-toggle:hover {
+                background: #5a67d8;
+            }
+
+            .advanced-filters {
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-top: 1rem;
+                border: 2px dashed #e2e8f0;
+                transition: all 0.3s ease;
+            }
+
+            .advanced-filters.show {
+                border: 2px solid #667eea;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            }
+
+            .filter-group {
+                margin-bottom: 1rem;
+            }
+
+            .filter-label {
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 0.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .form-control,
+            .form-select {
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 0.75rem;
+                font-size: 0.95rem;
+                transition: border-color 0.2s ease;
+            }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+            .filter-actions {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1.5rem;
+            }
+
+            .btn-filter-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+            }
+
+            .btn-filter-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                color: white;
+            }
+
+            .btn-filter-clear {
+                background: transparent;
+                border: 2px solid #e2e8f0;
+                color: #718096;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .btn-filter-clear:hover {
+                border-color: #cbd5e0;
+                background: #f7fafc;
+                color: #718096;
+                text-decoration: none;
+            }
+
+            /* Pagination Styles */
+            .pagination-info-bar {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                border: 1px solid #e9ecef;
+            }
+
+            .pagination-info {
+                margin: 0;
+                color: #6c757d;
+                font-size: 0.95rem;
+            }
+
+            .page-size-selector {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .page-size-selector select {
+                width: auto;
+                min-width: 100px;
+            }
+
+            .pagination-wrapper {
+                margin-top: 3rem;
+                padding: 2rem 0;
+                border-top: 1px solid #e9ecef;
+            }
+
+            .pagination-nav {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .pagination {
+                margin: 0;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .pagination .page-link {
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 0.5rem 0.75rem;
+                margin: 0 2px;
+                color: #667eea;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            }
+
+            .pagination .page-link:hover {
+                background: #667eea;
+                color: white;
+                border-color: #667eea;
+                transform: translateY(-1px);
+                text-decoration: none;
+            }
+
+            .pagination .page-item.active .page-link {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-color: #667eea;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            }
+
+            .pagination .page-item.disabled .page-link {
+                color: #6c757d;
+                background: #f8f9fa;
+                border-color: #dee2e6;
+                cursor: not-allowed;
+            }
+
+            .pagination-jump .input-group {
+                width: auto;
+            }
+
+            .pagination-summary {
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid #e9ecef;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .pagination {
+                    font-size: 0.9rem;
+                }
+
+                .pagination .page-link {
+                    padding: 0.4rem 0.6rem;
+                    margin: 0 1px;
+                }
+
+                .pagination-info-bar .row {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .page-size-selector {
+                    justify-content: center;
+                }
+
+                .filter-actions {
+                    flex-direction: column;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Header -->
+        <jsp:include page="/includes/navbar.jsp" />
+
+        <main class="container">
+            <!-- Compact page heading -->
+            <div class="page-header" style="margin-top: 1.2rem;">
+                <h1><i class="fas fa-book-open" style="color:#667eea;"></i> Tìm kiếm sách</h1>
+                <p>Tìm kiếm và l�?c sách theo tên, thể loại, tác giả...</p>
+            </div>
+
+            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+                <div class="compact-filter-bar" style="margin-top: -4px; margin-bottom: 0.9rem;">
+                    <span style="font-size:0.82rem; color:#64748b; font-weight:600;">Khu vực thao tác theo quy�?n:</span>
+                    <a href="${pageContext.request.contextPath}/books/create" class="btn-clear">
+                        <i class="fas fa-plus"></i> Thêm sách
+                    </a>
+                    <a href="${pageContext.request.contextPath}/books/dashboard" class="btn-clear">
+                        <i class="fas fa-chart-line"></i> Bảng quản lý
+                    </a>
+
+                    <c:if test="${sessionScope.userRole == 'Admin'}">
+                        <div class="filter-divider"></div>
+                        <a href="${pageContext.request.contextPath}/admin/book-list" class="btn-clear">
+                            <i class="fas fa-layer-group"></i> Sách Admin
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/readers" class="btn-clear">
+                            <i class="fas fa-users"></i> �?ộc giả
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/employees" class="btn-clear">
+                            <i class="fas fa-user-tie"></i> Nhân viên
+                        </a>
+                        <a href="${pageContext.request.contextPath}/admin/roles" class="btn-clear">
+                            <i class="fas fa-key"></i> Vai trò
+                        </a>
+                    </c:if>
+                </div>
+            </c:if>
+
+            <!-- Compact Filter Bar -->
+            <form method="get" action="${pageContext.request.contextPath}/books" id="filterForm">
+                <div class="compact-filter-bar">
+                    <i class="fas fa-search" style="color:#94a3b8; font-size:0.85rem; flex-shrink:0;"></i>
+                    <input type="text" name="keyword" id="keyword" class="filter-input"
+                           placeholder="Tìm kiếm sách, tác giả..." value="${selectedKeyword}">
+
+                    <div class="filter-divider"></div>
+
+                    <select name="categoryId" id="categoryId" class="filter-select">
+                        <option value="">Tất cả thể loại</option>
+                        <c:forEach var="category" items="${categories}">
+                            <option value="${category.categoryId}" ${selectedCategoryId==category.categoryId
+                                             ? 'selected' : '' }>
+                                        ${category.categoryName}
+                                    </option>
+                            </c:forEach>
+                        </select>
+
+                        <select name="authorId" id="authorId" class="filter-select">
+                            <option value="">Tất cả tác giả</option>
+                            <c:forEach var="author" items="${authors}">
+                                <option value="${author.authorId}" ${selectedAuthorId==author.authorId ? 'selected'
+                                                 : '' }>
+                                            ${author.authorName}
+                                        </option>
+                                </c:forEach>
+                            </select>
+
+                            <div class="filter-divider"></div>
+
+                            <button type="submit" class="btn-search">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                            <a href="${pageContext.request.contextPath}/books" class="btn-clear">
+                                <i class="fas fa-times"></i> Xóa
+                            </a>
+                            <button type="button" class="btn-clear" onclick="toggleAdvancedFilters()" id="advToggleBtn">
+                                <i class="fas fa-sliders-h"></i> L�?c nâng cao
+                            </button>
+                        </div>
+
+                        <!-- Advanced Filters (collapsible) -->
+                        <div id="advancedFilters"
+                             style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:1rem; margin-top:-8px;">
+                            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+                                <div>
+                                    <label
+                                        style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:3px;">Tên
+                                        sách</label>
+                                    <input type="text" name="title" class="filter-input" style="min-width:140px;"
+                                           placeholder="Tên sách cụ thể..." value="${selectedTitle}">
+                                </div>
+                                <div>
+                                    <label
+                                        style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:3px;">Ngôn
+                                        ngữ</label>
+                                    <select name="language" class="filter-select">
+                                        <option value="">Tất cả</option>
+                                        <option value="Tiếng Việt" ${selectedLanguage=='Tiếng Việt' ? 'selected' : '' }>
+                                            Tiếng Việt</option>
+                                        <option value="Tiếng Anh" ${selectedLanguage=='Tiếng Anh' ? 'selected' : '' }>
+                                            Tiếng Anh</option>
+                                        <option value="Tiếng Nhật" ${selectedLanguage=='Tiếng Nhật' ? 'selected' : '' }>
+                                            Tiếng Nhật</option>
+                                        <option value="Tiếng Pháp" ${selectedLanguage=='Tiếng Pháp' ? 'selected' : '' }>
+                                            Tiếng Pháp</option>
+                                        <option value="Tiếng Trung" ${selectedLanguage=='Tiếng Trung' ? 'selected' : ''
+                                                }>Tiếng Trung</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:3px;">Năm
+                                        XB</label>
+                                    <select name="publicationYear" class="filter-select">
+                                        <option value="">Tất cả năm</option>
+                                        <option value="2020-2024" ${selectedYearRange=='2020-2024' ? 'selected' : '' }>
+                                            2020 - 2024</option>
+                                        <option value="2010-2019" ${selectedYearRange=='2010-2019' ? 'selected' : '' }>
+                                            2010 - 2019</option>
+                                        <option value="2000-2009" ${selectedYearRange=='2000-2009' ? 'selected' : '' }>
+                                            2000 - 2009</option>
+                                        <option value="before-1980" ${selectedYearRange=='before-1980' ? 'selected' : ''
+                                                }>Trước 1980</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:3px;">Giá</label>
+                                    <select name="priceType" class="filter-select">
+                                        <option value="">Tất cả</option>
+                                        <option value="free" ${selectedPriceType=='free' ? 'selected' : '' }>Miễn phí
+                                        </option>
+                                        <option value="paid" ${selectedPriceType=='paid' ? 'selected' : '' }>Có phí
+                                        </option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:3px;">Sắp
+                                        xếp</label>
+                                    <select name="sortBy" class="filter-select">
+                                        <option value="newest" ${selectedSortBy=='newest' ? 'selected' : '' }>Mới nhất
+                                        </option>
+                                        <option value="title" ${selectedSortBy=='title' ? 'selected' : '' }>Tên A-Z
+                                        </option>
+                                        <option value="price-low" ${selectedSortBy=='price-low' ? 'selected' : '' }>Giá
+                                            thấp-cao</option>
+                                        <option value="price-high" ${selectedSortBy=='price-high' ? 'selected' : '' }>
+                                            Giá cao-thấp</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+
+
+
+
+
+
+
+
+
+                    <!-- Pagination Info Bar (Top) -->
+                    <c:if test="${not empty paginatedResult && totalPages > 1}">
+                        <div class="pagination-info-bar">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <p class="pagination-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        ${paginationInfo}
+                                    </p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div class="page-size-selector">
+                                        <label for="pageSizeSelect">Hiển thị:</label>
+                                        <select id="pageSizeSelect" class="form-select form-select-sm"
+                                                onchange="changePageSize(this.value)">
+                                            <option value="6" ${pageSize==6 ? 'selected' : '' }>6 sách</option>
+                                            <option value="12" ${pageSize==12 ? 'selected' : '' }>12 sách</option>
+                                            <option value="24" ${pageSize==24 ? 'selected' : '' }>24 sách</option>
+                                            <option value="48" ${pageSize==48 ? 'selected' : '' }>48 sách</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
+
+                    <!-- Search Results Info -->
+                    <c:if test="${not empty searchSummary}">
+                        <div class="search-results-info">
+                            <p class="results-text">
+                                <i class="fas fa-info-circle"></i>
+                                ${searchSummary}
+                            </p>
+                        </div>
+                    </c:if>
+
+                    <!-- Books Display -->
+                    <section class="books-grid">
+                        <c:choose>
+                            <c:when test="${not empty books}">
+                                <div class="row">
+                                    <c:forEach var="book" items="${books}" varStatus="status">
+                                        <div class="col-lg-3 col-md-4 col-sm-6">
+                                            <article class="card book-card" data-book-id="${book.bookId}">
+                                                <div class="card-image-container">
+                                                    <img src="${not empty book.coverUrl ? book.coverUrl : pageContext.request.contextPath.concat('/images/no-image.jpg')}"
+                                                         class="card-img-top" alt="${book.title}"
+                                                         onerror="this.src='https://via.placeholder.com/300x400/667eea/ffffff?text=📚'">
+                                                    <div class="card-overlay">
+                                                        <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}"
+                                                           class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-eye"></i>
+                                                            Xem chi tiết
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+                                                    <h3 class="card-title" title="${book.title}">
+                                                        ${book.title}
+                                                    </h3>
+
+                                                    <div class="book-meta">
+                                                        <p class="card-text text-muted">
+                                                            <i class="fas fa-user"></i>
+                                                            <span>Tác giả: ${not empty book.author ?
+                                                                             book.author.authorName : 'Chưa xác định'}</span>
+                                                        </p>
+                                                        <p class="card-text text-muted">
+                                                            <i class="fas fa-bookmark"></i>
+                                                            <span>Thể loại: ${not empty book.category ?
+                                                                              book.category.categoryName : 'Chưa phân loại'}</span>
+                                                        </p>
+                                                        <c:if test="${not empty book.totalPages}">
+                                                            <p class="card-text text-muted">
+                                                                <i class="fas fa-file-alt"></i>
+                                                                <span>${book.totalPages} trang</span>
+                                                            </p>
+                                                        </c:if>
+                                                    </div>
+
+                                                    <c:if test="${not empty book.summary}">
+                                                        <p class="card-text book-summary" title="${book.summary}">
+                                                            ${book.summary}
+                                                        </p>
+                                                    </c:if>
+
+                                                    <div class="card-footer-content">
+                                                        <div class="book-price">
+                                                            <c:choose>
+                                                                <c:when
+                                                                    test="${not empty book.price && book.price > 0}">
+                                                                    <span class="price text-success">
+                                                                        <i class="fas fa-money-bill-wave"></i>
+                                                                        <fmt:formatNumber value="${book.price}"
+                                                                                          type="number" maxFractionDigits="0" />
+                                                                        ${not empty book.currency ? book.currency :
+                                                                          'VN�?'}
+                                                                    </span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="price-free text-success">
+                                                                        <i class="fas fa-gift"></i>
+                                                                        Miễn phí
+                                                                    </span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+
+                                                        <div class="book-actions">
+                                                            <c:if test="${sessionScope.userRole == 'Admin' or sessionScope.userRole == 'Librarian' or sessionScope.userRole == 'Seller'}">
+                                                                <a href="${pageContext.request.contextPath}/books/edit/${book.bookId}"
+                                                                   class="btn btn-outline-primary btn-sm">
+                                                                    <i class="fas fa-pen"></i> Sửa
+                                                                </a>
+                                                                <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}"
+                                                                   class="btn btn-primary btn-sm">
+                                                                    <i class="fas fa-eye"></i> Xem
+                                                                </a>
+                                                            </c:if>
+
+                                                            <c:if test="${sessionScope.userRole == 'Admin'}">
+                                                                <form action="${pageContext.request.contextPath}/admin/book-delete"
+                                                                      method="post" style="display:inline;"
+                                                                      onsubmit="return confirm('Vô hiệu hóa sách này?');">
+                                                                    <input type="hidden" name="id" value="${book.bookId}">
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                            title="Vô hiệu hóa sách">
+                                                                        <i class="fas fa-trash-alt"></i> Xóa
+                                                                    </button>
+                                                                </form>
+                                                            </c:if>
+
+                                                            <c:if test="${empty sessionScope.userRole or sessionScope.userRole == 'Reader' or sessionScope.userRole == 'User'}">
+                                                                <c:choose>
+                                                                    <c:when test="${book.status == 'out_of_stock'}">
+                                                                        <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Sách đã hết hàng">
+                                                                            <i class="fas fa-ban"></i> Hết hàng
+                                                                        </button>
+                                                                        <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}" class="btn btn-primary btn-sm">
+                                                                            <i class="fas fa-eye"></i> Xem chi tiết
+                                                                        </a>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <form action="${pageContext.request.contextPath}/customer/cart/add" method="post" style="display:inline;">
+                                                                            <input type="hidden" name="bookId" value="${book.bookId}">
+                                                                            <input type="hidden" name="quantity" value="1">
+                                                                            <button type="submit" class="btn btn-outline-success btn-sm" title="Thêm vào gi�? hàng">
+                                                                                <i class="fas fa-cart-plus"></i> Thêm vào gi�?
+                                                                            </button>
+                                                                        </form>
+
+                                                                        <c:choose>
+                                                                            <c:when test="${empty book.price or book.price == 0}">
+                                                                                <a href="${pageContext.request.contextPath}/customer/read?bookId=${book.bookId}" class="btn btn-primary btn-sm">
+                                                                                    <i class="fas fa-book-open"></i> �?�?c ngay
+                                                                                </a>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <a href="${pageContext.request.contextPath}/books/detail/${book.bookId}" class="btn btn-primary btn-sm">
+                                                                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                                                                </a>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </c:if>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="alert alert-info text-center">
+                                    <div class="no-results-content">
+                                        <i class="fas fa-search fa-3x mb-3"></i>
+                                        <h4>Không tìm thấy sách nào phù hợp</h4>
+                                        <p>Không có sách nào khớp với tiêu chí tìm kiếm của bạn.</p>
+                                        <div class="suggestions">
+                                            <strong>Gợi ý:</strong>
+                                            <ul>
+                                                <li>Thử sử dụng từ khóa khác</li>
+                                                <li>Giảm bớt các bộ l�?c</li>
+                                                <li>Kiểm tra chính tả</li>
+                                                <li>Duyệt qua các thể loại khác nhau</li>
+                                            </ul>
+                                        </div>
+                                        <a href="${pageContext.request.contextPath}/books" class="btn btn-primary mt-3">
+                                            <i class="fas fa-refresh"></i>
+                                            Xem tất cả sách
+                                        </a>
+                                    </div>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </section>
+
+                    <!-- Enhanced Pagination Component -->
+                    <c:if test="${totalPages > 1}">
+                        <div class="pagination-wrapper">
+                            <nav aria-label="Phân trang danh sách sách" class="pagination-nav">
+                                <ul class="pagination justify-content-center">
+
+                                    <!-- Previous Page Button -->
+                                    <li class="page-item ${!hasPreviousPage ? 'disabled' : ''}">
+                                        <c:choose>
+                                            <c:when test="${hasPreviousPage}">
+                                                <a class="page-link" href="${currentUrl}page=${currentPage - 1}"
+                                                   aria-label="Trang trước">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                    <span class="d-none d-sm-inline">Trước</span>
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="page-link disabled">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                    <span class="d-none d-sm-inline">Trước</span>
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </li>
+
+                                    <!-- Page Numbers Logic -->
+                                    <c:set var="startPage" value="${currentPage - 2 < 1 ? 1 : currentPage - 2}" />
+                                    <c:set var="endPage"
+                                           value="${currentPage + 2 > totalPages ? totalPages : currentPage + 2}" />
+
+                                    <!-- First page if not in range -->
+                                    <c:if test="${startPage > 1}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="${currentUrl}page=1">1</a>
+                                        </li>
+                                        <c:if test="${startPage > 2}">
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        </c:if>
+                                    </c:if>
+
+                                    <!-- Page range -->
+                                    <c:forEach var="pageNum" begin="${startPage}" end="${endPage}">
+                                        <li class="page-item ${pageNum == currentPage ? 'active' : ''}">
+                                            <c:choose>
+                                                <c:when test="${pageNum == currentPage}">
+                                                    <span class="page-link current-page">
+                                                        ${pageNum}
+                                                        <span class="sr-only">(trang hiện tại)</span>
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <a class="page-link"
+                                                       href="${currentUrl}page=${pageNum}">${pageNum}</a>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </li>
+                                    </c:forEach>
+
+                                    <!-- Last page if not in range -->
+                                    <c:if test="${endPage < totalPages}">
+                                        <c:if test="${endPage < totalPages - 1}">
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        </c:if>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               href="${currentUrl}page=${totalPages}">${totalPages}</a>
+                                        </li>
+                                    </c:if>
+
+                                    <!-- Next Page Button -->
+                                    <li class="page-item ${!hasNextPage ? 'disabled' : ''}">
+                                        <c:choose>
+                                            <c:when test="${hasNextPage}">
+                                                <a class="page-link" href="${currentUrl}page=${currentPage + 1}"
+                                                   aria-label="Trang sau">
+                                                    <span class="d-none d-sm-inline">Sau</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="page-link disabled">
+                                                    <span class="d-none d-sm-inline">Sau</span>
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </li>
+
+                                </ul>
+
+                                <!-- Quick Jump -->
+                                <div class="pagination-jump d-none d-md-block">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Trang:</span>
+                                        <input type="number" id="jumpToPage" class="form-control" min="1"
+                                               max="${totalPages}" value="${currentPage}" style="width: 80px;">
+                                        <button class="btn btn-outline-primary" onclick="jumpToPage()">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </nav>
+
+                            <!-- Mobile Pagination Summary -->
+                            <div class="pagination-summary d-md-none text-center">
+                                <small class="text-muted">
+                                    Trang ${currentPage} / ${totalPages}
+                                </small>
+                            </div>
+                        </div>
+                    </c:if>
+                </main>
+
+                <!-- Footer -->
+                <footer class="main-footer">
+                    <div class="container">
+                        <div class="footer-content">
+                            <h3 class="footer-title">Thư viện Số FPT University</h3>
+                            <p class="footer-text">
+                                Dự án SWP391 - Hệ thống quản lý thư viện số hiện đại và thân thiện
+                            </p>
+                        </div>
+                    </div>
+                </footer>
+
+                <div class="student-badge">
+                    <i class="fas fa-graduation-cap"></i>
+                    SWP391 Project
+                </div>
+
+                <!-- JavaScript -->
+                <script>
+                    function toggleAdvancedFilters() {
+                        const advancedFilters = document.getElementById('advancedFilters');
+                        const isVisible = advancedFilters.style.display !== 'none';
+
+                        if (isVisible) {
+                            advancedFilters.style.display = 'none';
+                            advancedFilters.classList.remove('show');
+                        } else {
+                            advancedFilters.style.display = 'block';
+                            advancedFilters.classList.add('show');
+                        }
+                    }
+
+                    function clearAllFilters() {
+                        const form = document.getElementById('filterForm');
+                        if (form) {
+                            form.querySelectorAll('input[type="text"], input[type="number"], select').forEach(el => el.value = '');
+                        }
+                        window.location.href = '${pageContext.request.contextPath}/books';
+                    }
+
+                    function changePageSize(newSize) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('pageSize', newSize);
+                        url.searchParams.set('page', '1');
+                        window.location.href = url.toString();
+                    }
+
+                    function jumpToPage() {
+                        const pageInput = document.getElementById('jumpToPage');
+                        const page = parseInt(pageInput.value);
+                        const maxPage = ${ totalPages > 0 ? totalPages : 1
+                    };
+
+                        if (page >= 1 && page <= maxPage) {
+                            window.location.href = '${currentUrl}page=' + page;
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const jumpInput = document.getElementById('jumpToPage');
+                        if (jumpInput) {
+                            jumpInput.addEventListener('keypress', function (e) {
+                                if (e.key === 'Enter') {
+                                    jumpToPage();
+                                }
+                            });
+                        }
+
+                        // Search form submittal state change
+                        const searchForm = document.getElementById('filterForm');
+                        if (searchForm) {
+                            searchForm.addEventListener('submit', function () {
+                                const submitBtn = searchForm.querySelector('.btn-search');
+                                if (submitBtn) {
+                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> �?ang tìm...';
+                                    submitBtn.style.opacity = '0.8';
+                                    submitBtn.style.pointerEvents = 'none';
+                                }
+                            });
+                        }
+                    });
+                </script>
+            </body>
+
+        </html>
