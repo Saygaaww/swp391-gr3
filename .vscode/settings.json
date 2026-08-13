@@ -1,5 +1,5 @@
 {
-    "snyk.advanced.autoSelectOrganization": true,
+    "snyk.advanced.autoSelectOrganization": false,
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
     "java.compiler.release": 17,

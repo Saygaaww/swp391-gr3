@@ -1,4 +1,0 @@
-﻿Changed database context to 'DigitalLibraryDB'.
-Ä?A£ thAªm cá»Tt request_id vA  FK_Fine_BorrowRequest vA o báº£ng Fine.
-Ä?A£ thAªm cá»Tt fine_id vA  FK_Payment_Fine vA o báº£ng Payment.
-Database patch completed successfully!

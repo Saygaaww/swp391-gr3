@@ -15,6 +15,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "cypress": "^15.18.0"
+    "cypress": "^15.18.1"
+  },
+  "dependencies": {
+    "html-to-docx": "^1.8.0"
   }
 }
